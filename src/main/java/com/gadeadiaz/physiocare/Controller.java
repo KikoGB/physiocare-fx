@@ -309,6 +309,10 @@ public class Controller implements Initializable, CloseController {
                     return null;
                 });
     }
+    private void getRecords() {
+        showListPanel();
+        executePhysioCompletableFuture(ServiceUtils.SERVER + "records");
+    }
 
 
 

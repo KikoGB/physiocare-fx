@@ -148,7 +148,7 @@
                   </SplitMenuButton>
                </children>
             </Pane>
-                <Pane fx:id="pnlList" prefHeight="200.0" prefWidth="200.0">
+                <Pane fx:id="pnlList" prefHeight="200.0" prefWidth="200.0" visible="false">
                     <children>
                         <TextField fx:id="txtSearch" layoutX="590.0" layoutY="47.0" prefHeight="27.0" prefWidth="183.0" promptText="search" style="-fx-background-color: #02030A; -fx-border-color: #B7C3D7; -fx-border-radius: 2em; -fx-text-fill: #B7C3D7;" />
                         <Label fx:id="lblTitle" layoutX="57.0" layoutY="25.0" text="Patients" textFill="#e7e5e5">
