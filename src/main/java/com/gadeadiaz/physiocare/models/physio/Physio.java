@@ -1,36 +1,31 @@
 package com.gadeadiaz.physiocare.models.physio;
 
+import com.gadeadiaz.physiocare.models.appointment.Appointment;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
 
 /**
  * Class Physio represents a physio entity with personal, professional, and contact details.
  */
 public class Physio {
-    @SerializedName("_id")
-    private String id;
+    private int id;
     private String name;
     private String surname;
     private String specialty;
     private String licenseNumber;
     private String email;
-    private String image;
+    private String avatar;
+    private List<Appointment> appointments;
 
-    public Physio() {
-    }
-
-    public Physio(String id, String name, String surname, String specialty, String licenseNumber, String email, String image) {
-        this.id = id;
-        this.name = name;
-        this.surname = surname;
-        this.specialty = specialty;
-        this.licenseNumber = licenseNumber;
-        this.email = email;
-        this.image = image;
-    }
-
-    public String getId() {
+    public int getId() {
         return id;
     }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
     }
@@ -71,12 +66,20 @@ public class Physio {
         this.email = email;
     }
 
-    public String getImage() {
-        return image;
+    public String getAvatar() {
+        return avatar;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public List<Appointment> getAppointments() {
+        return appointments;
+    }
+
+    public void setAppointments(List<Appointment> appointments) {
+        this.appointments = appointments;
     }
 
     @Override

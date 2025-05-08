@@ -172,6 +172,7 @@ public class Controller implements Initializable, CloseController {
                 .thenApply(json -> gson.fromJson(json, PatientListResponse.class))
                 .thenAccept(response -> {
                     if (response.isOk() && response.getPatients() != null) {
+                        response.getPatients().forEach(System.out::println);
                         Platform.runLater(() -> {
                             selectedListEntity = ENTITIES.PATIENT;
                             showPatients(response.getPatients());
@@ -201,7 +202,7 @@ public class Controller implements Initializable, CloseController {
             try {
                 Node node = loader.load();
                 UserItemController controller = loader.getController();
-                controller.setUserId(patient.getId());
+                //controller.setUserId(patient.getId());
                 controller.setLblAttribute1(patient.getName());
                 controller.setLblAttribute2(patient.getSurname());
                 controller.setLblAttribute3(patient.getEmail());
@@ -323,7 +324,7 @@ public class Controller implements Initializable, CloseController {
                 Node node = loader.load();
                 UserItemController controller = loader.getController();
 
-                controller.setUserId(physio.getId());
+                //controller.setUserId(physio.getId());
 
                 controller.setDetailListener(idPatient -> {
                     selectedPhysio = physio;
@@ -402,7 +403,7 @@ public class Controller implements Initializable, CloseController {
         splitSpecialty.setVisible(false);
         dpBirthDate.setDisable(true);
         dpBirthDate.setEditable(false);
-        dpBirthDate.setValue(selectedPatient.getBirthDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+        //dpBirthDate.setValue(selectedPatient.getBirthDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
         btnDetail.setText("EDIT");
     }
 
@@ -602,20 +603,20 @@ public class Controller implements Initializable, CloseController {
      */
     public void btnDetailClick() {
         if(btnDetail.getText().equals("CREATE") ) {
-            if(selectedPatient.getId() == null && dpBirthDate.isVisible()){
+            /*if(selectedPatient.getId() == null && dpBirthDate.isVisible()){
                 postPatient();
             }
 
             if(selectedPhysio.getId() == null && splitSpecialty.isVisible()){
                 postPhysio();
-            }
+            }*/
         } else if(btnDetail.getText().equals("SAVE")) {
-            if(selectedPatient != null && selectedPatient.getId() != null){
+            /*if(selectedPatient != null && selectedPatient.getId() != null){
                 putPatient();
             }
             if(selectedPhysio != null && selectedPhysio.getId() != null){
                 putPhysio();
-            }
+            }*/
         } else if (btnDetail.getText().equals("EDIT")) {
             btnDetail.setText("SAVE");
             editFormTextFields(true);
