@@ -1,7 +1,4 @@
-package com.gadeadiaz.physiocare.models.physio;
-
-import com.gadeadiaz.physiocare.models.appointment.Appointment;
-import com.google.gson.annotations.SerializedName;
+package com.gadeadiaz.physiocare.models;
 
 import java.util.List;
 

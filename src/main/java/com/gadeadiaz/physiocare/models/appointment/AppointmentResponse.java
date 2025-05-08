@@ -1,5 +1,6 @@
 package com.gadeadiaz.physiocare.models.appointment;
 
+import com.gadeadiaz.physiocare.models.Appointment;
 import com.gadeadiaz.physiocare.models.BaseResponse;
 
 /**

@@ -1,4 +1,4 @@
-package com.gadeadiaz.physiocare.models.user;
+package com.gadeadiaz.physiocare.models;
 
 /**
  *  Class User represents a user entity with authentication and identification details.

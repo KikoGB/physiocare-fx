@@ -1,7 +1,7 @@
 package com.gadeadiaz.physiocare.models.patient;
 
 import com.gadeadiaz.physiocare.models.BaseResponse;
-import com.google.gson.annotations.SerializedName;
+import com.gadeadiaz.physiocare.models.Patient;
 
 import java.util.List;
 

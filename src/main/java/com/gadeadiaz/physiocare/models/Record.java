@@ -1,6 +1,4 @@
-package com.gadeadiaz.physiocare.models.record;
-
-import com.gadeadiaz.physiocare.models.appointment.Appointment;
+package com.gadeadiaz.physiocare.models;
 
 import java.util.List;
 

@@ -35,6 +35,7 @@ public class LoginService {
                 Message.showError("Credenciales invalidas", "Credenciales invalidas");
             }
         } catch (Exception e) {
+            e.printStackTrace();
             Message.showError(
                     "Unexpected error", "An unexpected error has happened, please try again."
             );
