@@ -2,16 +2,18 @@ package com.gadeadiaz.physiocare;
 
 import com.gadeadiaz.physiocare.controllers.CloseController;
 import com.gadeadiaz.physiocare.controllers.UserItemController;
-import com.gadeadiaz.physiocare.models.patient.Patient;
+import com.gadeadiaz.physiocare.models.Patient;
 import com.gadeadiaz.physiocare.models.patient.PatientListResponse;
 import com.gadeadiaz.physiocare.models.patient.PatientResponse;
 import com.gadeadiaz.physiocare.models.physio.PhysioResponse;
 import com.gadeadiaz.physiocare.models.record.RecordListResponse;
 import com.gadeadiaz.physiocare.utils.Message;
 import com.gadeadiaz.physiocare.utils.SceneLoader;
-import com.gadeadiaz.physiocare.models.physio.Physio;
+import com.gadeadiaz.physiocare.models.Physio;
 import com.gadeadiaz.physiocare.models.physio.PhysioListResponse;
+import com.gadeadiaz.physiocare.utils.Storage;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -26,11 +28,12 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.time.ZoneId;
 import java.util.*;
 
-public class Controller implements Initializable, CloseController {
+public class Controller implements CloseController {
 
     @FXML
     private TextField txtSearch;
@@ -97,13 +100,7 @@ public class Controller implements Initializable, CloseController {
     @FXML
     private VBox pnItems;
 
-    /**
-     * Initializes the controller. Retrieves the list of patients on startup.
-     * @param url The location used to resolve relative paths for the root object, or null if the location is not known.
-     * @param resourceBundle The resources used to localize the root object, or null if no localization is needed.
-     */
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public void initialize() {
         getPatients();
     }
 
@@ -112,55 +109,8 @@ public class Controller implements Initializable, CloseController {
      * If the list is empty or there is an error, an informational message is displayed.
      */
     private void getPatients() {
-        getPatientRecord();
         showListPanel();
-        String apiUrl = ServiceUtils.SERVER + "patients";
-        executePatientsCompletableFuture(apiUrl);
-    }
-
-    private void getPatientRecord() {
-        ServiceUtils.getResponseAsync(ServiceUtils.SERVER + "records/find?surname=Sanz", null, "GET")
-                .thenApply(json -> gson.fromJson(json, RecordListResponse.class))
-                .thenAccept(response -> {
-                    if (response.isOk()) {
-                        Platform.runLater(() -> {
-                            System.out.println("Records");
-                            System.out.println(response.getResult());
-                        });
-                    } else {
-                        Platform.runLater(() -> Message.showMessage(Alert.AlertType.INFORMATION, "Info", "Empty List", response.getError()));
-                    }
-                })
-                .exceptionally(ex -> {
-                    System.out.println("Get record error -> " + ex.getMessage());
-                    Platform.runLater(() -> {
-                        Message.showError("Error", "Failed to fetch record");
-                        openLoginView(stage);
-                    });
-                    return null;
-                });
-    }
-
-    private void getSinglePatient() {
-        ServiceUtils.getResponseAsync(ServiceUtils.SERVER + "patients/67fc2eff27172999606c70d0", null, "GET")
-            .thenApply(json -> gson.fromJson(json, PatientResponse.class))
-            .thenAccept(response -> {
-                if (response.isOk()) {
-                    Platform.runLater(() -> {
-                        System.out.println(response.getResult());
-                    });
-                } else {
-                    Platform.runLater(() -> Message.showMessage(Alert.AlertType.INFORMATION, "Info", "Empty List", response.getError()));
-                }
-            })
-            .exceptionally(ex -> {
-                System.out.println("Get patients error -> " + ex.getMessage());
-                Platform.runLater(() -> {
-                    Message.showError("Error", "Failed to fetch patients");
-                    openLoginView(stage);
-                });
-                return null;
-            });
+        executePatientsCompletableFuture(ServiceUtils.SERVER + "patients");
     }
 
     private void getPatientsBySurname() {
@@ -169,20 +119,29 @@ public class Controller implements Initializable, CloseController {
 
     private void executePatientsCompletableFuture(String apiUrl) {
         ServiceUtils.getResponseAsync(apiUrl, null, "GET")
-                .thenApply(json -> gson.fromJson(json, PatientListResponse.class))
-                .thenAccept(response -> {
-                    if (response.isOk() && response.getPatients() != null) {
-                        response.getPatients().forEach(System.out::println);
+                .thenApply(response -> {
+                    // valorar cuando sea una respuesta de error, {message, code}
+                    Type listType = new TypeToken<List<Patient>>() {}.getType();
+                    return gson.fromJson(response, listType);
+                }).thenAccept(response -> {
+                    List<Patient> patients = (List<Patient>) response;
+                    if (patients.isEmpty()) {
+                        Platform.runLater(() ->
+                                Message.showMessage(
+                                        Alert.AlertType.INFORMATION,
+                                        "Info",
+                                        "Empty List",
+                                        "There are no patients in the system"
+                                )
+                        );
+                    } else {
                         Platform.runLater(() -> {
                             selectedListEntity = ENTITIES.PATIENT;
-                            showPatients(response.getPatients());
+                            showPatients(patients);
                         });
-                    } else {
-                        Platform.runLater(() -> Message.showMessage(Alert.AlertType.INFORMATION, "Info", "Empty List", response.getError()));
                     }
-                })
-                .exceptionally(ex -> {
-                    System.out.println("Get patients error -> " + ex.getMessage());
+                }).exceptionally(e -> {
+                    e.printStackTrace();
                     Platform.runLater(() -> {
                         Message.showError("Error", "Failed to fetch patients");
                         openLoginView(stage);
@@ -478,7 +437,7 @@ public class Controller implements Initializable, CloseController {
         }
 
         if(actionEvent.getSource() == btnLogout) {
-            ServiceUtils.removeToken();
+            Storage.getInstance().clearData();
             openLoginView(stage);
         }
     }

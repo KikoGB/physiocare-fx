@@ -5,7 +5,7 @@ import javafx.util.Pair;
 public class Storage {
     private static Storage INSTANCE;
     // Representa el Token y el Rol del usuario logeado
-    private Pair<String, String> userdata = new Pair<>("", "");
+    private Pair<String, String> userdata = null;
 
     private Storage() {}
 
@@ -23,5 +23,9 @@ public class Storage {
 
     public void setUserdata(String token, String rol) {
         this.userdata = new Pair<>(token, rol);
+    }
+
+    public void clearData() {
+        userdata = null;
     }
 }

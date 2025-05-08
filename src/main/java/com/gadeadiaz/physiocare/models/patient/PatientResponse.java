@@ -1,6 +1,7 @@
 package com.gadeadiaz.physiocare.models.patient;
 
 import com.gadeadiaz.physiocare.models.BaseResponse;
+import com.gadeadiaz.physiocare.models.Patient;
 
 /**
  *  Class PatientResponse represents a API response object that contains the details of a single patient.

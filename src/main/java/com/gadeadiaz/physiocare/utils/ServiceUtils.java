@@ -1,5 +1,7 @@
 package com.gadeadiaz.physiocare.utils;
 
+import javafx.util.Pair;
+
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -14,31 +16,9 @@ import java.util.zip.GZIPInputStream;
  * and charset detection.
  */
 public class ServiceUtils {
-
-    /** Authorization token used for authenticated requests */
-    private static String token = null;
-
-    /** Base server URL for requests */
-
     public static final String SERVER = "https://api.daviddp.dev/";
     //public static final String SERVER = "https://kikogadea.es/";
 //    public static final String SERVER = "http://localhost:8085/";
-
-    /**
-     * Sets the authorization token for subsequent HTTP requests.
-     *
-     * @param token the Bearer token string
-     */
-    public static void setToken(String token) {
-        ServiceUtils.token = token;
-    }
-
-    /**
-     * Removes the currently stored authorization token.
-     */
-    public static void removeToken() {
-        ServiceUtils.token = null;
-    }
 
     /**
      * Extracts the charset (e.g., UTF-8, ISO-8859-1) from a Content-Type header string.
@@ -82,9 +62,9 @@ public class ServiceUtils {
             conn.setRequestProperty("Accept-Charset", "UTF-8");
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36");
 
-            // Add Authorization header if token is set
-            if(token != null) {
-                conn.setRequestProperty("Authorization", "Bearer " + token);
+            Pair<String, String> userdata = Storage.getInstance().getUserdata();
+            if (userdata != null) {
+                conn.setRequestProperty("Authorization", "Bearer " + userdata.getKey());
             }
 
             // Send request data if provided
