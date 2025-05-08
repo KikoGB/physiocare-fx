@@ -1,39 +1,32 @@
 package com.gadeadiaz.physiocare.models.patient;
 
-import com.google.gson.annotations.SerializedName;
+import com.gadeadiaz.physiocare.models.appointment.Appointment;
+import com.gadeadiaz.physiocare.models.record.Record;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  *  Class Patient Represents a patient entity with personal and contact information.
  */
 public class Patient {
-    @SerializedName("_id")
-    private String id;
+    private int id;
     private String name;
     private String surname;
-    private Date birthDate;
+    private Date birthdate;
     private String address;
     private String insuranceNumber;
     private String email;
-    private String image;
+    private String avatar;
+    private List<Appointment> appointments;
+    private Record record;
 
-    public Patient() {
-    }
-
-    public Patient(String id, String name, String surname, Date birthDate, String address, String insuranceNumber, String email, String image) {
-        this.id = id;
-        this.name = name;
-        this.surname = surname;
-        this.birthDate = birthDate;
-        this.address = address;
-        this.insuranceNumber = insuranceNumber;
-        this.email = email;
-        this.image = image;
-    }
-
-    public String getId() {
+    public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -52,12 +45,12 @@ public class Patient {
         this.surname = surname;
     }
 
-    public Date getBirthDate() {
-        return birthDate;
+    public Date getBirthdate() {
+        return birthdate;
     }
 
-    public void setBirthDate(Date birthDate) {
-        this.birthDate = birthDate;
+    public void setBirthdate(Date birthdate) {
+        this.birthdate = birthdate;
     }
 
     public String getAddress() {
@@ -84,16 +77,33 @@ public class Patient {
         this.email = email;
     }
 
-    public String getImage() {
-        return image;
+    public String getAvatar() {
+        return avatar;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public List<Appointment> getAppointments() {
+        return appointments;
+    }
+
+    public void setAppointments(List<Appointment> appointments) {
+        this.appointments = appointments;
+    }
+
+    public Record getRecord() {
+        return record;
+    }
+
+    public void setRecord(Record record) {
+        this.record = record;
     }
 
     @Override
     public String toString() {
-        return "Patient -> " + name + " " + surname + ", " + birthDate + ", " + address + ", " + insuranceNumber;
+        return "Patient -> " + name + " " + surname + ", " + birthdate + ", " + address + ", "
+                + insuranceNumber;
     }
 }

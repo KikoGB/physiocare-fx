@@ -1,44 +1,21 @@
 package com.gadeadiaz.physiocare.models.record;
 
-import com.google.gson.annotations.SerializedName;
 import com.gadeadiaz.physiocare.models.appointment.Appointment;
 
 import java.util.List;
 
 public class Record {
-    @SerializedName("_id")
-    private String id;
-    private String patient;
+    private int id;
     private String medicalRecord;
+    private String patient;
     private List<Appointment> appointments;
 
-    public Record(String id, String patient, String medicalRecord, List<Appointment> appointments) {
-        this.id = id;
-        this.patient = patient;
-        this.medicalRecord = medicalRecord;
-        this.appointments = appointments;
-    }
-
-    public Record(String patient, String medicalRecord, List<Appointment> appointments) {
-        this.patient = patient;
-        this.medicalRecord = medicalRecord;
-        this.appointments = appointments;
-    }
-
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
-    }
-
-    public String getPatient() {
-        return patient;
-    }
-
-    public void setPatient(String patient) {
-        this.patient = patient;
     }
 
     public String getMedicalRecord() {
@@ -47,6 +24,14 @@ public class Record {
 
     public void setMedicalRecord(String medicalRecord) {
         this.medicalRecord = medicalRecord;
+    }
+
+    public String getPatient() {
+        return patient;
+    }
+
+    public void setPatient(String patient) {
+        this.patient = patient;
     }
 
     public List<Appointment> getAppointments() {

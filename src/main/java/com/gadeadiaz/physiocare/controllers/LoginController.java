@@ -70,8 +70,8 @@ public class LoginController implements Initializable, CloseController {
         String password = txtPassword.getText();
 
         // Temporary hardcoded credentials (for testing/demo purposes)
-        login = "F4321098";
-        password = "adminPass123";
+        login = "Sergi";
+        password = "1234567";
 
         if (Validations.validateLogin(login) && Validations.validatePassword(password)) {
             if (LoginService.login(login, password)) {

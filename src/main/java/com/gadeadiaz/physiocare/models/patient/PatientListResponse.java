@@ -6,13 +6,12 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 /**
- *  Class PatientListResponse Represents a API response containing a list of patients.
+ *  Class PatientListResponse Represents an API response containing a list of patients.
  */
 public class PatientListResponse extends BaseResponse {
-    @SerializedName("result")
-    private List<Patient> result;
+    private List<Patient> patients;
 
     public List<Patient> getPatients() {
-        return result;
+        return patients;
     }
 }

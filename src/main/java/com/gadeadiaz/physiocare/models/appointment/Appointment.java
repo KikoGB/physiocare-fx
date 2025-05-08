@@ -1,5 +1,7 @@
 package com.gadeadiaz.physiocare.models.appointment;
 
+import com.gadeadiaz.physiocare.models.patient.Patient;
+import com.gadeadiaz.physiocare.models.physio.Physio;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
@@ -8,33 +10,20 @@ import java.util.Date;
  * Class Appointment represents an appointment for a user's Medical Record
  */
 public class Appointment {
-    @SerializedName("_id")
-    private String id;
+    private int id;
     private Date date;
     private String diagnosis;
     private String treatment;
     private String observations;
+    private Boolean confirmed;
+    private Patient patient;
+    private Physio physio;
 
-    public Appointment(String id, Date date, String diagnosis, String treatment, String observations) {
-        this.id = id;
-        this.date = date;
-        this.diagnosis = diagnosis;
-        this.treatment = treatment;
-        this.observations = observations;
-    }
-
-    public Appointment(Date date, String diagnosis, String treatment, String observations) {
-        this.date = date;
-        this.diagnosis = diagnosis;
-        this.treatment = treatment;
-        this.observations = observations;
-    }
-
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -68,6 +57,30 @@ public class Appointment {
 
     public void setObservations(String observations) {
         this.observations = observations;
+    }
+
+    public Boolean getConfirmed() {
+        return confirmed;
+    }
+
+    public void setConfirmed(Boolean confirmed) {
+        this.confirmed = confirmed;
+    }
+
+    public Patient getPatient() {
+        return patient;
+    }
+
+    public void setPatient(Patient patient) {
+        this.patient = patient;
+    }
+
+    public Physio getPhysio() {
+        return physio;
+    }
+
+    public void setPhysio(Physio physio) {
+        this.physio = physio;
     }
 
     @Override

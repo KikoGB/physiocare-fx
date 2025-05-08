@@ -19,7 +19,9 @@ public class ServiceUtils {
     private static String token = null;
 
     /** Base server URL for requests */
-        public static final String SERVER = "https://kikogadea.es/";
+
+    public static final String SERVER = "https://api.daviddp.dev/";
+    //public static final String SERVER = "https://kikogadea.es/";
 //    public static final String SERVER = "http://localhost:8085/";
 
     /**
