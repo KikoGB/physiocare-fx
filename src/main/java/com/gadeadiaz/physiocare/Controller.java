@@ -2,11 +2,14 @@ package com.gadeadiaz.physiocare;
 
 import com.gadeadiaz.physiocare.controllers.CloseController;
 import com.gadeadiaz.physiocare.controllers.UserItemController;
+import com.gadeadiaz.physiocare.exceptions.RequestErrorException;
+import com.gadeadiaz.physiocare.models.ErrorResponse;
 import com.gadeadiaz.physiocare.models.Patient;
 import com.gadeadiaz.physiocare.models.patient.PatientListResponse;
 import com.gadeadiaz.physiocare.models.patient.PatientResponse;
 import com.gadeadiaz.physiocare.models.physio.PhysioResponse;
 import com.gadeadiaz.physiocare.models.record.RecordListResponse;
+import com.gadeadiaz.physiocare.services.PatientService;
 import com.gadeadiaz.physiocare.utils.Message;
 import com.gadeadiaz.physiocare.utils.SceneLoader;
 import com.gadeadiaz.physiocare.models.Physio;
@@ -89,6 +92,10 @@ public class Controller implements CloseController {
     private Label txtPatientsCount;
     @FXML
     private Label lblColumn4;
+
+    @FXML
+    private VBox pnItems;
+
     private final Gson gson = new Gson();
     private Stage stage;
     private Patient selectedPatient;
@@ -97,67 +104,16 @@ public class Controller implements CloseController {
     private enum ENTITIES{PATIENT, PHYSIO}
     private ENTITIES selectedListEntity = ENTITIES.PATIENT;
 
-    @FXML
-    private VBox pnItems;
-
     public void initialize() {
         getPatients();
     }
 
-    /**
-     * Fetches the list of patients from the server and updates the UI with the retrieved data.
-     * If the list is empty or there is an error, an informational message is displayed.
-     */
-    private void getPatients() {
-        showListPanel();
-        executePatientsCompletableFuture(ServiceUtils.SERVER + "patients");
-    }
-
-    private void getPatientsBySurname() {
-        executePatientsCompletableFuture(ServiceUtils.SERVER + "patients/find?surname=" + txtSearch.getText());
-    }
-
-    private void executePatientsCompletableFuture(String apiUrl) {
-        ServiceUtils.getResponseAsync(apiUrl, null, "GET")
-                .thenApply(response -> {
-                    // valorar cuando sea una respuesta de error, {message, code}
-                    Type listType = new TypeToken<List<Patient>>() {}.getType();
-                    return gson.fromJson(response, listType);
-                }).thenAccept(response -> {
-                    List<Patient> patients = (List<Patient>) response;
-                    if (patients.isEmpty()) {
-                        Platform.runLater(() ->
-                                Message.showMessage(
-                                        Alert.AlertType.INFORMATION,
-                                        "Info",
-                                        "Empty List",
-                                        "There are no patients in the system"
-                                )
-                        );
-                    } else {
-                        Platform.runLater(() -> {
-                            selectedListEntity = ENTITIES.PATIENT;
-                            showPatients(patients);
-                        });
-                    }
-                }).exceptionally(e -> {
-                    e.printStackTrace();
-                    Platform.runLater(() -> {
-                        Message.showError("Error", "Failed to fetch patients");
-                        openLoginView(stage);
-                    });
-                    return null;
-                });
-    }
-
-    /**
-     * Displays the list of patients on the UI.
-     * @param patients The list of patients to be displayed.
-     */
     private void showPatients(List<Patient> patients) {
         pnItems.getChildren().clear();
         for (Patient patient : patients) {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/gadeadiaz/physiocare/user_item.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/com/gadeadiaz/physiocare/user_item.fxml"
+            ));
             try {
                 Node node = loader.load();
                 UserItemController controller = loader.getController();
@@ -187,6 +143,30 @@ public class Controller implements CloseController {
             }
         }
         txtPatientsCount.setText(String.valueOf(patients.size()));
+    }
+
+    private void getPatients() {
+        showListPanel();
+        PatientService.getPatients("").thenAccept(this::showPatients)
+                .exceptionally(e -> {
+                    e.printStackTrace();
+                    RequestErrorException ex = (RequestErrorException) e.getCause();
+                    ErrorResponse errorResponse = ex.getErrorResponse();
+                    Platform.runLater(() ->
+                            Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                    );
+                    return null;
+                });
+    }
+
+    private void getPatientsBySurname() {
+        PatientService.getPatients(txtSearch.getText()).thenAccept(this::showPatients)
+                .exceptionally(e -> {
+                    RequestErrorException ex = (RequestErrorException) e.getCause();
+                    ErrorResponse errorResponse = ex.getErrorResponse();
+                    Message.showError(errorResponse.getError(), errorResponse.getMessage());
+                    return null;
+                });
     }
 
     /**

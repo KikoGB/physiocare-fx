@@ -5,7 +5,7 @@ import java.util.List;
 public class Record {
     private int id;
     private String medicalRecord;
-    private String patient;
+    private Patient patient;
     private List<Appointment> appointments;
 
     public int getId() {
@@ -24,11 +24,11 @@ public class Record {
         this.medicalRecord = medicalRecord;
     }
 
-    public String getPatient() {
+    public Patient getPatient() {
         return patient;
     }
 
-    public void setPatient(String patient) {
+    public void setPatient(Patient patient) {
         this.patient = patient;
     }
 
