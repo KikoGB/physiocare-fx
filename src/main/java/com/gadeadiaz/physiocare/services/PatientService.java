@@ -38,7 +38,6 @@ public class PatientService {
                 "GET"
         ).thenApply(response -> gson.fromJson(response, Patient.class));
     }
-
     public static CompletableFuture<List<Appointment>> getPatientAppointments(int id)
             throws RequestErrorException {
         return ServiceUtils.getResponseAsync(
@@ -61,5 +60,13 @@ public class PatientService {
             Type listType = new TypeToken<Patient>() {}.getType();
             return gson.fromJson(response, listType);
         });
+    }
+
+    public static CompletableFuture<Void> deletePatient(int id) throws RequestErrorException {
+        return ServiceUtils.getResponseAsync(
+                ServiceUtils.SERVER + "patients/" + id,
+                null,
+                "DELETE"
+        ).thenApply(_ -> null);
     }
 }

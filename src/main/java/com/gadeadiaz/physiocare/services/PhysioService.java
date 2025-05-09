@@ -45,4 +45,12 @@ public class PhysioService {
             return gson.fromJson(response, listType);
         });
     }
+
+    public static CompletableFuture<Void> deletePhysio(int id) throws RequestErrorException {
+        return ServiceUtils.getResponseAsync(
+                ServiceUtils.SERVER + "physios/" + id,
+                null,
+                "DELETE"
+        ).thenApply(null);
+    }
 }

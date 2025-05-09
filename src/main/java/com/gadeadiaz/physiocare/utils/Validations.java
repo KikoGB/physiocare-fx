@@ -9,7 +9,7 @@ package com.gadeadiaz.physiocare.utils;
 public class Validations {
     public static boolean validateField(boolean condition, String messageToShow) {
         if (condition) {
-            Message.showError("Error in form", messageToShow);
+
             return false;
         }
         return true;

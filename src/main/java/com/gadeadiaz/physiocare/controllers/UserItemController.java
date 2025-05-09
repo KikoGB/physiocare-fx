@@ -4,7 +4,9 @@ import com.gadeadiaz.physiocare.controllers.interfaces.DeleteListener;
 import com.gadeadiaz.physiocare.controllers.interfaces.DetailListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 
 public class UserItemController {
     @FXML
@@ -15,24 +17,28 @@ public class UserItemController {
     private Label lblAttribute3;
     @FXML
     private Label lblAttribute4;
+    @FXML
+    private Button btnDetailClick;
+    @FXML
+    private Button btnDeleteClick;
 
     private int userId;
-
-    private DetailListener detailListener; //Reference to the father (home) that receive the click
+    private DetailListener detailListener;
     private DeleteListener deleteListener;
+    private Stage stage;
 
-    //Setter that was called from the father controller
     public void setUserId(int userId) {
         this.userId = userId;
     }
-
-    //Setter to the listener to registrate who receives the callback
     public void setDetailListener(DetailListener detailListener) {
         this.detailListener = detailListener;
     }
 
     public void setDeleteListener(DeleteListener deleteListener) {
         this.deleteListener = deleteListener;
+    }
+    public void setStage(Stage stage) {
+        this.stage = stage;
     }
 
     public void setLblAttribute1(String name) {
@@ -51,13 +57,15 @@ public class UserItemController {
         this.lblAttribute4.setText(address);
     }
 
-    public void detailClick(ActionEvent actionEvent) {
-        //If we have click listener on and a user id. We warn to the father
-        detailListener.onDetailClick(userId); //Returns the user id to the father
+    public void setBtnDeleteVisibility(boolean visibility) {
+        this.btnDeleteClick.setVisible(visibility);
     }
 
-    public void deleteClick(ActionEvent actionEvent) {
-        //If we have click listener on and a user id. We warn to the father
-        deleteListener.onDeletetClick(userId); //Returns the user id to the father
+    public void detailClick() {
+        detailListener.onDetailClick(userId);
+    }
+
+    public void deleteClick() {
+        deleteListener.onDeletetClick(userId);
     }
 }

@@ -8,6 +8,12 @@ import com.gadeadiaz.physiocare.exceptions.RequestErrorException;
 import com.gadeadiaz.physiocare.models.*;
 import com.gadeadiaz.physiocare.models.Record;
 import com.gadeadiaz.physiocare.requests.PatientPOSTRequest;
+import com.gadeadiaz.physiocare.models.Appointment;
+import com.gadeadiaz.physiocare.models.Record;
+import com.gadeadiaz.physiocare.requests.AppointmentPOSTRequest;
+import com.gadeadiaz.physiocare.models.User;
+import com.gadeadiaz.physiocare.requests.AppointmentPOSTRequest;
+import com.gadeadiaz.physiocare.requests.PatientPOSTRequest;
 import com.gadeadiaz.physiocare.responses.ErrorResponse;
 import com.gadeadiaz.physiocare.services.PatientService;
 import com.gadeadiaz.physiocare.services.PhysioService;
@@ -137,8 +143,6 @@ public class Controller implements CloseController {
     private Physio selectedPhysio;
     private Appointment selectedAppointment;
 
-
-
     private enum Entity { PATIENT, PHYSIO, RECORD, APPOINTMENT }
     private Entity selectedListEntity = Entity.PATIENT;
 
@@ -204,26 +208,44 @@ public class Controller implements CloseController {
             ));
             try {
                 Node node = loader.load();
-                UserItemController controller = loader.getController();
-                //controller.setUserId(patient.getId());
-                controller.setLblAttribute1(patient.getName());
-                controller.setLblAttribute2(patient.getSurname());
-                controller.setLblAttribute3(patient.getEmail());
-                controller.setLblAttribute4(patient.getInsuranceNumber());
+                UserItemController userItemController = loader.getController();
+
+                userItemController.setUserId(patient.getId());
+                userItemController.setLblAttribute1(patient.getName());
+                userItemController.setLblAttribute2(patient.getSurname());
+                userItemController.setLblAttribute3(patient.getEmail());
+                userItemController.setLblAttribute4(patient.getInsuranceNumber());
 
                 node.setOnMouseEntered(_ -> node.setStyle("-fx-background-color : #0A0E3F"));
                 node.setOnMouseExited(_ -> node.setStyle("-fx-background-color : #02030A"));
 
-                controller.setDetailListener(_ -> {
+                userItemController.setDetailListener(_ -> {
                     selectedPatient = patient;
                     selectedPhysio = null;
                     showPatientDetail(patient);
+//                    showPatientForm();
                 });
 
-                controller.setDeleteListener(_ -> {
-                    selectedPatient = patient;
-                    deletePatient();
-                });
+                userItemController.setDeleteListener(idPatient ->
+                    PatientService.deletePatient(idPatient).thenAccept(_ -> {
+                        getPatients();
+                        Platform.runLater(() ->
+                                Message.showMessage(
+                                        Alert.AlertType.CONFIRMATION,
+                                        "Delete",
+                                        "Patient deleted",
+                                        "Patient successfully deleted"
+                                )
+                        );
+                    }).exceptionally(e -> {
+                        RequestErrorException ex = (RequestErrorException) e;
+                        ErrorResponse errorResponse = ex.getErrorResponse();
+                        Platform.runLater(() ->
+                                Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                        );
+                        return null;
+                    })
+                );
 
                 pnItems.getChildren().add(node);
             } catch (IOException e) {
@@ -286,27 +308,50 @@ public class Controller implements CloseController {
             );
             try {
                 Node node = loader.load();
-                UserItemController controller = loader.getController();
+                UserItemController userItemController = loader.getController();
 
-                //controller.setUserId(physio.getId());
-                controller.setLblAttribute1(physio.getName());
-                controller.setLblAttribute2(physio.getSurname());
-                controller.setLblAttribute3(physio.getEmail());
-                controller.setLblAttribute4(physio.getLicenseNumber());
+                userItemController.setUserId(physio.getId());
+                userItemController.setLblAttribute1(physio.getName());
+                userItemController.setLblAttribute2(physio.getSurname());
+                userItemController.setLblAttribute3(physio.getEmail());
+                userItemController.setLblAttribute4(physio.getLicenseNumber());
 
                 node.setOnMouseEntered(_ -> node.setStyle("-fx-background-color : #0A0E3F"));
                 node.setOnMouseExited(_ -> node.setStyle("-fx-background-color : #02030A"));
 
-                controller.setDetailListener(_ -> {
+                userItemController.setDetailListener(_ -> {
                     selectedPhysio = physio;
                     selectedPatient = null;
                     showPhysio();
                 });
 
-                controller.setDeleteListener(_ -> {
-                    selectedPhysio = physio;
-                    deletePhysio();
-                });
+                if (Storage.getInstance().getUserdata().getValue().equals("physio")) {
+                    userItemController.setBtnDeleteVisibility(false);
+
+                    userItemController.setDeleteListener(idPhysio ->
+                            PhysioService.deletePhysio(idPhysio).thenAccept(_ -> {
+                                getPhysios();
+                                Platform.runLater(() ->
+                                        Message.showMessage(
+                                                Alert.AlertType.CONFIRMATION,
+                                                "Delete",
+                                                "Physio deleted",
+                                                "Physio successfully deleted"
+                                        )
+                                );
+                            }).exceptionally(e -> {
+                                RequestErrorException ex = (RequestErrorException) e;
+                                ErrorResponse errorResponse = ex.getErrorResponse();
+                                Platform.runLater(() ->
+                                        Message.showError(
+                                                errorResponse.getError(),
+                                                errorResponse.getMessage()
+                                        )
+                                );
+                                return null;
+                            })
+                    );
+                }
 
                 pnItems.getChildren().add(node);
             } catch (IOException e) {
@@ -595,9 +640,10 @@ public class Controller implements CloseController {
             );
             return null;
         });
+        pnAppointmentForm.setVisible(true);
     }
 
-    private void createAppointment() {
+    public void createAppointment() {
         LocalDate date = dpDate.getValue();
         String diagnosis = tfDiagnosis.getText();
         String treatment = tfTreatment.getText();
@@ -605,31 +651,58 @@ public class Controller implements CloseController {
         int physioId = cBoxPhysios.getSelectionModel().getSelectedItem().getId();
         int patientId = cBoxPatients.getSelectionModel().getSelectedItem().getId();
 
-        boolean anyError = false;
-        anyError = Validations.validateField(
-                date.isBefore(LocalDate.now()),
-                "Date can not be empty"
-        );
-        anyError = Validations.validateField(
-                diagnosis.length() < 10,
-                "Diagnosis length must be greater or equals than 10 characters"
-        );
-        anyError = Validations.validateField(
-                diagnosis.length() > 500,
-                "Diagnosis length must be lower or equals than 500 characters"
-        );
-        anyError = Validations.validateField(
-                treatment.length() > 150,
-                "Treatment length must be lower or equals then 150 characters"
-        );
-        anyError = Validations.validateField(
-                observations.length() > 500,
-                "Observations length must be lower or equals than 500 characters"
-        );
-
-        if (!anyError) {
-            // TODO(Enivar peticion POST)
+        if (date == null) {
+            Message.showError("Error in form", "Date can not be empty");
+            return;
         }
+        if (date.isBefore(LocalDate.now())) {
+            Message.showError("Error in form", "Date can not be before today");
+            return;
+        }
+        if (diagnosis.length() < 10) {
+            Message.showError(
+                    "Error in form",
+                    "Diagnosis length must be greater or equals than 10 characters"
+            );
+            return;
+        }
+        if (diagnosis.length() > 500) {
+            Message.showError(
+                    "Error in form",
+                    "Diagnosis length must be lower or equals than 500 characters"
+            );
+            return;
+        }
+        if (treatment.length() > 150) {
+            Message.showError(
+                    "Error in form",
+                    "Treatment length must be lower or equals then 150 characters"
+            );
+            return;
+        }
+        if (observations.length() > 500) {
+            Message.showError(
+                    "Error in form",
+                    "Observations length must be lower or equals than 500 characters"
+            );
+            return;
+        }
+
+        AppointmentPOSTRequest appointmentPOSTRequest = new AppointmentPOSTRequest(
+                date.toString(), diagnosis, treatment, observations, physioId, patientId
+        );
+        AppointmentService.createAppointment(appointmentPOSTRequest).thenAccept(appointment -> {
+            //TODO(Redirigir a detalle appointment)
+            System.out.println(appointment);
+        }).exceptionally(e -> {
+            e.printStackTrace();
+            RequestErrorException ex = (RequestErrorException) e;
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            Platform.runLater(() ->
+                Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            );
+            return null;
+        });
     }
 
     /**
