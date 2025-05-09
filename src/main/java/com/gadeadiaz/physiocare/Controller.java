@@ -2,6 +2,7 @@ package com.gadeadiaz.physiocare;
 
 import com.gadeadiaz.physiocare.controllers.AppointmentItemController;
 import com.gadeadiaz.physiocare.controllers.CloseController;
+import com.gadeadiaz.physiocare.controllers.RecordItemController;
 import com.gadeadiaz.physiocare.controllers.UserItemController;
 import com.gadeadiaz.physiocare.exceptions.RequestErrorException;
 import com.gadeadiaz.physiocare.models.Appointment;
@@ -10,12 +11,13 @@ import com.gadeadiaz.physiocare.models.Patient;
 import com.gadeadiaz.physiocare.services.AppointmentService;
 import com.gadeadiaz.physiocare.services.PatientService;
 import com.gadeadiaz.physiocare.services.PhysioService;
-import com.gadeadiaz.physiocare.utils.Message;
-import com.gadeadiaz.physiocare.utils.SceneLoader;
+import com.gadeadiaz.physiocare.services.RecordService;
+import com.gadeadiaz.physiocare.utils.*;
 import com.gadeadiaz.physiocare.models.Physio;
 import com.gadeadiaz.physiocare.utils.Storage;
 import com.google.gson.Gson;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -23,12 +25,14 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 
@@ -93,13 +97,37 @@ public class Controller implements CloseController {
     @FXML
     private Button btnPhysios;
     @FXML
+    private Button btnRecords;
+    @FXML
+    private Button btnAddAppointment;
+    @FXML
     private Label lblTitle;
     @FXML
     private Label txtPhysiosCount;
     @FXML
     private Label txtPatientsCount;
     @FXML
-    private Label lblColumn4;
+    private Label txtRecordsCount;
+    @FXML
+    private Label lblInsuranceLicenseNumList;
+    @FXML
+    private HBox hBoxUserList;
+    @FXML
+    private HBox hBoxRecordList;
+    @FXML
+    private DatePicker dpDate;
+    @FXML
+    private TextField tfDiagnosis;
+    @FXML
+    private TextField tfTreatment;
+    @FXML
+    private TextField tfObservations;
+    @FXML
+    private ComboBox<Physio> cBoxPhysios;
+    @FXML
+    private ComboBox<Patient> cBoxPatients;
+    @FXML
+    private Pane pnAppointmentForm;
     @FXML
     private VBox pnItems;
     @FXML
@@ -112,8 +140,8 @@ public class Controller implements CloseController {
     private Physio selectedPhysio;
     private Appointment selectedAppointment;
 
-    private enum ENTITIES{PATIENT, PHYSIO, APPOINTMENT}
-    private ENTITIES selectedListEntity = ENTITIES.PATIENT;
+    private enum Entity { PATIENT, PHYSIO, RECORD, APPOINTMENT }
+    private Entity selectedListEntity = Entity.PATIENT;
 
     public void initialize() {
         getPatients();
@@ -167,7 +195,7 @@ public class Controller implements CloseController {
     private void getPatients() {
         showListPanel();
         PatientService.getPatients("").thenAccept(patients -> {
-            selectedListEntity = ENTITIES.PATIENT;
+            selectedListEntity = Entity.PATIENT;
             Platform.runLater(() -> showPatients(patients));
         }).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e.getCause();
@@ -181,7 +209,7 @@ public class Controller implements CloseController {
 
     private void getPatientsBySurname() {
         PatientService.getPatients(txtSearch.getText()).thenAccept(patients -> {
-            selectedListEntity = ENTITIES.PATIENT;
+            selectedListEntity = Entity.PATIENT;
             Platform.runLater(() -> showPatients(patients));
         }).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e.getCause();
@@ -229,7 +257,6 @@ public class Controller implements CloseController {
         pnlList.setVisible(false);
         pnlPatientDetail.setVisible(false);
         pnlDetail.toFront();
-
     }
 
     /**
@@ -281,7 +308,7 @@ public class Controller implements CloseController {
     private void getPhysios() {
         showListPanel();
         PhysioService.getPhysios("").thenAccept(physios -> {
-            selectedListEntity = ENTITIES.PHYSIO;
+            selectedListEntity = Entity.PHYSIO;
             Platform.runLater(() -> showPhysios(physios));
         }).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e.getCause();
@@ -294,7 +321,7 @@ public class Controller implements CloseController {
     }
     private void getPhysiosBySpecialty() {
         PhysioService.getPhysios(txtSearch.getText()).thenAccept(physios -> {
-            selectedListEntity = ENTITIES.PHYSIO;
+            selectedListEntity = Entity.PHYSIO;
             Platform.runLater(() -> showPhysios(physios));
         }).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e.getCause();
@@ -356,7 +383,7 @@ public class Controller implements CloseController {
 
     private void getAppointments(int patientId) {
         PatientService.getPatientAppointments(patientId).thenAccept(appointments -> {
-            selectedListEntity = ENTITIES.APPOINTMENT;
+            selectedListEntity = Entity.APPOINTMENT;
             Platform.runLater(() -> showAppointments(appointments));
         }).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e.getCause();
@@ -366,9 +393,6 @@ public class Controller implements CloseController {
             );
             return null;
         });
-    }
-    private void getRecords() {
-        showListPanel();
     }
 
     /**
@@ -470,6 +494,136 @@ public class Controller implements CloseController {
         btnDetail.setText("EDIT");
     }
 
+    public void showRecords(List<Record> records) {
+        pnItems.getChildren().clear();
+        for (Record record: records) {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/gadeadiaz/physiocare/record_item.fxml")
+            );
+            try {
+                Node node = loader.load();
+                RecordItemController recordItemController = loader.getController();
+
+                recordItemController.setRecordId(record.getId());
+                recordItemController.setDetailListener(recordId -> {
+                    // TODO(Redirigir a vista detalle record con el id para hacer la peticion)
+                });
+                if (record.getMedicalRecord().isEmpty()) {
+                    recordItemController.setBtnAddMedicalRecordVisibility(true);
+                    recordItemController.setAddMedicalRecordListener(recordId -> {
+                        // TODO(Redirigir formulario para editar el medical record, este boton solo
+                        //  aparecera si el medical record esta vacio)
+                    });
+                }
+                recordItemController.setLblRecordPatientText(
+                        record.getPatient().getName() + " " + record.getPatient().getSurname()
+                );
+                recordItemController.setLblMedicalRecordText(record.getMedicalRecord());
+
+                node.setOnMouseEntered(_ -> node.setStyle("-fx-background-color : #0A0E3F"));
+                node.setOnMouseExited(_ -> node.setStyle("-fx-background-color : #02030A"));
+
+                /*controller.setDetailListener(_ -> {
+                    selectedPhysio = physio;
+                    selectedPatient = null;
+                    showPhysio();
+                });
+
+                controller.setDeleteListener(_ -> {
+                    selectedPhysio = physio;
+                    deletePhysio();
+                });*/
+
+                pnItems.getChildren().add(node);
+            } catch (Exception e) {
+                System.out.println("Patient loader fail: " + e.getMessage());
+            }
+        }
+        txtRecordsCount.setText(String.valueOf(records.size()));
+    }
+
+    private void getRecords() {
+        showListPanel();
+        RecordService.getRecords("").thenAccept(records -> {
+            selectedListEntity = Entity.RECORD;
+            Platform.runLater(() -> showRecords(records));
+        }).exceptionally(e -> {
+            RequestErrorException ex = (RequestErrorException) e.getCause();
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            Platform.runLater(() ->
+                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            );
+            return null;
+        });
+    }
+
+    public void showAppointmentForm() {
+        pnlList.setVisible(false);
+        pnlDetail.setVisible(false);
+        PatientService.getPatients("").thenAccept(patients ->
+                Platform.runLater(() -> {
+                    cBoxPatients.setValue(patients.get(0));
+                    cBoxPatients.setItems(FXCollections.observableList(patients));
+                })
+        ).exceptionally(e -> {
+            RequestErrorException ex = (RequestErrorException) e;
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            Platform.runLater(() ->
+                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            );
+            return null;
+        });
+        PhysioService.getPhysios("").thenAccept(patients ->
+                Platform.runLater(() -> {
+                    cBoxPhysios.setValue(patients.get(0));
+                    cBoxPhysios.setItems(FXCollections.observableList(patients));
+                })
+        ).exceptionally(e -> {
+            RequestErrorException ex = (RequestErrorException) e;
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            Platform.runLater(() ->
+                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            );
+            return null;
+        });
+        pnAppointmentForm.setVisible(true);
+    }
+
+    private void createAppointment() {
+        LocalDate date = dpDate.getValue();
+        String diagnosis = tfDiagnosis.getText();
+        String treatment = tfTreatment.getText();
+        String observations = tfObservations.getText();
+        int physioId = cBoxPhysios.getSelectionModel().getSelectedItem().getId();
+        int patientId = cBoxPatients.getSelectionModel().getSelectedItem().getId();
+
+        boolean anyError = false;
+        anyError = Validations.validateField(
+                date.isBefore(LocalDate.now()),
+                "Date can not be empty"
+        );
+        anyError = Validations.validateField(
+                diagnosis.length() < 10,
+                "Diagnosis length must be greater or equals than 10 characters"
+        );
+        anyError = Validations.validateField(
+                diagnosis.length() > 500,
+                "Diagnosis length must be lower or equals than 500 characters"
+        );
+        anyError = Validations.validateField(
+                treatment.length() > 150,
+                "Treatment length must be lower or equals then 150 characters"
+        );
+        anyError = Validations.validateField(
+                observations.length() > 500,
+                "Observations length must be lower or equals than 500 characters"
+        );
+
+        if (!anyError) {
+            // TODO(Enivar peticion POST)
+        }
+    }
+
     /**
      * Opens the login view in the specified stage.
      * Handles any potential IOExceptions when loading the view.
@@ -492,17 +646,31 @@ public class Controller implements CloseController {
      */
     public void handleClicks(ActionEvent actionEvent) {
         if (actionEvent.getSource() == btnPatients) {
+            hBoxRecordList.setVisible(false);
+            hBoxUserList.setVisible(true);
             lblTitle.setText("Patients");
-            lblColumn4.setText("Insurance Number");
+            lblInsuranceLicenseNumList.setText("Insurance Number");
             getPatients();
         }
         if (actionEvent.getSource() == btnPhysios) {
+            hBoxRecordList.setVisible(false);
+            hBoxUserList.setVisible(true);
             lblTitle.setText("Physios");
-            lblColumn4.setText("License Number");
+            lblInsuranceLicenseNumList.setText("License Number");
             getPhysios();
         }
+        if (actionEvent.getSource() == btnRecords) {
+            hBoxUserList.setVisible(false);
+            hBoxRecordList.setVisible(true);
+            lblTitle.setText("Records");
+            getRecords();
+        }
 
-        if (actionEvent.getSource() == btnNewUser ) {
+        if (actionEvent.getSource() == btnAddAppointment) {
+            showAppointmentForm();
+        }
+
+        if (actionEvent.getSource() == btnNewUser) {
             showAddUserForm();
         }
 
@@ -833,10 +1001,10 @@ public class Controller implements CloseController {
 
     public void searchClick(MouseEvent mouseEvent) {
         if(!txtSearch.getText().trim().isEmpty()){
-            if(selectedListEntity.equals(ENTITIES.PATIENT)){
+            if(selectedListEntity.equals(Entity.PATIENT)){
                 getPatientsBySurname();
             }
-            if(selectedListEntity.equals(ENTITIES.PHYSIO)){
+            if(selectedListEntity.equals(Entity.PHYSIO)){
                 getPhysiosBySpecialty();
             }
         }

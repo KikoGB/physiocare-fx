@@ -1,7 +1,7 @@
 package com.gadeadiaz.physiocare.controllers;
 
-import com.gadeadiaz.physiocare.controllers.interfaces.UserDeleteListener;
-import com.gadeadiaz.physiocare.controllers.interfaces.UserDetailListener;
+import com.gadeadiaz.physiocare.controllers.interfaces.DeleteListener;
+import com.gadeadiaz.physiocare.controllers.interfaces.DetailListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -15,25 +15,23 @@ public class UserItemController {
     private Label lblAttribute3;
     @FXML
     private Label lblAttribute4;
-    @FXML
-    private Label lblAttribute5;
 
-    private String userId;
+    private int userId;
 
-    private UserDetailListener detailListener; //Reference to the father (home) that receive the click
-    private UserDeleteListener deleteListener;
+    private DetailListener detailListener; //Reference to the father (home) that receive the click
+    private DeleteListener deleteListener;
 
     //Setter that was called from the father controller
-    public void setUserId(String userId) {
+    public void setUserId(int userId) {
         this.userId = userId;
     }
 
     //Setter to the listener to registrate who receives the callback
-    public void setDetailListener(UserDetailListener detailListener) {
+    public void setDetailListener(DetailListener detailListener) {
         this.detailListener = detailListener;
     }
 
-    public void setDeleteListener(UserDeleteListener deleteListener) {
+    public void setDeleteListener(DeleteListener deleteListener) {
         this.deleteListener = deleteListener;
     }
 
@@ -53,17 +51,13 @@ public class UserItemController {
         this.lblAttribute4.setText(address);
     }
 
-    public void setLblAttribute5(String insuranceNumber) {
-        this.lblAttribute5.setText(insuranceNumber);
-    }
-
     public void detailClick(ActionEvent actionEvent) {
         //If we have click listener on and a user id. We warn to the father
-        detailListener.onUserDetailClick(userId); //Returns the user id to the father
+        detailListener.onDetailClick(userId); //Returns the user id to the father
     }
 
     public void deleteClick(ActionEvent actionEvent) {
         //If we have click listener on and a user id. We warn to the father
-        deleteListener.onUserDeletetClick(userId); //Returns the user id to the father
+        deleteListener.onDeletetClick(userId); //Returns the user id to the father
     }
 }
