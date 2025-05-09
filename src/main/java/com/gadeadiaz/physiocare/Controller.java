@@ -15,6 +15,7 @@ import com.gadeadiaz.physiocare.models.User;
 import com.gadeadiaz.physiocare.requests.AppointmentPOSTRequest;
 import com.gadeadiaz.physiocare.requests.PatientPOSTRequest;
 import com.gadeadiaz.physiocare.responses.ErrorResponse;
+import com.gadeadiaz.physiocare.services.AppointmentService;
 import com.gadeadiaz.physiocare.services.PatientService;
 import com.gadeadiaz.physiocare.services.PhysioService;
 import com.gadeadiaz.physiocare.services.RecordService;
@@ -640,7 +641,7 @@ public class Controller implements CloseController {
             );
             return null;
         });
-        pnAppointmentForm.setVisible(true);
+        pnlAppointmentForm.setVisible(true);
     }
 
     public void createAppointment() {
