@@ -1,4 +1,4 @@
-package com.gadeadiaz.physiocare.models.auth;
+package com.gadeadiaz.physiocare.requests;
 
 import com.google.gson.annotations.Expose;
 

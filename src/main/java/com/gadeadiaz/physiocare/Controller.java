@@ -1,12 +1,15 @@
 package com.gadeadiaz.physiocare;
 
 import com.gadeadiaz.physiocare.controllers.CloseController;
+import com.gadeadiaz.physiocare.controllers.RecordItemController;
 import com.gadeadiaz.physiocare.controllers.UserItemController;
 import com.gadeadiaz.physiocare.exceptions.RequestErrorException;
+import com.gadeadiaz.physiocare.models.Record;
 import com.gadeadiaz.physiocare.responses.ErrorResponse;
 import com.gadeadiaz.physiocare.models.Patient;
 import com.gadeadiaz.physiocare.services.PatientService;
 import com.gadeadiaz.physiocare.services.PhysioService;
+import com.gadeadiaz.physiocare.services.RecordService;
 import com.gadeadiaz.physiocare.utils.Message;
 import com.gadeadiaz.physiocare.utils.SceneLoader;
 import com.gadeadiaz.physiocare.models.Physio;
@@ -19,6 +22,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -75,13 +79,21 @@ public class Controller implements CloseController {
     @FXML
     private Button btnPhysios;
     @FXML
+    private Button btnRecords;
+    @FXML
     private Label lblTitle;
     @FXML
     private Label txtPhysiosCount;
     @FXML
     private Label txtPatientsCount;
     @FXML
-    private Label lblColumn4;
+    private Label txtRecordsCount;
+    @FXML
+    private Label lblInsuranceLicenseNumList;
+    @FXML
+    private HBox hBoxUserList;
+    @FXML
+    private HBox hBoxRecordList;
 
     @FXML
     private VBox pnItems;
@@ -91,8 +103,8 @@ public class Controller implements CloseController {
     private Patient selectedPatient;
     private Physio selectedPhysio;
 
-    private enum ENTITIES{PATIENT, PHYSIO}
-    private ENTITIES selectedListEntity = ENTITIES.PATIENT;
+    private enum Entity { PATIENT, PHYSIO, RECORD }
+    private Entity selectedListEntity = Entity.PATIENT;
 
     public void initialize() {
         getPatients();
@@ -144,7 +156,7 @@ public class Controller implements CloseController {
     private void getPatients() {
         showListPanel();
         PatientService.getPatients("").thenAccept(patients -> {
-            selectedListEntity = ENTITIES.PATIENT;
+            selectedListEntity = Entity.PATIENT;
             Platform.runLater(() -> showPatients(patients));
         }).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e.getCause();
@@ -158,7 +170,7 @@ public class Controller implements CloseController {
 
     private void getPatientsBySurname() {
         PatientService.getPatients(txtSearch.getText()).thenAccept(patients -> {
-            selectedListEntity = ENTITIES.PATIENT;
+            selectedListEntity = Entity.PATIENT;
             Platform.runLater(() -> showPatients(patients));
         }).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e.getCause();
@@ -256,7 +268,7 @@ public class Controller implements CloseController {
     private void getPhysios() {
         showListPanel();
         PhysioService.getPhysios("").thenAccept(physios -> {
-            selectedListEntity = ENTITIES.PHYSIO;
+            selectedListEntity = Entity.PHYSIO;
             Platform.runLater(() -> showPhysios(physios));
         }).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e.getCause();
@@ -269,7 +281,7 @@ public class Controller implements CloseController {
     }
     private void getPhysiosBySpecialty() {
         PhysioService.getPhysios(txtSearch.getText()).thenAccept(physios -> {
-            selectedListEntity = ENTITIES.PHYSIO;
+            selectedListEntity = Entity.PHYSIO;
             Platform.runLater(() -> showPhysios(physios));
         }).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e.getCause();
@@ -279,9 +291,6 @@ public class Controller implements CloseController {
             );
             return null;
         });
-    }
-    private void getRecords() {
-        showListPanel();
     }
 
     /**
@@ -364,6 +373,69 @@ public class Controller implements CloseController {
         btnDetail.setText("EDIT");
     }
 
+    public void showRecords(List<Record> records) {
+        pnItems.getChildren().clear();
+        for (Record record: records) {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/gadeadiaz/physiocare/record_item.fxml")
+            );
+            try {
+                Node node = loader.load();
+                RecordItemController recordItemController = loader.getController();
+
+                recordItemController.setRecordId(record.getId());
+                recordItemController.setDetailListener(recordId -> {
+                    // TODO(Redirigir a vista detalle record con el id para hacer la peticion)
+                });
+                if (record.getMedicalRecord().isEmpty()) {
+                    recordItemController.setBtnAddMedicalRecordVisibility(true);
+                    recordItemController.setAddMedicalRecordListener(recordId -> {
+                        // TODO(Redirigir formulario para editar el medical record, este boton solo
+                        //  aparecera si el medical record esta vacio)
+                    });
+                }
+                recordItemController.setLblRecordPatientText(
+                        record.getPatient().getName() + " " + record.getPatient().getSurname()
+                );
+                recordItemController.setLblMedicalRecordText(record.getMedicalRecord());
+
+                node.setOnMouseEntered(_ -> node.setStyle("-fx-background-color : #0A0E3F"));
+                node.setOnMouseExited(_ -> node.setStyle("-fx-background-color : #02030A"));
+
+                /*controller.setDetailListener(_ -> {
+                    selectedPhysio = physio;
+                    selectedPatient = null;
+                    showPhysio();
+                });
+
+                controller.setDeleteListener(_ -> {
+                    selectedPhysio = physio;
+                    deletePhysio();
+                });*/
+
+                pnItems.getChildren().add(node);
+            } catch (Exception e) {
+                System.out.println("Patient loader fail: " + e.getMessage());
+            }
+        }
+        txtRecordsCount.setText(String.valueOf(records.size()));
+    }
+
+    private void getRecords() {
+        showListPanel();
+        RecordService.getRecords("").thenAccept(records -> {
+            selectedListEntity = Entity.RECORD;
+            Platform.runLater(() -> showRecords(records));
+        }).exceptionally(e -> {
+            RequestErrorException ex = (RequestErrorException) e.getCause();
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            Platform.runLater(() ->
+                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            );
+            return null;
+        });
+    }
+
     /**
      * Opens the login view in the specified stage.
      * Handles any potential IOExceptions when loading the view.
@@ -386,14 +458,24 @@ public class Controller implements CloseController {
      */
     public void handleClicks(ActionEvent actionEvent) {
         if (actionEvent.getSource() == btnPatients) {
+            hBoxRecordList.setVisible(false);
+            hBoxUserList.setVisible(true);
             lblTitle.setText("Patients");
-            lblColumn4.setText("Insurance Number");
+            lblInsuranceLicenseNumList.setText("Insurance Number");
             getPatients();
         }
         if (actionEvent.getSource() == btnPhysios) {
+            hBoxRecordList.setVisible(false);
+            hBoxUserList.setVisible(true);
             lblTitle.setText("Physios");
-            lblColumn4.setText("License Number");
+            lblInsuranceLicenseNumList.setText("License Number");
             getPhysios();
+        }
+        if (actionEvent.getSource() == btnRecords) {
+            hBoxUserList.setVisible(false);
+            hBoxRecordList.setVisible(true);
+            lblTitle.setText("Records");
+            getRecords();
         }
 
         if (actionEvent.getSource() == btnNewUser ) {
@@ -727,10 +809,10 @@ public class Controller implements CloseController {
 
     public void searchClick(MouseEvent mouseEvent) {
         if(!txtSearch.getText().trim().isEmpty()){
-            if(selectedListEntity.equals(ENTITIES.PATIENT)){
+            if(selectedListEntity.equals(Entity.PATIENT)){
                 getPatientsBySurname();
             }
-            if(selectedListEntity.equals(ENTITIES.PHYSIO)){
+            if(selectedListEntity.equals(Entity.PHYSIO)){
                 getPhysiosBySpecialty();
             }
         }

@@ -1,7 +1,7 @@
 package com.gadeadiaz.physiocare.services;
 
-import com.gadeadiaz.physiocare.models.auth.LoginResponse;
-import com.gadeadiaz.physiocare.models.auth.LoginRequest;
+import com.gadeadiaz.physiocare.responses.LoginResponse;
+import com.gadeadiaz.physiocare.requests.LoginRequest;
 import com.gadeadiaz.physiocare.utils.Message;
 import com.gadeadiaz.physiocare.utils.ServiceUtils;
 import com.gadeadiaz.physiocare.utils.Storage;

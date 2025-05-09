@@ -1,4 +1,4 @@
-package com.gadeadiaz.physiocare.models.auth;
+package com.gadeadiaz.physiocare.responses;
 
 /**
  * Class Auth Response represents the api response when the user logs in

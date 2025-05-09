@@ -5,33 +5,34 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
 
-<HBox fx:id="itemC" alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="53.0" prefWidth="695.0" spacing="20.0" style="-fx-background-color: #02030A; -fx-background-radius: 5; -fx-background-insets: 0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gadeadiaz.physiocare.controllers.RecordItemController">
+<HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="53.0" prefWidth="695.0" style="-fx-background-color: #02030A; -fx-background-radius: 5; -fx-background-insets: 0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gadeadiaz.physiocare.controllers.RecordItemController">
     <children>
-        <Label fx:id="lblAttribute1" alignment="CENTER" prefHeight="18.0" prefWidth="89.0" text="Name" textFill="#b7c3d7" />
-        <Label fx:id="lblAttribute2" alignment="CENTER" prefHeight="18.0" prefWidth="118.0" text="Surname" textFill="#b7c3d7">
+        <Label fx:id="lblRecordPatient" prefHeight="18.0" prefWidth="186.0" text="Patient name" textFill="#b7c3d7">
+         <padding>
+            <Insets left="20.0" />
+         </padding></Label>
+      <Label fx:id="lblMedicalRecord" prefHeight="18.0" prefWidth="299.0" text="This is a medical record" textFill="#b7c3d7">
+         <HBox.margin>
+            <Insets />
+         </HBox.margin>
+         <padding>
+            <Insets left="10.0" />
+         </padding></Label>
+        <Button fx:id="btnDetail" alignment="CENTER" mnemonicParsing="false" onAction="#detailClick" prefHeight="27.0" prefWidth="83.0" style="-fx-border-color: #2A73FF; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Detail">
             <HBox.margin>
-                <Insets />
-            </HBox.margin>
-        </Label>
-        <Label fx:id="lblAttribute3" alignment="CENTER" prefHeight="18.0" prefWidth="161.0" text="email1@gmail.com" textFill="#b7c3d7">
-            <HBox.margin>
-                <Insets />
-            </HBox.margin>
-        </Label>
-      <Label fx:id="lblAttribute4" alignment="CENTER" prefHeight="18.0" prefWidth="96.0" text="4529558S" textFill="#b7c3d7" />
-        <Button fx:id="btnDetailClick" alignment="CENTER" mnemonicParsing="false" onAction="#detailClick" prefHeight="27.0" prefWidth="83.0" style="-fx-border-color: #2A73FF; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Detail">
-            <HBox.margin>
-                <Insets />
+                <Insets left="5.0" right="5.0" />
             </HBox.margin>
         </Button>
-      <Button fx:id="btnDeleteClick" alignment="CENTER" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#deleteClick" prefHeight="27.0" prefWidth="66.0" style="-fx-border-color: #fa1f1f; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Delete">
-         <opaqueInsets>
-            <Insets />
-         </opaqueInsets>
+      <Button fx:id="btnAddMedicalRecord" alignment="CENTER" mnemonicParsing="false" onAction="#addMedicalRecord" prefHeight="27.0" prefWidth="112.0" style="-fx-border-color: #e68830; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Add medical record">
          <HBox.margin>
-            <Insets right="10.0" />
-         </HBox.margin></Button>
+            <Insets left="5.0" right="5.0" />
+         </HBox.margin>
+         <font>
+            <Font size="11.0" />
+         </font>
+      </Button>
     </children>
     <effect>
         <DropShadow blurType="GAUSSIAN" height="5.0" radius="2.0" width="5.0" />
