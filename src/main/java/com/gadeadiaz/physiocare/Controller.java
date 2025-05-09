@@ -10,12 +10,11 @@ import com.gadeadiaz.physiocare.models.Patient;
 import com.gadeadiaz.physiocare.services.PatientService;
 import com.gadeadiaz.physiocare.services.PhysioService;
 import com.gadeadiaz.physiocare.services.RecordService;
-import com.gadeadiaz.physiocare.utils.Message;
-import com.gadeadiaz.physiocare.utils.SceneLoader;
+import com.gadeadiaz.physiocare.utils.*;
 import com.gadeadiaz.physiocare.models.Physio;
-import com.gadeadiaz.physiocare.utils.Storage;
 import com.google.gson.Gson;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -28,6 +27,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 
@@ -81,6 +81,8 @@ public class Controller implements CloseController {
     @FXML
     private Button btnRecords;
     @FXML
+    private Button btnAddAppointment;
+    @FXML
     private Label lblTitle;
     @FXML
     private Label txtPhysiosCount;
@@ -94,7 +96,20 @@ public class Controller implements CloseController {
     private HBox hBoxUserList;
     @FXML
     private HBox hBoxRecordList;
-
+    @FXML
+    private DatePicker dpDate;
+    @FXML
+    private TextField tfDiagnosis;
+    @FXML
+    private TextField tfTreatment;
+    @FXML
+    private TextField tfObservations;
+    @FXML
+    private ComboBox<Physio> cBoxPhysios;
+    @FXML
+    private ComboBox<Patient> cBoxPatients;
+    @FXML
+    private Pane pnAppointmentForm;
     @FXML
     private VBox pnItems;
 
@@ -436,6 +451,73 @@ public class Controller implements CloseController {
         });
     }
 
+    public void showAppointmentForm() {
+        pnlList.setVisible(false);
+        pnlDetail.setVisible(false);
+        PatientService.getPatients("").thenAccept(patients ->
+                Platform.runLater(() -> {
+                    cBoxPatients.setValue(patients.get(0));
+                    cBoxPatients.setItems(FXCollections.observableList(patients));
+                })
+        ).exceptionally(e -> {
+            RequestErrorException ex = (RequestErrorException) e;
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            Platform.runLater(() ->
+                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            );
+            return null;
+        });
+        PhysioService.getPhysios("").thenAccept(patients ->
+                Platform.runLater(() -> {
+                    cBoxPhysios.setValue(patients.get(0));
+                    cBoxPhysios.setItems(FXCollections.observableList(patients));
+                })
+        ).exceptionally(e -> {
+            RequestErrorException ex = (RequestErrorException) e;
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            Platform.runLater(() ->
+                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            );
+            return null;
+        });
+        pnAppointmentForm.setVisible(true);
+    }
+
+    private void createAppointment() {
+        LocalDate date = dpDate.getValue();
+        String diagnosis = tfDiagnosis.getText();
+        String treatment = tfTreatment.getText();
+        String observations = tfObservations.getText();
+        int physioId = cBoxPhysios.getSelectionModel().getSelectedItem().getId();
+        int patientId = cBoxPatients.getSelectionModel().getSelectedItem().getId();
+
+        boolean anyError = false;
+        anyError = Validations.validateField(
+                date.isBefore(LocalDate.now()),
+                "Date can not be empty"
+        );
+        anyError = Validations.validateField(
+                diagnosis.length() < 10,
+                "Diagnosis length must be greater or equals than 10 characters"
+        );
+        anyError = Validations.validateField(
+                diagnosis.length() > 500,
+                "Diagnosis length must be lower or equals than 500 characters"
+        );
+        anyError = Validations.validateField(
+                treatment.length() > 150,
+                "Treatment length must be lower or equals then 150 characters"
+        );
+        anyError = Validations.validateField(
+                observations.length() > 500,
+                "Observations length must be lower or equals than 500 characters"
+        );
+
+        if (!anyError) {
+            // TODO(Enivar peticion POST)
+        }
+    }
+
     /**
      * Opens the login view in the specified stage.
      * Handles any potential IOExceptions when loading the view.
@@ -478,7 +560,11 @@ public class Controller implements CloseController {
             getRecords();
         }
 
-        if (actionEvent.getSource() == btnNewUser ) {
+        if (actionEvent.getSource() == btnAddAppointment) {
+            showAppointmentForm();
+        }
+
+        if (actionEvent.getSource() == btnNewUser) {
             showAddUserForm();
         }
 
