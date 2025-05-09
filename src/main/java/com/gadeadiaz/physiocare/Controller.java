@@ -5,15 +5,14 @@ import com.gadeadiaz.physiocare.controllers.CloseController;
 import com.gadeadiaz.physiocare.controllers.RecordItemController;
 import com.gadeadiaz.physiocare.controllers.UserItemController;
 import com.gadeadiaz.physiocare.exceptions.RequestErrorException;
-import com.gadeadiaz.physiocare.models.Appointment;
+import com.gadeadiaz.physiocare.models.*;
+import com.gadeadiaz.physiocare.models.Record;
+import com.gadeadiaz.physiocare.requests.PatientPOSTRequest;
 import com.gadeadiaz.physiocare.responses.ErrorResponse;
-import com.gadeadiaz.physiocare.models.Patient;
-import com.gadeadiaz.physiocare.services.AppointmentService;
 import com.gadeadiaz.physiocare.services.PatientService;
 import com.gadeadiaz.physiocare.services.PhysioService;
 import com.gadeadiaz.physiocare.services.RecordService;
 import com.gadeadiaz.physiocare.utils.*;
-import com.gadeadiaz.physiocare.models.Physio;
 import com.gadeadiaz.physiocare.utils.Storage;
 import com.google.gson.Gson;
 import javafx.application.Platform;
@@ -23,7 +22,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -33,7 +31,6 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.*;
 
 public class Controller implements CloseController {
@@ -61,11 +58,11 @@ public class Controller implements CloseController {
     @FXML
     private SplitMenuButton splitSpecialty;
     @FXML
-    private Button btnDetail;
+    private Button btnUserForm;
     @FXML
-    private Pane pnlList;
+    private Pane pnlUsersList;
     @FXML
-    private Pane pnlDetail;
+    private Pane pnlUserForm;
     @FXML
     private RadioButton rbPatient;
     @FXML
@@ -127,18 +124,20 @@ public class Controller implements CloseController {
     @FXML
     private ComboBox<Patient> cBoxPatients;
     @FXML
-    private Pane pnAppointmentForm;
+    private Pane pnlAppointmentForm;
     @FXML
     private VBox pnItems;
     @FXML
     private VBox pnAppointments;
 
-    private final SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yy");
+    private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
     private final Gson gson = new Gson();
     private Stage stage;
     private Patient selectedPatient;
     private Physio selectedPhysio;
     private Appointment selectedAppointment;
+
+
 
     private enum Entity { PATIENT, PHYSIO, RECORD, APPOINTMENT }
     private Entity selectedListEntity = Entity.PATIENT;
@@ -147,13 +146,56 @@ public class Controller implements CloseController {
         getPatients();
     }
 
-    private void showListPanel(){
-        pnlDetail.setVisible(false);
-        pnlList.setVisible(true);
+    private void showUsersListPanel(){
+        pnlUserForm.setVisible(false);
         pnlPatientDetail.setVisible(false);
-        pnlList.toFront();
+        pnlUsersList.setVisible(true);
+        pnlUsersList.toFront();
     }
 
+    private void showAppointmentsFormPanel(){
+        pnlUsersList.setVisible(false);
+        pnlUserForm.setVisible(false);
+        pnlPatientDetail.setVisible(false);
+        pnlUsersList.setVisible(false);
+        pnlAppointmentForm.setVisible(true);
+        pnlAppointmentForm.toFront();
+    }
+
+    private void showUsersDetailPanel(){
+        pnlUserForm.setVisible(false);
+        pnlPatientDetail.setVisible(false);
+        pnlUsersList.setVisible(false);
+        pnlPatientDetail.setVisible(true);
+        pnlPatientDetail.toFront();
+    }
+
+    /**
+     * Shows the detail panel in the UI and hides the list panel.
+     */
+    private void showUsersFormPanel(){
+        radioButtonsListener();
+        specialtyListener();
+        pnlUserForm.setVisible(true);
+        pnlUsersList.setVisible(false);
+        pnlPatientDetail.setVisible(false);
+        pnlUserForm.toFront();
+    }
+
+    private void getPatients() {
+        showUsersListPanel();
+        PatientService.getPatients("").thenAccept(patients -> {
+            selectedListEntity = Entity.PATIENT;
+            Platform.runLater(() -> showPatients(patients));
+        }).exceptionally(e -> {
+            RequestErrorException ex = (RequestErrorException) e.getCause();
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            Platform.runLater(() ->
+                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            );
+            return null;
+        });
+    }
     private void showPatients(List<Patient> patients) {
         pnItems.getChildren().clear();
         for (Patient patient : patients) {
@@ -176,7 +218,6 @@ public class Controller implements CloseController {
                     selectedPatient = patient;
                     selectedPhysio = null;
                     showPatientDetail(patient);
-//                    showPatientForm();
                 });
 
                 controller.setDeleteListener(_ -> {
@@ -192,20 +233,7 @@ public class Controller implements CloseController {
         txtPatientsCount.setText(String.valueOf(patients.size()));
     }
 
-    private void getPatients() {
-        showListPanel();
-        PatientService.getPatients("").thenAccept(patients -> {
-            selectedListEntity = Entity.PATIENT;
-            Platform.runLater(() -> showPatients(patients));
-        }).exceptionally(e -> {
-            RequestErrorException ex = (RequestErrorException) e.getCause();
-            ErrorResponse errorResponse = ex.getErrorResponse();
-            Platform.runLater(() ->
-                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
-            );
-            return null;
-        });
-    }
+
 
     private void getPatientsBySurname() {
         PatientService.getPatients(txtSearch.getText()).thenAccept(patients -> {
@@ -244,19 +272,6 @@ public class Controller implements CloseController {
                     });
                     return null;
                 });*/
-    }
-
-
-    /**
-     * Shows the detail panel in the UI and hides the list panel.
-     */
-    private void showDetailPanel(){
-        radioButtonsListener();
-        specialtyListener();
-        pnlDetail.setVisible(true);
-        pnlList.setVisible(false);
-        pnlPatientDetail.setVisible(false);
-        pnlDetail.toFront();
     }
 
     /**
@@ -306,7 +321,7 @@ public class Controller implements CloseController {
      * If there is an error, an error message is displayed.
      */
     private void getPhysios() {
-        showListPanel();
+        showUsersListPanel();
         PhysioService.getPhysios("").thenAccept(physios -> {
             selectedListEntity = Entity.PHYSIO;
             Platform.runLater(() -> showPhysios(physios));
@@ -426,7 +441,7 @@ public class Controller implements CloseController {
      * Sets text fields and labels with patient data and adjusts the UI components to display the patient's details.
      */
     private void showPatientForm() {
-        showDetailPanel();
+        showUsersFormPanel();
         editFormTextFields(false);
 
         lblDetailTitle.setText(selectedPatient.getName() + " " + selectedPatient.getSurname());
@@ -444,17 +459,12 @@ public class Controller implements CloseController {
         splitSpecialty.setVisible(false);
         dpBirthDate.setDisable(true);
         dpBirthDate.setEditable(false);
-        //dpBirthDate.setValue(selectedPatient.getBirthDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-        btnDetail.setText("EDIT");
+        btnUserForm.setText("EDIT");
     }
 
     private void showPatientDetail(Patient patient){
 
-        pnlDetail.setVisible(false);
-        pnlPatientDetail.setVisible(false);
-        pnlList.setVisible(false);
-        pnlPatientDetail.setVisible(true);
-        pnlPatientDetail.toFront();
+        showUsersDetailPanel();
         lblDetailPatientTitle.setText(patient.getName() + " " + patient.getSurname());
         txtDetailEmail.setText(patient.getEmail());
         if(patient.getAddress().isEmpty()){
@@ -463,7 +473,7 @@ public class Controller implements CloseController {
             txtDetailAddress.setText(patient.getAddress());
         }
         txtDetailInsuranceNumber.setText(patient.getInsuranceNumber());
-        txtDetailBirthDate.setText(formatter.format(patient.getBirthdate()));
+        txtDetailBirthDate.setText(patient.getBirthdate());
         getAppointments(patient.getId());
     }
 
@@ -472,7 +482,7 @@ public class Controller implements CloseController {
      * Sets text fields and labels with physio data and adjusts the UI components to display the physio's details.
      */
     private void showPhysio() {
-        showDetailPanel();
+        showUsersFormPanel();
         editFormTextFields(false);
 
         lblDetailTitle.setText(selectedPhysio.getName() + " " + selectedPhysio.getSurname());
@@ -491,7 +501,7 @@ public class Controller implements CloseController {
         rbPhysio.setVisible(false);
         splitSpecialty.setVisible(false);
 
-        btnDetail.setText("EDIT");
+        btnUserForm.setText("EDIT");
     }
 
     public void showRecords(List<Record> records) {
@@ -543,7 +553,7 @@ public class Controller implements CloseController {
     }
 
     private void getRecords() {
-        showListPanel();
+        showUsersListPanel();
         RecordService.getRecords("").thenAccept(records -> {
             selectedListEntity = Entity.RECORD;
             Platform.runLater(() -> showRecords(records));
@@ -558,8 +568,7 @@ public class Controller implements CloseController {
     }
 
     public void showAppointmentForm() {
-        pnlList.setVisible(false);
-        pnlDetail.setVisible(false);
+        showAppointmentsFormPanel();
         PatientService.getPatients("").thenAccept(patients ->
                 Platform.runLater(() -> {
                     cBoxPatients.setValue(patients.get(0));
@@ -586,7 +595,6 @@ public class Controller implements CloseController {
             );
             return null;
         });
-        pnAppointmentForm.setVisible(true);
     }
 
     private void createAppointment() {
@@ -685,20 +693,20 @@ public class Controller implements CloseController {
      * It also switches to the appropriate panel for user creation.
      */
     private void showAddUserForm() {
-        for (Node child: pnlDetail.getChildren()) {
+        selectedPhysio = null;
+        selectedPatient = null;
+        for (Node child: pnlUserForm.getChildren()) {
             if(child instanceof TextField){
                 ((TextField) child).setText("");
             }
         }
-
         rbPatient.setSelected(true);
-
         selectedPatient = new Patient();
         selectedPhysio = new Physio();
         editFormTextFields(true);
         splitSpecialty.setVisible(false);
-        btnDetail.setText("CREATE");
-        showDetailPanel();
+        btnUserForm.setText("CREATE");
+        showUsersFormPanel();
     }
 
     /**
@@ -707,7 +715,7 @@ public class Controller implements CloseController {
      * @param editable if true, enables text fields; if false, disables them
      */
     private void editFormTextFields(boolean editable) {
-        for (Node child: pnlDetail.getChildren()) {
+        for (Node child: pnlUserForm.getChildren()) {
             child.setVisible(true);
             if(child instanceof TextField){
                 ((TextField) child).setEditable(editable);
@@ -725,7 +733,7 @@ public class Controller implements CloseController {
         rbPhysio.setToggleGroup(group);
 
         // Add listeners for each radio button
-        group.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
+        group.selectedToggleProperty().addListener((_, _, newValue) -> {
             if (newValue == rbPatient) {
                 showAddPatientProperties();
             } else if (newValue == rbPhysio) {
@@ -740,7 +748,7 @@ public class Controller implements CloseController {
      */
     public void specialtyListener() {
         for(MenuItem item : splitSpecialty.getItems()){
-            item.setOnAction(event -> {
+            item.setOnAction(_ -> {
                 selectedPhysio.setSpecialty(item.getText());
                 splitSpecialty.setText(selectedPhysio.getSpecialty());
                 txtAddressAndSpecialty.setText(selectedPhysio.getSpecialty());
@@ -802,24 +810,27 @@ public class Controller implements CloseController {
      * Handles the actions for the detail button in the form.
      * Depending on the current state of the button (CREATE, SAVE, EDIT), it performs the appropriate action (create, update, or edit) for either a patient or physio.
      */
-    public void btnDetailClick() {
-        if(btnDetail.getText().equals("CREATE") ) {
-            /*if(selectedPatient.getId() == null && dpBirthDate.isVisible()){
+    public void btnUserFormClick() {
+        System.out.println("HOLA 1");
+        if(btnUserForm.getText().equals("CREATE") ) {
+            System.out.println("HOLA 2");
+            if(selectedPatient == null && dpBirthDate.isVisible()){
+                System.out.println("HOLA 3");
                 postPatient();
             }
 
-            if(selectedPhysio.getId() == null && splitSpecialty.isVisible()){
+            /*if(selectedPhysio.getId() == null && splitSpecialty.isVisible()){
                 postPhysio();
             }*/
-        } else if(btnDetail.getText().equals("SAVE")) {
+        } else if(btnUserForm.getText().equals("SAVE")) {
             /*if(selectedPatient != null && selectedPatient.getId() != null){
                 putPatient();
             }
             if(selectedPhysio != null && selectedPhysio.getId() != null){
                 putPhysio();
             }*/
-        } else if (btnDetail.getText().equals("EDIT")) {
-            btnDetail.setText("SAVE");
+        } else if (btnUserForm.getText().equals("EDIT")) {
+            btnUserForm.setText("SAVE");
             editFormTextFields(true);
             rbPatient.setVisible(false);
             rbPhysio.setVisible(false);
@@ -837,36 +848,33 @@ public class Controller implements CloseController {
         }
     }
 
+    public void btnAppointmentForm(ActionEvent actionEvent) {
+    }
+
     /**
      * Sends a POST request to create a new patient on the server.
      * If the request is successful, the list of patients is refreshed. If there is an error, an error message is displayed.
      */
     private void postPatient() {
-        /*if(dpBirthDate.getValue() == null){
+        System.out.println("HOLA 4");
+        if(dpBirthDate.getValue() == null){
             Message.showError("Empty Birth Date", "Value of birth date cannot be empty!");
         } else {
-            Map<String, Object> postBody = createPatientRequestBody();
+            PatientPOSTRequest newPatient = createPatientPOSTResponse();
 
-            String apiUrl = ServiceUtils.SERVER + "patients";
-            String jsonRequest = gson.toJson(postBody);
-
-            ServiceUtils.getResponseAsync(apiUrl, jsonRequest, "POST")
-                    .thenApply(json -> gson.fromJson(json, PatientResponse.class)
-                    )
-                    .thenAccept(response -> {
-                        if (response.isOk()) {
-                            Platform.runLater(this::getPatients);
-                        } else {
-                            Platform.runLater(() -> Message.showError("Error Creating Patient", response.getError()));
-                        }
-                    })
-                    .exceptionally(ex -> {
-                        Platform.runLater(() -> {
-                            Message.showError("Error", "Error creating patient");
-                        });
+            PatientService.postPatient(newPatient)
+                    .thenAccept(_ -> {
+                        selectedListEntity = Entity.PATIENT;
+                        getPatients();
+                    }).exceptionally(e -> {
+                        RequestErrorException ex = (RequestErrorException) e.getCause();
+                        ErrorResponse errorResponse = ex.getErrorResponse();
+                        Platform.runLater(() ->
+                                Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                        );
                         return null;
                     });
-        }*/
+        }
     }
 
     /**
@@ -970,17 +978,17 @@ public class Controller implements CloseController {
      *
      * @return a map containing the key-value pairs for the patient data
      */
-    private Map<String, Object> createPatientRequestBody() {
-        Map<String, Object> patientReqBody = new HashMap<>();
-        patientReqBody.put("name", txtName.getText());
-        patientReqBody.put("surname", txtSurname.getText());
-        patientReqBody.put("birthDate", dpBirthDate.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant().toString());
-        patientReqBody.put("address", txtAddressAndSpecialty.getText());
-        patientReqBody.put("insuranceNumber", txtLogin.getText());
-        patientReqBody.put("email", txtEmail.getText());
-        patientReqBody.put("image", "");
-        patientReqBody.put("password", txtPassword.getText());
-        return patientReqBody;
+    private PatientPOSTRequest createPatientPOSTResponse() {
+        User newUser = new User(txtLogin.getText(), txtPassword.getText(), "patient");
+        Patient patient = new Patient(
+                txtName.getText(),
+                txtSurname.getText(),
+                formatter.format(dpBirthDate.getValue()),
+                txtAddressAndSpecialty.getText(),
+                txtLogin.getText(),
+                txtEmail.getText());
+
+        return new PatientPOSTRequest(newUser, patient);
     }
 
     /**

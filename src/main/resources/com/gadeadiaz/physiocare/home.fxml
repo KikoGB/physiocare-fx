@@ -119,25 +119,25 @@
         </VBox>
         <StackPane layoutX="258.0" prefHeight="576.0" prefWidth="793.0" style="-fx-background-color: #02030A;">
             <children>
-            <Pane fx:id="pnlDetail" prefHeight="597.0" prefWidth="414.0" visible="false">
+            <Pane fx:id="pnlUserForm" prefHeight="597.0" prefWidth="414.0">
                <children>
                   <Label fx:id="lblDetailTitle" alignment="TOP_CENTER" layoutY="26.0" prefHeight="27.0" prefWidth="794.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="New User" textAlignment="CENTER" textFill="#dfd2d2" />
                   <RadioButton fx:id="rbPatient" focusTraversable="false" layoutX="426.0" layoutY="77.0" mnemonicParsing="false" prefHeight="18.0" prefWidth="80.0" text="Patient" textFill="#e1dede" />
                   <RadioButton fx:id="rbPhysio" focusTraversable="false" layoutX="301.0" layoutY="77.0" mnemonicParsing="false" prefHeight="18.0" prefWidth="66.0" text="Physio" textFill="#e1dede" />
-                  <Button fx:id="btnDetail" focusTraversable="false" layoutX="322.0" layoutY="527.0" mnemonicParsing="false" onAction="#btnDetailClick" prefHeight="25.0" prefWidth="156.0" text="Add/Edit" />
+                  <Button fx:id="btnUserForm" focusTraversable="false" layoutX="322.0" layoutY="527.0" mnemonicParsing="false" onAction="#btnUserFormClick" prefHeight="25.0" prefWidth="156.0" text="Add/Edit" />
                   <Label fx:id="lblName" alignment="CENTER" layoutX="1.0" layoutY="104.0" prefHeight="17.0" prefWidth="794.0" style="-fx-font-weight: bold;" text="Name" textAlignment="CENTER" textFill="#bfb9b9" />
                   <TextField fx:id="txtName" alignment="TOP_CENTER" editable="false" focusTraversable="false" layoutX="287.0" layoutY="128.0" prefHeight="26.0" prefWidth="226.0" promptText="Juan" style="-fx-text-fill: #777;" />
                   <Label fx:id="lblMail" alignment="TOP_CENTER" contentDisplay="CENTER" layoutX="1.0" layoutY="236.0" prefHeight="17.0" prefWidth="794.0" style="-fx-font-weight: bold;" text="Mail" textFill="#bfb9b9" />
                   <TextField fx:id="txtEmail" alignment="TOP_CENTER" editable="false" focusTraversable="false" layoutX="258.0" layoutY="262.0" prefHeight="26.0" prefWidth="281.0" promptText="juan.perez@example.com" style="-fx-text-fill: #777;" />
                   <Label fx:id="lblPassword" alignment="TOP_CENTER" contentDisplay="CENTER" layoutY="454.0" prefHeight="17.0" prefWidth="794.0" style="-fx-font-weight: bold;" text="Password" textFill="#bfb9b9" />
                   <TextField fx:id="txtPassword" alignment="TOP_CENTER" editable="false" focusTraversable="false" layoutX="287.0" layoutY="482.0" prefHeight="25.0" prefWidth="226.0" promptText="***********" style="-fx-text-fill: #777;" />
-                  <Label fx:id="lblSurname" alignment="TOP_CENTER" contentDisplay="CENTER" layoutX="3.0" layoutY="172.0" prefHeight="17.0" prefWidth="737.0" style="-fx-font-weight: bold;" text="Surname" textFill="#bfb9b9" />
+                  <Label fx:id="lblSurname" alignment="TOP_CENTER" contentDisplay="CENTER" layoutX="3.0" layoutY="172.0" prefHeight="17.0" prefWidth="793.0" style="-fx-font-weight: bold;" text="Surname" textFill="#bfb9b9" />
                   <TextField fx:id="txtSurname" alignment="TOP_CENTER" editable="false" focusTraversable="false" layoutX="287.0" layoutY="195.0" prefHeight="26.0" prefWidth="226.0" promptText="Pérez" style="-fx-text-fill: #777;" />
                   <Label fx:id="lblBirthDate" alignment="CENTER" contentDisplay="CENTER" layoutX="621.0" layoutY="27.0" prefHeight="17.0" prefWidth="117.0" style="-fx-font-weight: bold;" text="Birth Date" textFill="#bfb9b9" />
                   <DatePicker fx:id="dpBirthDate" editable="false" layoutX="621.0" layoutY="58.0" prefHeight="25.0" prefWidth="117.0" promptText="11/06/1985" />
                   <Label fx:id="lblAddressAndSpecialty" alignment="CENTER" contentDisplay="CENTER" layoutX="2.0" layoutY="304.0" prefHeight="17.0" prefWidth="794.0" style="-fx-font-weight: bold;" text="Address" textFill="#bfb9b9" />
                   <TextField fx:id="txtAddressAndSpecialty" alignment="TOP_CENTER" editable="false" focusTraversable="false" layoutX="258.0" layoutY="329.0" prefHeight="26.0" prefWidth="281.0" promptText="Calle la pantomima" style="-fx-text-fill: #777;" />
-                  <Label fx:id="lblLogin" alignment="TOP_CENTER" contentDisplay="CENTER" layoutX="1.0" layoutY="378.0" prefHeight="17.0" prefWidth="794.0" style="-fx-font-weight: bold;" text="Login text" textFill="#bfb9b9" />
+                  <Label fx:id="lblLogin" alignment="TOP_CENTER" contentDisplay="CENTER" layoutX="1.0" layoutY="378.0" prefHeight="17.0" prefWidth="794.0" style="-fx-font-weight: bold;" text="Insurance number" textFill="#bfb9b9" />
                   <TextField fx:id="txtLogin" alignment="TOP_CENTER" editable="false" focusTraversable="false" layoutX="287.0" layoutY="407.0" prefHeight="26.0" prefWidth="226.0" promptText="D8796342" style="-fx-text-fill: #777;" />
                   <SplitMenuButton fx:id="splitSpecialty" layoutX="551.0" layoutY="330.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="117.0" text="Specialty">
                      <items>
@@ -150,7 +150,7 @@
                   </SplitMenuButton>
                </children>
             </Pane>
-                <Pane fx:id="pnlList" prefHeight="200.0" prefWidth="200.0">
+                <Pane fx:id="pnlUsersList" prefHeight="200.0" prefWidth="200.0" visible="false">
                     <children>
                         <TextField fx:id="txtSearch" layoutX="590.0" layoutY="47.0" prefHeight="27.0" prefWidth="183.0" promptText="search" style="-fx-background-color: #02030A; -fx-border-color: #B7C3D7; -fx-border-radius: 2em; -fx-text-fill: #B7C3D7;" />
                         <Label fx:id="lblTitle" layoutX="57.0" layoutY="25.0" text="Patients" textFill="#e7e5e5">
@@ -283,7 +283,7 @@
                         </ImageView>
                     </children>
                 </Pane>
-                <Pane fx:id="pnAppointmentForm" prefHeight="597.0" prefWidth="414.0">
+                <Pane fx:id="pnlAppointmentForm" prefHeight="597.0" prefWidth="414.0" visible="false">
                     <children>
                         <Label fx:id="lblDetailTitle1" alignment="TOP_CENTER" layoutY="26.0" prefHeight="27.0" prefWidth="794.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="New Appointment" textAlignment="CENTER" textFill="#dfd2d2" />
                         <Label fx:id="lblDate" alignment="CENTER" layoutX="1.0" layoutY="74.0" prefHeight="17.0" prefWidth="794.0" style="-fx-font-weight: bold;" text="Date" textAlignment="CENTER" textFill="#bfb9b9" />
@@ -306,10 +306,10 @@
                             </font>
                         </Label>
                         <ComboBox fx:id="cBoxPhysios" layoutX="325.0" layoutY="375.0" prefWidth="150.0" />
-                        <Button fx:id="btnDetail1" focusTraversable="false" layoutX="322.0" layoutY="527.0" mnemonicParsing="false" onAction="#btnDetailClick" prefHeight="25.0" prefWidth="156.0" text="Add/Edit" />
+                        <Button fx:id="btnInsertAppointment" focusTraversable="false" layoutX="322.0" layoutY="527.0" mnemonicParsing="false" onAction="#btnAppointmentForm" prefHeight="25.0" prefWidth="156.0" text="Add/Edit" />
                     </children>
                 </Pane>
-            <Pane fx:id="pnlPatientDetail" prefHeight="597.0" prefWidth="414.0">
+            <Pane fx:id="pnlPatientDetail" prefHeight="597.0" prefWidth="414.0" visible="false">
                <children>
                   <Label fx:id="lblDetailPatientTitle" alignment="TOP_CENTER" layoutX="198.0" layoutY="26.0" prefHeight="35.0" prefWidth="506.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Marcos Pérez Pérez" textAlignment="CENTER" textFill="#dfd2d2" />
                   <Line endX="417.0" endY="-67.0" fill="BLACK" layoutX="345.0" layoutY="139.0" startX="-138.19998168945312" startY="-67.0" stroke="#a39e9ea9" />

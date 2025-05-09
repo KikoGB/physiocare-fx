@@ -10,13 +10,25 @@ public class Patient {
     private int id;
     private String name;
     private String surname;
-    private Date birthdate;
+    private String birthdate;
     private String address;
     private String insuranceNumber;
     private String email;
     private String avatar;
     private List<Appointment> appointments;
     private Record record;
+
+    public Patient() {
+    }
+
+    public Patient(String name, String surname, String birthdate, String address, String insuranceNumber, String email) {
+        this.name = name;
+        this.surname = surname;
+        this.birthdate = birthdate;
+        this.address = address;
+        this.insuranceNumber = insuranceNumber;
+        this.email = email;
+    }
 
     public int getId() {
         return id;
@@ -42,11 +54,11 @@ public class Patient {
         this.surname = surname;
     }
 
-    public Date getBirthdate() {
+    public String getBirthdate() {
         return birthdate;
     }
 
-    public void setBirthdate(Date birthdate) {
+    public void setBirthdate(String birthdate) {
         this.birthdate = birthdate;
     }
 

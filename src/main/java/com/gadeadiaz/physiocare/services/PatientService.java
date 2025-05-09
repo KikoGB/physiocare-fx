@@ -3,6 +3,7 @@ package com.gadeadiaz.physiocare.services;
 import com.gadeadiaz.physiocare.exceptions.RequestErrorException;
 import com.gadeadiaz.physiocare.models.Appointment;
 import com.gadeadiaz.physiocare.models.Patient;
+import com.gadeadiaz.physiocare.requests.PatientPOSTRequest;
 import com.gadeadiaz.physiocare.utils.ServiceUtils;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
@@ -37,6 +38,7 @@ public class PatientService {
                 "GET"
         ).thenApply(response -> gson.fromJson(response, Patient.class));
     }
+
     public static CompletableFuture<List<Appointment>> getPatientAppointments(int id)
             throws RequestErrorException {
         return ServiceUtils.getResponseAsync(
@@ -45,6 +47,18 @@ public class PatientService {
                 "GET"
         ).thenApply(response -> {
             Type listType = new TypeToken<List<Appointment>>() {}.getType();
+            return gson.fromJson(response, listType);
+        });
+    }
+
+    public static CompletableFuture<Patient> postPatient(PatientPOSTRequest patient)
+            throws RequestErrorException {
+        return ServiceUtils.getResponseAsync(
+                ServiceUtils.SERVER + "patients",
+                gson.toJson(patient),
+                "POST"
+        ).thenApply(response -> {
+            Type listType = new TypeToken<Patient>() {}.getType();
             return gson.fromJson(response, listType);
         });
     }
