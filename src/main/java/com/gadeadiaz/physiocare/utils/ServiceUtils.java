@@ -88,22 +88,25 @@ public class ServiceUtils {
                     while ((line = errorReaderBuffer.readLine()) != null) {
                         result.add(line);
                     }
+                    System.out.println(result);
                     ErrorResponse errorResponse = new Gson().fromJson(result.toString(), ErrorResponse.class);
                     throw new RequestErrorException(errorResponse);
                 }
             } else {
-                // Handle successful response
-                String charset = getCharset(conn.getHeaderField("Content-Type"));
-                if (charset != null) {
-                    InputStream input = conn.getInputStream();
-                    if ("gzip".equals(conn.getContentEncoding())) {
-                        input = new GZIPInputStream(input);
-                    }
+                if (conn.getResponseCode() != 204) {
+                    // Handle successful response
+                    String charset = getCharset(conn.getHeaderField("Content-Type"));
+                    if (charset != null) {
+                        InputStream input = conn.getInputStream();
+                        if ("gzip".equals(conn.getContentEncoding())) {
+                            input = new GZIPInputStream(input);
+                        }
 
-                    bufInput = new BufferedReader(new InputStreamReader(input));
-                    String line;
-                    while ((line = bufInput.readLine()) != null) {
-                        result.add(line);
+                        bufInput = new BufferedReader(new InputStreamReader(input));
+                        String line;
+                        while ((line = bufInput.readLine()) != null) {
+                            result.add(line);
+                        }
                     }
                 }
             }

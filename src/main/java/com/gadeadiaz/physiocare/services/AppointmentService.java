@@ -3,6 +3,7 @@ package com.gadeadiaz.physiocare.services;
 import com.gadeadiaz.physiocare.exceptions.RequestErrorException;
 import com.gadeadiaz.physiocare.models.Appointment;
 import com.gadeadiaz.physiocare.models.Patient;
+import com.gadeadiaz.physiocare.requests.AppointmentPOSTRequest;
 import com.gadeadiaz.physiocare.utils.ServiceUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -15,8 +16,6 @@ public class AppointmentService {
 
     private static final Gson gson = new Gson();
 
-    // Explicar que cuando lo que devuelve el servidor es un array se debe controlar con try/catch, pero cuando
-    // sea un solo objeto se hace mirando si las propiedades de ErrorResponse son null o no
     public static CompletableFuture<List<Appointment>> getAppointments()
             throws RequestErrorException {
         return ServiceUtils.getResponseAsync(
@@ -34,6 +33,15 @@ public class AppointmentService {
                 ServiceUtils.SERVER + "appointments/" + id,
                 null,
                 "GET"
+        ).thenApply(response -> gson.fromJson(response, Appointment.class));
+    }
+
+    public static CompletableFuture<Appointment> createAppointment(AppointmentPOSTRequest appointmentPOSTRequest)
+            throws RequestErrorException {
+        return ServiceUtils.getResponseAsync(
+                ServiceUtils.SERVER + "appointments",
+                gson.toJson(appointmentPOSTRequest),
+                "POST"
         ).thenApply(response -> gson.fromJson(response, Appointment.class));
     }
 }

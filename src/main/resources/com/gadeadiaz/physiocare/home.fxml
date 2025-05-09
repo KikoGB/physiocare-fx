@@ -119,7 +119,7 @@
         </VBox>
         <StackPane layoutX="258.0" prefHeight="576.0" prefWidth="793.0" style="-fx-background-color: #02030A;">
             <children>
-            <Pane fx:id="pnlDetail" prefHeight="597.0" prefWidth="414.0" visible="false">
+            <Pane fx:id="pnlDetail" prefHeight="597.0" prefWidth="414.0">
                <children>
                   <Label fx:id="lblDetailTitle" alignment="TOP_CENTER" layoutY="26.0" prefHeight="27.0" prefWidth="794.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="New User" textAlignment="CENTER" textFill="#dfd2d2" />
                   <RadioButton fx:id="rbPatient" focusTraversable="false" layoutX="426.0" layoutY="77.0" mnemonicParsing="false" prefHeight="18.0" prefWidth="80.0" text="Patient" textFill="#e1dede" />
@@ -306,10 +306,10 @@
                             </font>
                         </Label>
                         <ComboBox fx:id="cBoxPhysios" layoutX="325.0" layoutY="375.0" prefWidth="150.0" />
-                        <Button fx:id="btnDetail1" focusTraversable="false" layoutX="322.0" layoutY="527.0" mnemonicParsing="false" onAction="#btnDetailClick" prefHeight="25.0" prefWidth="156.0" text="Add/Edit" />
+                        <Button focusTraversable="false" layoutX="322.0" layoutY="527.0" mnemonicParsing="false" onAction="#createAppointment" prefHeight="25.0" prefWidth="156.0" text="Add/Edit" />
                     </children>
                 </Pane>
-            <Pane fx:id="pnlPatientDetail" prefHeight="597.0" prefWidth="414.0">
+            <Pane fx:id="pnlPatientDetail" prefHeight="597.0" prefWidth="414.0" visible="false">
                <children>
                   <Label fx:id="lblDetailPatientTitle" alignment="TOP_CENTER" layoutX="198.0" layoutY="26.0" prefHeight="35.0" prefWidth="506.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Marcos Pérez Pérez" textAlignment="CENTER" textFill="#dfd2d2" />
                   <Line endX="417.0" endY="-67.0" fill="BLACK" layoutX="345.0" layoutY="139.0" startX="-138.19998168945312" startY="-67.0" stroke="#a39e9ea9" />
