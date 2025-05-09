@@ -1,4 +1,4 @@
-package com.gadeadiaz.physiocare.models;
+package com.gadeadiaz.physiocare.responses;
 
 public class ErrorResponse {
     private String message;

@@ -1,8 +1,10 @@
 package com.gadeadiaz.physiocare.utils;
 
+import com.gadeadiaz.physiocare.exceptions.RequestErrorException;
+import com.gadeadiaz.physiocare.responses.ErrorResponse;
+import com.google.gson.Gson;
 import javafx.util.Pair;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -78,17 +80,16 @@ public class ServiceUtils {
                 }
             }
 
-            // Check server response code
-            int responseCode = conn.getResponseCode();
-            if (responseCode != HttpsURLConnection.HTTP_OK &&
-                    responseCode != HttpsURLConnection.HTTP_CREATED) {
-
-                // Read error stream
-                try (BufferedReader errorReaderBuffer = new BufferedReader(new InputStreamReader(conn.getErrorStream()))) {
+            if (conn.getResponseCode() >= 400) {
+                try (BufferedReader errorReaderBuffer = new BufferedReader(
+                        new InputStreamReader(conn.getErrorStream())
+                )) {
                     String line;
                     while ((line = errorReaderBuffer.readLine()) != null) {
                         result.add(line);
                     }
+                    ErrorResponse errorResponse = new Gson().fromJson(result.toString(), ErrorResponse.class);
+                    throw new RequestErrorException(errorResponse);
                 }
             } else {
                 // Handle successful response

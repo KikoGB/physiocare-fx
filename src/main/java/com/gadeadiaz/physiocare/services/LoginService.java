@@ -1,6 +1,6 @@
 package com.gadeadiaz.physiocare.services;
 
-import com.gadeadiaz.physiocare.models.auth.AuthResponse;
+import com.gadeadiaz.physiocare.models.auth.LoginResponse;
 import com.gadeadiaz.physiocare.models.auth.LoginRequest;
 import com.gadeadiaz.physiocare.utils.Message;
 import com.gadeadiaz.physiocare.utils.ServiceUtils;
@@ -19,7 +19,7 @@ public class LoginService {
                     "POST"
             );
 
-            AuthResponse authResponse = gson.fromJson(response, AuthResponse.class);
+            LoginResponse authResponse = gson.fromJson(response, LoginResponse.class);
             Storage storage = Storage.getInstance();
             if (!(authResponse.getToken().isEmpty() || authResponse.getRol().isEmpty())) {
                 if (authResponse.getRol().equals("patient")) {

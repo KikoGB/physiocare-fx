@@ -1,6 +1,6 @@
 package com.gadeadiaz.physiocare.exceptions;
 
-import com.gadeadiaz.physiocare.models.ErrorResponse;
+import com.gadeadiaz.physiocare.responses.ErrorResponse;
 
 public class RequestErrorException extends RuntimeException {
     private final ErrorResponse errorResponse;

@@ -3,41 +3,31 @@ package com.gadeadiaz.physiocare;
 import com.gadeadiaz.physiocare.controllers.CloseController;
 import com.gadeadiaz.physiocare.controllers.UserItemController;
 import com.gadeadiaz.physiocare.exceptions.RequestErrorException;
-import com.gadeadiaz.physiocare.models.ErrorResponse;
+import com.gadeadiaz.physiocare.responses.ErrorResponse;
 import com.gadeadiaz.physiocare.models.Patient;
-import com.gadeadiaz.physiocare.models.patient.PatientListResponse;
-import com.gadeadiaz.physiocare.models.patient.PatientResponse;
-import com.gadeadiaz.physiocare.models.physio.PhysioResponse;
-import com.gadeadiaz.physiocare.models.record.RecordListResponse;
 import com.gadeadiaz.physiocare.services.PatientService;
+import com.gadeadiaz.physiocare.services.PhysioService;
 import com.gadeadiaz.physiocare.utils.Message;
 import com.gadeadiaz.physiocare.utils.SceneLoader;
 import com.gadeadiaz.physiocare.models.Physio;
-import com.gadeadiaz.physiocare.models.physio.PhysioListResponse;
 import com.gadeadiaz.physiocare.utils.Storage;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import com.gadeadiaz.physiocare.utils.ServiceUtils;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.net.URL;
 import java.time.ZoneId;
 import java.util.*;
 
 public class Controller implements CloseController {
-
     @FXML
     private TextField txtSearch;
     @FXML
@@ -108,6 +98,12 @@ public class Controller implements CloseController {
         getPatients();
     }
 
+    private void showListPanel(){
+        pnlDetail.setVisible(false);
+        pnlList.setVisible(true);
+        pnlList.toFront();
+    }
+
     private void showPatients(List<Patient> patients) {
         pnItems.getChildren().clear();
         for (Patient patient : patients) {
@@ -123,16 +119,16 @@ public class Controller implements CloseController {
                 controller.setLblAttribute3(patient.getEmail());
                 controller.setLblAttribute4(patient.getInsuranceNumber());
 
-                node.setOnMouseEntered(event -> node.setStyle("-fx-background-color : #0A0E3F"));
-                node.setOnMouseExited(event -> node.setStyle("-fx-background-color : #02030A"));
+                node.setOnMouseEntered(_ -> node.setStyle("-fx-background-color : #0A0E3F"));
+                node.setOnMouseExited(_ -> node.setStyle("-fx-background-color : #02030A"));
 
-                controller.setDetailListener(idPatient -> {
+                controller.setDetailListener(_ -> {
                     selectedPatient = patient;
                     selectedPhysio = null;
                     showPatient();
                 });
 
-                controller.setDeleteListener(idPatient -> {
+                controller.setDeleteListener(_ -> {
                     selectedPatient = patient;
                     deletePatient();
                 });
@@ -147,26 +143,31 @@ public class Controller implements CloseController {
 
     private void getPatients() {
         showListPanel();
-        PatientService.getPatients("").thenAccept(this::showPatients)
-                .exceptionally(e -> {
-                    e.printStackTrace();
-                    RequestErrorException ex = (RequestErrorException) e.getCause();
-                    ErrorResponse errorResponse = ex.getErrorResponse();
-                    Platform.runLater(() ->
-                            Message.showError(errorResponse.getError(), errorResponse.getMessage())
-                    );
-                    return null;
-                });
+        PatientService.getPatients("").thenAccept(patients -> {
+            selectedListEntity = ENTITIES.PATIENT;
+            Platform.runLater(() -> showPatients(patients));
+        }).exceptionally(e -> {
+            RequestErrorException ex = (RequestErrorException) e.getCause();
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            Platform.runLater(() ->
+                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            );
+            return null;
+        });
     }
 
     private void getPatientsBySurname() {
-        PatientService.getPatients(txtSearch.getText()).thenAccept(this::showPatients)
-                .exceptionally(e -> {
-                    RequestErrorException ex = (RequestErrorException) e.getCause();
-                    ErrorResponse errorResponse = ex.getErrorResponse();
-                    Message.showError(errorResponse.getError(), errorResponse.getMessage());
-                    return null;
-                });
+        PatientService.getPatients(txtSearch.getText()).thenAccept(patients -> {
+            selectedListEntity = ENTITIES.PATIENT;
+            Platform.runLater(() -> showPatients(patients));
+        }).exceptionally(e -> {
+            RequestErrorException ex = (RequestErrorException) e.getCause();
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            Platform.runLater(() ->
+                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            );
+            return null;
+        });
     }
 
     /**
@@ -174,7 +175,7 @@ public class Controller implements CloseController {
      * If the deletion fails, an error message is displayed.
      */
     private void deletePatient() {
-        String apiUrl = ServiceUtils.SERVER + "patients/" + selectedPatient.getId();
+        /*String apiUrl = ServiceUtils.SERVER + "patients/" + selectedPatient.getId();
         ServiceUtils.getResponseAsync(apiUrl, null, "DELETE")
                 .thenApply(json -> gson.fromJson(json, PatientResponse.class))
                 .thenAccept(response -> {
@@ -191,17 +192,9 @@ public class Controller implements CloseController {
                         openLoginView(stage);
                     });
                     return null;
-                });
+                });*/
     }
 
-    /**
-     * Shows the list panel in the UI and hides the detail panel.
-     */
-    private void showListPanel(){
-        pnlDetail.setVisible(false);
-        pnlList.setVisible(true);
-        pnlList.toFront();
-    }
 
     /**
      * Shows the detail panel in the UI and hides the list panel.
@@ -215,78 +208,38 @@ public class Controller implements CloseController {
     }
 
     /**
-     * Fetches the list of physiotherapists from the server and updates the UI with the retrieved data.
-     * If there is an error, an error message is displayed.
-     */
-    private void getPhysios() {
-        showListPanel();
-        executePhysioCompletableFuture(ServiceUtils.SERVER + "physios");
-    }
-    private void getPhysiosBySpecialty() {
-        executePhysioCompletableFuture(ServiceUtils.SERVER + "physios/find?search=" + txtSearch.getText());
-    }
-
-    private void executePhysioCompletableFuture(String apiUrl){
-        ServiceUtils.getResponseAsync(apiUrl, null, "GET")
-                .thenApply(json -> gson.fromJson(json, PhysioListResponse.class))
-                .thenAccept(response -> {
-                    if (response.isOk() && response.getPhysios() != null) {
-                        Platform.runLater(() -> {
-                            selectedListEntity = ENTITIES.PHYSIO;
-                            showPhysios(response.getPhysios());
-                        });
-                    } else {
-                        Platform.runLater(() -> Message.showError("Get all physios error", response.getError()));
-                    }
-                })
-                .exceptionally(ex -> {
-                    System.out.println("Get physios error -> " + ex.getMessage());
-                    Platform.runLater(() -> {
-                        Message.showError("Get physios error", "Failed to fetch physios");
-                        openLoginView(stage);
-                    });
-                    return null;
-                });
-    }
-    private void getRecords() {
-        showListPanel();
-        executePhysioCompletableFuture(ServiceUtils.SERVER + "records");
-    }
-
-
-
-    /**
      * Displays the list of physiotherapists on the UI.
      * @param physios The list of physiotherapists to be displayed.
      */
     private void showPhysios(List<Physio> physios) {
         pnItems.getChildren().clear();
         for (Physio physio : physios) {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/gadeadiaz/physiocare/user_item.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/gadeadiaz/physiocare/user_item.fxml")
+            );
             try {
                 Node node = loader.load();
                 UserItemController controller = loader.getController();
 
                 //controller.setUserId(physio.getId());
-
-                controller.setDetailListener(idPatient -> {
-                    selectedPhysio = physio;
-                    selectedPatient = null;
-                    showPhysio();
-                });
-
-                controller.setDeleteListener(idPatient -> {
-                    selectedPhysio = physio;
-                    deletePhysio();
-                });
-
                 controller.setLblAttribute1(physio.getName());
                 controller.setLblAttribute2(physio.getSurname());
                 controller.setLblAttribute3(physio.getEmail());
                 controller.setLblAttribute4(physio.getLicenseNumber());
 
-                node.setOnMouseEntered(event -> node.setStyle("-fx-background-color : #0A0E3F"));
-                node.setOnMouseExited(event -> node.setStyle("-fx-background-color : #02030A"));
+                node.setOnMouseEntered(_ -> node.setStyle("-fx-background-color : #0A0E3F"));
+                node.setOnMouseExited(_ -> node.setStyle("-fx-background-color : #02030A"));
+
+                controller.setDetailListener(_ -> {
+                    selectedPhysio = physio;
+                    selectedPatient = null;
+                    showPhysio();
+                });
+
+                controller.setDeleteListener(_ -> {
+                    selectedPhysio = physio;
+                    deletePhysio();
+                });
 
                 pnItems.getChildren().add(node);
             } catch (IOException e) {
@@ -296,13 +249,47 @@ public class Controller implements CloseController {
         txtPhysiosCount.setText(String.valueOf(physios.size()));
     }
 
+    /**
+     * Fetches the list of physiotherapists from the server and updates the UI with the retrieved data.
+     * If there is an error, an error message is displayed.
+     */
+    private void getPhysios() {
+        showListPanel();
+        PhysioService.getPhysios("").thenAccept(physios -> {
+            selectedListEntity = ENTITIES.PHYSIO;
+            Platform.runLater(() -> showPhysios(physios));
+        }).exceptionally(e -> {
+            RequestErrorException ex = (RequestErrorException) e.getCause();
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            Platform.runLater(() ->
+                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            );
+            return null;
+        });
+    }
+    private void getPhysiosBySpecialty() {
+        PhysioService.getPhysios(txtSearch.getText()).thenAccept(physios -> {
+            selectedListEntity = ENTITIES.PHYSIO;
+            Platform.runLater(() -> showPhysios(physios));
+        }).exceptionally(e -> {
+            RequestErrorException ex = (RequestErrorException) e.getCause();
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            Platform.runLater(() ->
+                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            );
+            return null;
+        });
+    }
+    private void getRecords() {
+        showListPanel();
+    }
 
     /**
      * Deletes the currently selected physio by making an asynchronous DELETE request to the server.
      * If the deletion is successful, the list of physios is refreshed. Otherwise, an error message is shown.
      */
     private void deletePhysio() {
-        String apiUrl = ServiceUtils.SERVER + "physios/" + selectedPhysio.getId();
+        /*String apiUrl = ServiceUtils.SERVER + "physios/" + selectedPhysio.getId();
         ServiceUtils.getResponseAsync(apiUrl, null, "DELETE")
                 .thenApply(json -> gson.fromJson(json, PhysioResponse.class)
                 )
@@ -320,7 +307,7 @@ public class Controller implements CloseController {
                         openLoginView(stage);
                     });
                     return null;
-                });
+                });*/
     }
 
     /**
@@ -387,10 +374,7 @@ public class Controller implements CloseController {
         try {
             SceneLoader.loadScreen("login.fxml", stage);
         } catch (IOException ex) {
-            stage.setOnCloseRequest(e -> // Close program
-            {
-                stage.close();
-            });
+            stage.setOnCloseRequest(_ -> stage.close());
         }
     }
 
@@ -584,7 +568,7 @@ public class Controller implements CloseController {
      * If the request is successful, the list of patients is refreshed. If there is an error, an error message is displayed.
      */
     private void postPatient() {
-        if(dpBirthDate.getValue() == null){
+        /*if(dpBirthDate.getValue() == null){
             Message.showError("Empty Birth Date", "Value of birth date cannot be empty!");
         } else {
             Map<String, Object> postBody = createPatientRequestBody();
@@ -608,7 +592,7 @@ public class Controller implements CloseController {
                         });
                         return null;
                     });
-        }
+        }*/
     }
 
     /**
@@ -616,7 +600,7 @@ public class Controller implements CloseController {
      * If the update is successful, the patient's details are displayed. Otherwise, an error message is shown.
      */
     private void putPatient() {
-        if(dpBirthDate.getValue() == null){
+        /*if(dpBirthDate.getValue() == null){
             Message.showError("Empty Birth Date", "Value of birth date cannot be empty!");
         } else {
             Map<String, Object> postBody = createPatientRequestBody();
@@ -643,7 +627,7 @@ public class Controller implements CloseController {
                         });
                         return null;
                     });
-        }
+        }*/
     }
 
     /**
@@ -651,7 +635,7 @@ public class Controller implements CloseController {
      * If the request is successful, the list of physios is refreshed. If there is an error, an error message is displayed.
      */
     private void postPhysio() {
-        Map<String, Object> postBody = createPhysioRequestBody();
+        /*Map<String, Object> postBody = createPhysioRequestBody();
 
         String apiUrl = ServiceUtils.SERVER + "physios";
         String jsonRequest = gson.toJson(postBody);
@@ -672,7 +656,7 @@ public class Controller implements CloseController {
                         openLoginView(stage);
                     });
                     return null;
-                });
+                });*/
     }
 
     /**
@@ -680,7 +664,7 @@ public class Controller implements CloseController {
      * If the update is successful, the physio's details are displayed. Otherwise, an error message is shown.
      */
     private void putPhysio() {
-        Map<String, Object> postBody = createPhysioRequestBody();
+        /*Map<String, Object> postBody = createPhysioRequestBody();
 
         String apiUrl = ServiceUtils.SERVER + "physios/" + selectedPhysio.getId();
         String jsonRequest = gson.toJson(postBody);
@@ -704,7 +688,7 @@ public class Controller implements CloseController {
                         openLoginView(stage);
                     });
                     return null;
-                });
+                });*/
     }
 
     /**

@@ -81,6 +81,13 @@ public class Appointment {
 
     @Override
     public String toString() {
-        return "Appointment -> " + id + ", " + date + ", " + diagnosis + ", " + treatment + ", " + observations;
+        return "Appointment{" +
+                "id=" + id +
+                ", date=" + date +
+                ", diagnosis='" + diagnosis + '\'' +
+                ", treatment='" + treatment + '\'' +
+                ", observations='" + observations + '\'' +
+                ", confirmed=" + confirmed +
+                '}';
     }
 }

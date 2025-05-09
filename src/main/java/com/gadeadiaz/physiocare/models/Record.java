@@ -42,6 +42,9 @@ public class Record {
 
     @Override
     public String toString() {
-        return "Record -> " + id + ", " + patient + ", " + medicalRecord + ", " + appointments;
+        return "Record{" +
+                "id=" + id +
+                ", medicalRecord='" + medicalRecord + '\'' +
+                '}';
     }
 }

@@ -81,6 +81,14 @@ public class Physio {
 
     @Override
     public String toString() {
-        return name + " " + surname + ", " + specialty + ", " + licenseNumber + ", ";
+        return "Physio{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", specialty='" + specialty + '\'' +
+                ", licenseNumber='" + licenseNumber + '\'' +
+                ", email='" + email + '\'' +
+                ", avatar='" + avatar + '\'' +
+                '}';
     }
 }

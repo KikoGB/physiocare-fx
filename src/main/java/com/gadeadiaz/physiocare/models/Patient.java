@@ -100,7 +100,15 @@ public class Patient {
 
     @Override
     public String toString() {
-        return "Patient -> " + name + " " + surname + ", " + birthdate + ", " + address + ", "
-                + insuranceNumber;
+        return "Patient{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", birthdate=" + birthdate +
+                ", address='" + address + '\'' +
+                ", insuranceNumber='" + insuranceNumber + '\'' +
+                ", email='" + email + '\'' +
+                ", avatar='" + avatar + '\'' +
+                '}';
     }
 }
