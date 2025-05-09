@@ -1,6 +1,7 @@
 package com.gadeadiaz.physiocare.services;
 
 import com.gadeadiaz.physiocare.exceptions.RequestErrorException;
+import com.gadeadiaz.physiocare.models.Appointment;
 import com.gadeadiaz.physiocare.models.Physio;
 import com.gadeadiaz.physiocare.utils.ServiceUtils;
 import com.google.gson.Gson;
@@ -31,5 +32,17 @@ public class PhysioService {
                 null,
                 "GET"
         ).thenApply(response -> gson.fromJson(response, Physio.class));
+    }
+
+    public static CompletableFuture<List<Appointment>> getPhysioAppointments(int id)
+            throws RequestErrorException {
+        return ServiceUtils.getResponseAsync(
+                ServiceUtils.SERVER + "physios/" + id + "/appointments",
+                null,
+                "GET"
+        ).thenApply(response -> {
+            Type listType = new TypeToken<List<Appointment>>() {}.getType();
+            return gson.fromJson(response, listType);
+        });
     }
 }

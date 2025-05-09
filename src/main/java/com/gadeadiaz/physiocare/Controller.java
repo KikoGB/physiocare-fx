@@ -1,10 +1,13 @@
 package com.gadeadiaz.physiocare;
 
+import com.gadeadiaz.physiocare.controllers.AppointmentItemController;
 import com.gadeadiaz.physiocare.controllers.CloseController;
 import com.gadeadiaz.physiocare.controllers.UserItemController;
 import com.gadeadiaz.physiocare.exceptions.RequestErrorException;
+import com.gadeadiaz.physiocare.models.Appointment;
 import com.gadeadiaz.physiocare.responses.ErrorResponse;
 import com.gadeadiaz.physiocare.models.Patient;
+import com.gadeadiaz.physiocare.services.AppointmentService;
 import com.gadeadiaz.physiocare.services.PatientService;
 import com.gadeadiaz.physiocare.services.PhysioService;
 import com.gadeadiaz.physiocare.utils.Message;
@@ -18,16 +21,31 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.util.*;
 
 public class Controller implements CloseController {
+
+    @FXML
+    private Label lblDetailPatientTitle;
+    @FXML
+    private Label txtDetailEmail;
+    @FXML
+    private Label txtDetailAddress;
+    @FXML
+    private Label txtDetailInsuranceNumber;
+    @FXML
+    private Label txtDetailBirthDate;
+    @FXML
+    private Pane pnlPatientDetail;
     @FXML
     private TextField txtSearch;
     @FXML
@@ -82,16 +100,19 @@ public class Controller implements CloseController {
     private Label txtPatientsCount;
     @FXML
     private Label lblColumn4;
-
     @FXML
     private VBox pnItems;
+    @FXML
+    private VBox pnAppointments;
 
+    private final SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yy");
     private final Gson gson = new Gson();
     private Stage stage;
     private Patient selectedPatient;
     private Physio selectedPhysio;
+    private Appointment selectedAppointment;
 
-    private enum ENTITIES{PATIENT, PHYSIO}
+    private enum ENTITIES{PATIENT, PHYSIO, APPOINTMENT}
     private ENTITIES selectedListEntity = ENTITIES.PATIENT;
 
     public void initialize() {
@@ -101,6 +122,7 @@ public class Controller implements CloseController {
     private void showListPanel(){
         pnlDetail.setVisible(false);
         pnlList.setVisible(true);
+        pnlPatientDetail.setVisible(false);
         pnlList.toFront();
     }
 
@@ -125,7 +147,8 @@ public class Controller implements CloseController {
                 controller.setDetailListener(_ -> {
                     selectedPatient = patient;
                     selectedPhysio = null;
-                    showPatient();
+                    showPatientDetail(patient);
+//                    showPatientForm();
                 });
 
                 controller.setDeleteListener(_ -> {
@@ -204,7 +227,9 @@ public class Controller implements CloseController {
         specialtyListener();
         pnlDetail.setVisible(true);
         pnlList.setVisible(false);
+        pnlPatientDetail.setVisible(false);
         pnlDetail.toFront();
+
     }
 
     /**
@@ -280,6 +305,68 @@ public class Controller implements CloseController {
             return null;
         });
     }
+
+    /**
+     * Displays the list of appointments on the UI.
+     * @param appointments The list of appointments to be displayed.
+     */
+    private void showAppointments(List<Appointment> appointments) {
+        pnAppointments.getChildren().clear();
+        for (Appointment appointment : appointments) {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/gadeadiaz/physiocare/appointment_item.fxml")
+            );
+            try {
+                Node node = loader.load();
+                AppointmentItemController controller = loader.getController();
+
+                String questionImage = "/com/gadeagiaz/physiocare/images/question.jpg";
+                String acceptAppointmentImage = "/com/gadeagiaz/physiocare/images/ok_appointment.jpg";
+
+                controller.setAppointmentId(appointment.getId());
+//                if(appointment.getConfirmed()){
+//                    controller.getImgAppointment().setImage(new Image(acceptAppointmentImage));
+//                }else{
+//                    controller.getImgAppointment().setImage(new Image(questionImage));
+//                }
+
+
+                controller.getLblDate().setText(formatter.format(appointment.getDate()));
+                controller.getLblDiagnosis().setText(appointment.getDiagnosis());
+
+                controller.getLblPhysioName().setText(appointment.getPhysio().getName() + " " + appointment.getPhysio().getSurname());
+
+                node.setOnMouseEntered(_ -> node.setStyle("-fx-background-color : #0A0E3F"));
+                node.setOnMouseExited(_ -> node.setStyle("-fx-background-color : #02030A"));
+
+                controller.setAppointmentDetailListener(_ -> {
+//                    selectedAppointment = appointment;
+//                    selectedPatient = null;
+//                    selectedPhysio = null;
+                    System.out.println(appointment);
+                });
+
+                pnAppointments.getChildren().add(node);
+            } catch (IOException e) {
+                System.out.println("Appointment loader fail: " + e.getMessage());
+            }
+        }
+        txtPhysiosCount.setText(String.valueOf(appointments.size()));
+    }
+
+    private void getAppointments(int patientId) {
+        PatientService.getPatientAppointments(patientId).thenAccept(appointments -> {
+            selectedListEntity = ENTITIES.APPOINTMENT;
+            Platform.runLater(() -> showAppointments(appointments));
+        }).exceptionally(e -> {
+            RequestErrorException ex = (RequestErrorException) e.getCause();
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            Platform.runLater(() ->
+                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            );
+            return null;
+        });
+    }
     private void getRecords() {
         showListPanel();
     }
@@ -314,7 +401,7 @@ public class Controller implements CloseController {
      * Displays detailed information of the currently selected patient.
      * Sets text fields and labels with patient data and adjusts the UI components to display the patient's details.
      */
-    private void showPatient() {
+    private void showPatientForm() {
         showDetailPanel();
         editFormTextFields(false);
 
@@ -335,6 +422,25 @@ public class Controller implements CloseController {
         dpBirthDate.setEditable(false);
         //dpBirthDate.setValue(selectedPatient.getBirthDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
         btnDetail.setText("EDIT");
+    }
+
+    private void showPatientDetail(Patient patient){
+
+        pnlDetail.setVisible(false);
+        pnlPatientDetail.setVisible(false);
+        pnlList.setVisible(false);
+        pnlPatientDetail.setVisible(true);
+        pnlPatientDetail.toFront();
+        lblDetailPatientTitle.setText(patient.getName() + " " + patient.getSurname());
+        txtDetailEmail.setText(patient.getEmail());
+        if(patient.getAddress().isEmpty()){
+            txtDetailAddress.setText("Address not indicated");
+        }else{
+            txtDetailAddress.setText(patient.getAddress());
+        }
+        txtDetailInsuranceNumber.setText(patient.getInsuranceNumber());
+        txtDetailBirthDate.setText(formatter.format(patient.getBirthdate()));
+        getAppointments(patient.getId());
     }
 
     /**

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+
+<HBox fx:id="hbox_accept_appointment" alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#appointmentClick" prefHeight="53.0" prefWidth="695.0" spacing="20.0" style="-fx-background-color: #02030A; -fx-background-radius: 5; -fx-background-insets: 0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gadeadiaz.physiocare.controllers.AppointmentItemController">
+    <children>
+      <ImageView fx:id="imgAppointment" fitHeight="31.0" fitWidth="31.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@images/ok_appointment.png" />
+         </image>
+         <HBox.margin>
+            <Insets left="20.0" />
+         </HBox.margin>
+      </ImageView>
+        <Label fx:id="lblDate" alignment="CENTER" prefHeight="18.0" prefWidth="88.0" text="15/05/2025" textFill="#b7c3d7">
+            <HBox.margin>
+                <Insets />
+            </HBox.margin>
+        </Label>
+      <Label fx:id="lblDiagnosis" alignment="CENTER" prefHeight="18.0" prefWidth="305.0" text="Paciente bastante tocado de la cabeza" textFill="#b7c3d7" />
+      <HBox fx:id="hboxPhysio" alignment="CENTER" prefHeight="32.0" prefWidth="197.0">
+         <children>
+            <ImageView fx:id="imgPhysio" fitHeight="23.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@images/doctor_icon.png" />
+               </image>
+               <HBox.margin>
+                  <Insets left="20.0" right="20.0" />
+               </HBox.margin>
+            </ImageView>
+            <Label fx:id="lblPhysioName" prefHeight="18.0" prefWidth="305.0" text="Amador Rivas" textFill="#b7c3d7" />
+         </children>
+      </HBox>
+    </children>
+    <effect>
+        <DropShadow blurType="GAUSSIAN" height="5.0" radius="2.0" width="5.0" />
+    </effect>
+</HBox>

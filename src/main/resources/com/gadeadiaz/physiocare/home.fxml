@@ -17,6 +17,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="576.0" prefWidth="1050.0" style="-fx-background-color: #02030A;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gadeadiaz.physiocare.Controller">
@@ -148,7 +149,7 @@
                   </SplitMenuButton>
                </children>
             </Pane>
-                <Pane fx:id="pnlList" prefHeight="200.0" prefWidth="200.0" visible="false">
+                <Pane fx:id="pnlList" prefHeight="200.0" prefWidth="200.0">
                     <children>
                         <TextField fx:id="txtSearch" layoutX="590.0" layoutY="47.0" prefHeight="27.0" prefWidth="183.0" promptText="search" style="-fx-background-color: #02030A; -fx-border-color: #B7C3D7; -fx-border-radius: 2em; -fx-text-fill: #B7C3D7;" />
                         <Label fx:id="lblTitle" layoutX="57.0" layoutY="25.0" text="Patients" textFill="#e7e5e5">
@@ -261,6 +262,64 @@
                         </ImageView>
                     </children>
                 </Pane>
+            <Pane fx:id="pnlPatientDetail" prefHeight="597.0" prefWidth="414.0">
+               <children>
+                  <Label fx:id="lblDetailPatientTitle" alignment="TOP_CENTER" layoutX="198.0" layoutY="26.0" prefHeight="35.0" prefWidth="506.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Marcos Pérez Pérez" textAlignment="CENTER" textFill="#dfd2d2" />
+                  <Line endX="417.0" endY="-67.0" fill="BLACK" layoutX="345.0" layoutY="139.0" startX="-138.19998168945312" startY="-67.0" stroke="#a39e9ea9" />
+                  <Label fx:id="lblDetailEmail" layoutX="208.0" layoutY="159.0" prefHeight="17.0" prefWidth="76.0" style="-fx-font-weight: bold;" text="Mail:" textFill="#bfb9b9" />
+                  <Label fx:id="txtDetailEmail" layoutX="286.0" layoutY="159.0" prefHeight="17.0" prefWidth="215.0" style="-fx-font-weight: bold;" text="davidpacheco@gmail.com" textFill="#bfb9b9" />
+                  <Label fx:id="lblDetailAddress" layoutX="205.0" layoutY="99.0" prefHeight="17.0" prefWidth="80.0" style="-fx-font-weight: bold;" text="Address:" textFill="#bfb9b9" />
+                  <Label fx:id="lblDetailInsuranceNumber" layoutX="503.0" layoutY="99.0" prefHeight="17.0" prefWidth="117.0" style="-fx-font-weight: bold;" text="Insurance Number:" textFill="#bfb9b9" />
+                  <Label fx:id="lblDetailBirthDate" layoutX="502.0" layoutY="152.0" prefHeight="17.0" prefWidth="76.0" style="-fx-font-weight: bold;" text="Birth Date:" textFill="#bfb9b9" />
+                  <Label fx:id="txtDetailAddress" layoutX="286.0" layoutY="99.0" prefHeight="17.0" prefWidth="162.0" style="-fx-font-weight: bold;" text="Carrer La movida 2" textFill="#bfb9b9" />
+                  <Label fx:id="txtDetailInsuranceNumber" layoutX="633.0" layoutY="99.0" prefHeight="17.0" prefWidth="108.0" style="-fx-font-weight: bold;" text="1234567ER" textFill="#bfb9b9" />
+                  <Label fx:id="txtDetailBirthDate" layoutX="633.0" layoutY="152.0" prefHeight="17.0" prefWidth="108.0" style="-fx-font-weight: bold;" text="06/09/1999" textFill="#bfb9b9" />
+                  <ImageView fitHeight="110.0" fitWidth="128.0" layoutX="48.0" layoutY="61.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/patient_icon.png" />
+                     </image>
+                  </ImageView>
+                  <Line endX="589.60009765625" endY="-67.00001525878906" fill="BLACK" layoutX="170.0" layoutY="282.0" startX="-138.19998168945312" startY="-67.0" stroke="#a39e9ea9" />
+                  <ScrollPane fx:id="scrollPaneAppointments" layoutY="256.0" prefHeight="320.0" prefWidth="746.0" stylesheets="@style.css">
+                     <content>
+                        <VBox fx:id="pnAppointments" prefHeight="318.0" prefWidth="744.0" spacing="5.0" style="-fx-background-color: #02030A;">
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                        </VBox>
+                     </content>
+                  </ScrollPane>
+               </children>
+            </Pane>
+            <Pane fx:id="pnlPhysioDetail" prefHeight="597.0" prefWidth="414.0" visible="false">
+               <children>
+                  <Label fx:id="lblDetailPhysioTitle" alignment="TOP_CENTER" layoutX="198.0" layoutY="26.0" prefHeight="35.0" prefWidth="506.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Marcos Pérez Pérez" textAlignment="CENTER" textFill="#dfd2d2" />
+                  <Line endX="417.0" endY="-67.0" fill="BLACK" layoutX="345.0" layoutY="139.0" startX="-138.19998168945312" startY="-67.0" stroke="#a39e9ea9" />
+                  <Label fx:id="lblDetailEmail1" layoutX="208.0" layoutY="159.0" prefHeight="17.0" prefWidth="76.0" style="-fx-font-weight: bold;" text="Mail:" textFill="#bfb9b9" />
+                  <Label fx:id="txtDetailEmail1" layoutX="286.0" layoutY="159.0" prefHeight="17.0" prefWidth="215.0" style="-fx-font-weight: bold;" text="davidpacheco@gmail.com" textFill="#bfb9b9" />
+                  <Label fx:id="lblDetailAddress1" layoutX="205.0" layoutY="99.0" prefHeight="17.0" prefWidth="80.0" style="-fx-font-weight: bold;" text="Address:" textFill="#bfb9b9" />
+                  <Label fx:id="lblDetailInsuranceNumber1" layoutX="503.0" layoutY="99.0" prefHeight="17.0" prefWidth="117.0" style="-fx-font-weight: bold;" text="Insurance Number:" textFill="#bfb9b9" />
+                  <Label fx:id="lblDetailBirthDate1" layoutX="502.0" layoutY="152.0" prefHeight="17.0" prefWidth="76.0" style="-fx-font-weight: bold;" text="Birth Date:" textFill="#bfb9b9" />
+                  <Label fx:id="txtDetailAddress1" layoutX="286.0" layoutY="99.0" prefHeight="17.0" prefWidth="162.0" style="-fx-font-weight: bold;" text="Carrer La movida 2" textFill="#bfb9b9" />
+                  <Label fx:id="txtDetailInsuranceNumber1" layoutX="633.0" layoutY="99.0" prefHeight="17.0" prefWidth="108.0" style="-fx-font-weight: bold;" text="1234567ER" textFill="#bfb9b9" />
+                  <Label fx:id="txtDetailBirthDate1" layoutX="633.0" layoutY="152.0" prefHeight="17.0" prefWidth="108.0" style="-fx-font-weight: bold;" text="06/09/1999" textFill="#bfb9b9" />
+                  <ImageView fitHeight="110.0" fitWidth="128.0" layoutX="48.0" layoutY="61.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/patient_icon.png" />
+                     </image>
+                  </ImageView>
+                  <Line endX="589.60009765625" endY="-67.00001525878906" fill="BLACK" layoutX="170.0" layoutY="282.0" startX="-138.19998168945312" startY="-67.0" stroke="#a39e9ea9" />
+                  <ScrollPane fx:id="scrollPaneAppointments1" layoutY="256.0" prefHeight="320.0" prefWidth="746.0" stylesheets="@style.css">
+                     <content>
+                        <VBox fx:id="pnAppointments1" prefHeight="318.0" prefWidth="744.0" spacing="5.0" style="-fx-background-color: #02030A;">
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                        </VBox>
+                     </content>
+                  </ScrollPane>
+               </children>
+            </Pane>
             </children>
         </StackPane>
     </children>
