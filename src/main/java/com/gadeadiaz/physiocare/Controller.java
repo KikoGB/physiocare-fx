@@ -7,9 +7,9 @@ import com.gadeadiaz.physiocare.controllers.UserItemController;
 import com.gadeadiaz.physiocare.exceptions.RequestErrorException;
 import com.gadeadiaz.physiocare.models.*;
 import com.gadeadiaz.physiocare.models.Record;
-import com.gadeadiaz.physiocare.requests.PatientPOSTRequest;
+import com.gadeadiaz.physiocare.requests.*;
 import com.gadeadiaz.physiocare.models.Appointment;
-import com.gadeadiaz.physiocare.requests.AppointmentPOSTRequest;
+import com.gadeadiaz.physiocare.models.Record;
 import com.gadeadiaz.physiocare.models.User;
 import com.gadeadiaz.physiocare.responses.ErrorResponse;
 import com.gadeadiaz.physiocare.services.AppointmentService;
@@ -102,6 +102,8 @@ public class Controller implements CloseController {
     @FXML
     private Button btnAddAppointment;
     @FXML
+    private Button btnAddPhysio;
+    @FXML
     private Label lblTitle;
     @FXML
     private Label txtPhysiosCount;
@@ -134,15 +136,30 @@ public class Controller implements CloseController {
     @FXML
     private VBox pnAppointments;
 
+    // --- PHYSIO FORM ---
+    @FXML
+    private Pane pnlPhysioForm;
+    @FXML
+    private TextField tfNickPhysioForm;
+    @FXML
+    private PasswordField tfPasswordPhysioForm;
+    @FXML
+    private TextField tfNamePhysioForm;
+    @FXML
+    private TextField tfSurnamePhysioForm;
+    @FXML
+    private ComboBox<String> cBoxSpecialtyPhysioForm;
+    @FXML
+    private TextField tfLicenseNumberPhysioForm;
+    @FXML
+    private TextField tfEmailPhysioForm;
+
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final Gson gson = new Gson();
     private Stage stage;
     private Patient selectedPatient;
     private Physio selectedPhysio;
     private Appointment selectedAppointment;
-
-
-
 
     private enum Entity { PATIENT, PHYSIO, RECORD, APPOINTMENT }
     private Entity selectedListEntity = Entity.PATIENT;
@@ -340,7 +357,7 @@ public class Controller implements CloseController {
         } else {
             PatientPOSTRequest newPatient = createPatientPOSTResponse();
 
-            PatientService.postPatient(newPatient)
+            PatientService.putPatient(newPatient)
                     .thenAccept(_ -> {
                         selectedListEntity = Entity.PATIENT;
                         Platform.runLater(this::getPatients);
@@ -491,6 +508,7 @@ public class Controller implements CloseController {
         txtPhysiosCount.setText(String.valueOf(physios.size()));
     }
 
+
     private void getPhysiosBySpecialty() {
         PhysioService.getPhysios(txtSearch.getText()).thenAccept(physios -> {
             selectedListEntity = Entity.PHYSIO;
@@ -505,33 +523,121 @@ public class Controller implements CloseController {
         });
     }
 
-    /**
-     * Sends a POST request to create a new physio on the server.
-     * If the request is successful, the list of physios is refreshed. If there is an error, an error message is displayed.
-     */
-    private void postPhysio() {
-        /*Map<String, Object> postBody = createPhysioRequestBody();
+    private void showPhysioForm(Physio physio) {
+        pnlAppointmentForm.setVisible(false);
+        pnlUserForm.setVisible(false);
+        pnlPatientDetail.setVisible(false);
+        pnlUsersList.setVisible(false);
+        pnlPhysioForm.setVisible(true);
+        Platform.runLater(() -> {
+            if (physio != null) {
+                tfNickPhysioForm.setVisible(false);
+                tfPasswordPhysioForm.setVisible(false);
+                tfNamePhysioForm.setText(physio.getName());
+                tfSurnamePhysioForm.setText(physio.getSurname());
+                cBoxSpecialtyPhysioForm.setValue(physio.getSpecialty());
+                tfLicenseNumberPhysioForm.setText(physio.getLicenseNumber());
+                tfEmailPhysioForm.setText(physio.getEmail());
+            } else {
+                cBoxSpecialtyPhysioForm.setValue("Sports");
+            }
+            cBoxSpecialtyPhysioForm.setItems(
+                    FXCollections.observableList(
+                            List.of("Sports", "Neurological", "Pediatric", "Geriatric", "Oncological")
+                    )
+            );
+        });
+    }
 
-        String apiUrl = ServiceUtils.SERVER + "physios";
-        String jsonRequest = gson.toJson(postBody);
+    public void createPhysio() {
+        String nick = tfNickPhysioForm.getText();
+        String password = tfPasswordPhysioForm.getText();
+        String name = tfNamePhysioForm.getText();
+        String surname = tfSurnamePhysioForm.getText();
+        String specialty = cBoxSpecialtyPhysioForm.getValue();
+        String licenseNumber = tfLicenseNumberPhysioForm.getText();
+        String email = tfEmailPhysioForm.getText();
 
-        ServiceUtils.getResponseAsync(apiUrl, jsonRequest, "POST")
-                .thenApply(json -> gson.fromJson(json, PhysioResponse.class)
-                )
-                .thenAccept(response -> {
-                    if (response.isOk()) {
-                        Platform.runLater(this::getPhysios);
-                    } else {
-                        Platform.runLater(() -> Message.showError("Error Creating Physio", response.getError()));
-                    }
-                })
-                .exceptionally(ex -> {
-                    Platform.runLater(() -> {
-                        Message.showError("Error", "Error creating Physio");
-                        openLoginView(stage);
-                    });
-                    return null;
-                });*/
+        if (nick.length() < 4) {
+            Message.showError(
+                    "Validation error",
+                    "Nick length must be greater or equals then 4 characters"
+            );
+            return;
+        }
+        if (password.length() < 7) {
+            Message.showError(
+                    "Validation error",
+                    "Password length must be greater or equals then 7 characters"
+            );
+            return;
+        }
+        if (name.length() < 2) {
+            Message.showError(
+                    "Validation error",
+                    "Name length must be greater or equal than 2 characters"
+            );
+            return;
+        }
+        if (name.length() > 50) {
+            Message.showError(
+                    "Validation error",
+                    "Name length must be lower or equal than 50 characters"
+            );
+            return;
+        }
+        if (surname.length() < 2) {
+            Message.showError(
+                    "Validation error",
+                    "Surname length must be greater or equal than 2 characters"
+            );
+            return;
+        }
+        if (surname.length() > 50) {
+            Message.showError(
+                    "Validation error",
+                    "Surname length must be lower or equal than 50 characters"
+            );
+            return;
+        }
+        if (!licenseNumber.matches("^[0-9A-Z]{8}$")) {
+            Message.showError(
+                    "Validation error",
+                    "License number must be composed of 8 characters (numbers and capital letters)"
+            );
+            return;
+        }
+        if (email.length() > 75) {
+            Message.showError(
+                    "Validation error",
+                    "Email length must be lower or equals than 75 characters"
+            );
+            return;
+        }
+        if (!email.matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+            Message.showError(
+                    "Validation error",
+                    "Email do not have a correct email format"
+            );
+            return;
+        }
+
+        PhysioPOSTRequest physioPOSTRequest = new PhysioPOSTRequest(
+                new User(nick, password, "patient"),
+                new Physio(name, surname, specialty, licenseNumber, email)
+        );
+        PhysioService.create(physioPOSTRequest).thenAccept(physio -> {
+            System.out.println(physio);
+            // TODO(Redirigir a detail physio)
+        }).exceptionally(e -> {
+            RequestErrorException ex = (RequestErrorException) e;
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            System.out.println("Holaa");
+            Platform.runLater(() ->
+                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            );
+            return null;
+        });
     }
 
     /**
@@ -608,32 +714,6 @@ public class Controller implements CloseController {
         physioReqBody.put("email", txtEmail.getText());
         physioReqBody.put("password", txtPassword.getText());
         return physioReqBody;
-    }
-
-    /**
-     * Deletes the currently selected physio by making an asynchronous DELETE request to the server.
-     * If the deletion is successful, the list of physios is refreshed. Otherwise, an error message is shown.
-     */
-    private void deletePhysio() {
-        /*String apiUrl = ServiceUtils.SERVER + "physios/" + selectedPhysio.getId();
-        ServiceUtils.getResponseAsync(apiUrl, null, "DELETE")
-                .thenApply(json -> gson.fromJson(json, PhysioResponse.class)
-                )
-                .thenAccept(response -> {
-                    if (response.isOk()) {
-                        Platform.runLater(this::getPhysios);
-                    } else {
-                        Platform.runLater(() -> Message.showError("Error deleting physio", response.getError()));
-                    }
-                })
-                .exceptionally(ex -> {
-                    System.out.println("Error deleting physio -> " + ex.getMessage());
-                    Platform.runLater(() -> {
-                        Message.showError("Error deleting physio", "Failed to delete physio");
-                        openLoginView(stage);
-                    });
-                    return null;
-                });*/
     }
 
 //    ---------- APPOITNMENTS ----------
@@ -899,6 +979,10 @@ public class Controller implements CloseController {
             hBoxRecordList.setVisible(true);
             lblTitle.setText("Records");
             getRecords();
+        }
+
+        if (actionEvent.getSource() == btnAddPhysio) {
+            showPhysioForm(null);
         }
 
         if (actionEvent.getSource() == btnAddAppointment) {

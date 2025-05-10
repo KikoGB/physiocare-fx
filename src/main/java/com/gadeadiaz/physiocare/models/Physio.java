@@ -15,6 +15,16 @@ public class Physio {
     private String avatar;
     private List<Appointment> appointments;
 
+    public Physio() {}
+
+    public Physio(String name, String surname, String specialty, String licenseNumber, String email) {
+        this.name = name;
+        this.surname = surname;
+        this.specialty = specialty;
+        this.licenseNumber = licenseNumber;
+        this.email = email;
+    }
+
     public int getId() {
         return id;
     }
