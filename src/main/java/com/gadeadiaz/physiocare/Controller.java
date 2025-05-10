@@ -38,6 +38,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class Controller implements CloseController {
@@ -137,7 +138,7 @@ public class Controller implements CloseController {
     @FXML
     private VBox pnAppointments;
 
-    private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final Gson gson = new Gson();
     private Stage stage;
     private Patient selectedPatient;
@@ -187,19 +188,22 @@ public class Controller implements CloseController {
         pnlUserForm.toFront();
     }
 
+//    ---------- PATIENTS ----------
     private void getPatients() {
         showUsersListPanel();
-        PatientService.getPatients("").thenAccept(patients -> {
-            selectedListEntity = Entity.PATIENT;
-            Platform.runLater(() -> showPatients(patients));
-        }).exceptionally(e -> {
-            RequestErrorException ex = (RequestErrorException) e.getCause();
-            ErrorResponse errorResponse = ex.getErrorResponse();
-            Platform.runLater(() ->
-                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
-            );
-            return null;
-        });
+        PatientService.getPatients("")
+            .thenAccept(patients -> {
+                selectedListEntity = Entity.PATIENT;
+                Platform.runLater(() -> showPatients(patients));
+            }).exceptionally(e -> {
+                RequestErrorException ex = (RequestErrorException) e.getCause();
+                ErrorResponse errorResponse = ex.getErrorResponse();
+                Platform.runLater(() ->
+                        Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                );
+                return null;
+            });
+
     }
     private void showPatients(List<Patient> patients) {
         pnItems.getChildren().clear();
@@ -232,7 +236,7 @@ public class Controller implements CloseController {
                         getPatients();
                         Platform.runLater(() ->
                                 Message.showMessage(
-                                        Alert.AlertType.CONFIRMATION,
+                                        Alert.AlertType.INFORMATION,
                                         "Delete",
                                         "Patient deleted",
                                         "Patient successfully deleted"
@@ -255,9 +259,6 @@ public class Controller implements CloseController {
         }
         txtPatientsCount.setText(String.valueOf(patients.size()));
     }
-
-
-
     private void getPatientsBySurname() {
         PatientService.getPatients(txtSearch.getText()).thenAccept(patients -> {
             selectedListEntity = Entity.PATIENT;
@@ -270,6 +271,84 @@ public class Controller implements CloseController {
             );
             return null;
         });
+    }
+
+    /**
+     * Sends a POST request to create a new patient on the server.
+     * If the request is successful, the list of patients is refreshed. If there is an error, an error message is displayed.
+     */
+    private void postPatient() {
+        if(dpBirthDate.getValue() == null){
+            Message.showError("Empty Birth Date", "Value of birth date cannot be empty!");
+        } else {
+            PatientPOSTRequest newPatient = createPatientPOSTResponse();
+
+            PatientService.postPatient(newPatient)
+                .thenAccept(_ -> {
+                    selectedListEntity = Entity.PATIENT;
+                    getPatients();
+                }).exceptionally(e -> {
+                    RequestErrorException ex = (RequestErrorException) e.getCause();
+                    ErrorResponse errorResponse = ex.getErrorResponse();
+                    Platform.runLater(() ->
+                            Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                    );
+                    return null;
+                });
+        }
+    }
+    /**
+     * Creates the request body for a new patient based on the current form data.
+     *
+     * @return a map containing the key-value pairs for the patient data
+     */
+    private PatientPOSTRequest createPatientPOSTResponse() {
+        User newUser = new User(txtLogin.getText(), txtPassword.getText(), "patient");
+        Patient patient = new Patient(
+                txtName.getText(),
+                txtSurname.getText(),
+                dpBirthDate.getValue().format(formatter),
+                txtAddressAndSpecialty.getText(),
+                txtLogin.getText(),
+                txtEmail.getText());
+        System.out.println(patient.getBirthdate());
+
+        return new PatientPOSTRequest(newUser, patient);
+    }
+
+    /**
+     * Sends a PUT request to update an existing patient's information on the server.
+     * If the update is successful, the patient's details are displayed. Otherwise, an error message is shown.
+     */
+    private void putPatient() {
+        /*if(dpBirthDate.getValue() == null){
+            Message.showError("Empty Birth Date", "Value of birth date cannot be empty!");
+        } else {
+            Map<String, Object> postBody = createPatientRequestBody();
+
+            String apiUrl = ServiceUtils.SERVER + "patients/" + selectedPatient.getId();
+            String jsonRequest = gson.toJson(postBody);
+
+            ServiceUtils.getResponseAsync(apiUrl, jsonRequest, "PUT")
+                    .thenApply(json -> gson.fromJson(json, PatientResponse.class)
+                    )
+                    .thenAccept(response -> {
+                        if (response.isOk()) {
+                            Platform.runLater(() -> {
+                                selectedPatient = response.getResult();
+                                showPatient();
+                            });
+                        } else {
+                            Platform.runLater(() -> Message.showError("Error updating Patient", response.getError()));
+                        }
+                    })
+                    .exceptionally(ex -> {
+                        Platform.runLater(() -> {
+                            Message.showError("Error", "Error updating patient");
+                        });
+                        return null;
+                    });
+        }*/
     }
 
     /**
@@ -295,6 +374,67 @@ public class Controller implements CloseController {
                     });
                     return null;
                 });*/
+    }
+
+    /**
+     * Displays detailed information of the currently selected patient.
+     * Sets text fields and labels with patient data and adjusts the UI components to display the patient's details.
+     */
+    private void showPatientForm() {
+        showUsersFormPanel();
+        editFormTextFields(false);
+
+        lblDetailTitle.setText(selectedPatient.getName() + " " + selectedPatient.getSurname());
+        txtName.setText(selectedPatient.getName());
+        txtSurname.setText(selectedPatient.getSurname());
+        txtEmail.setText(selectedPatient.getEmail());
+        lblAddressAndSpecialty.setText("Address");
+        txtAddressAndSpecialty.setText(selectedPatient.getAddress());
+        lblLogin.setText("Insurance Number");
+        txtLogin.setText(selectedPatient.getInsuranceNumber());
+        lblPassword.setVisible(false);
+        txtPassword.setVisible(false);
+        rbPatient.setVisible(false);
+        rbPhysio.setVisible(false);
+        splitSpecialty.setVisible(false);
+        dpBirthDate.setDisable(true);
+        dpBirthDate.setEditable(false);
+        btnUserForm.setText("EDIT");
+    }
+
+    private void showPatientDetail(Patient patient){
+
+        showUsersDetailPanel();
+        lblDetailPatientTitle.setText(patient.getName() + " " + patient.getSurname());
+        txtDetailEmail.setText(patient.getEmail());
+        if(patient.getAddress().isEmpty()){
+            txtDetailAddress.setText("Address not indicated");
+        }else{
+            txtDetailAddress.setText(patient.getAddress());
+        }
+        txtDetailInsuranceNumber.setText(patient.getInsuranceNumber());
+        txtDetailBirthDate.setText(patient.getBirthdate());
+        getAppointments(patient.getId());
+    }
+
+//    ---------- PHYSIOS ----------
+    /**
+     * Fetches the list of physiotherapists from the server and updates the UI with the retrieved data.
+     * If there is an error, an error message is displayed.
+     */
+    private void getPhysios() {
+        showUsersListPanel();
+        PhysioService.getPhysios("").thenAccept(physios -> {
+            selectedListEntity = Entity.PHYSIO;
+            Platform.runLater(() -> showPhysios(physios));
+        }).exceptionally(e -> {
+            RequestErrorException ex = (RequestErrorException) e.getCause();
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            Platform.runLater(() ->
+                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            );
+            return null;
+        });
     }
 
     /**
@@ -362,13 +502,9 @@ public class Controller implements CloseController {
         txtPhysiosCount.setText(String.valueOf(physios.size()));
     }
 
-    /**
-     * Fetches the list of physiotherapists from the server and updates the UI with the retrieved data.
-     * If there is an error, an error message is displayed.
-     */
-    private void getPhysios() {
-        showUsersListPanel();
-        PhysioService.getPhysios("").thenAccept(physios -> {
+
+    private void getPhysiosBySpecialty() {
+        PhysioService.getPhysios(txtSearch.getText()).thenAccept(physios -> {
             selectedListEntity = Entity.PHYSIO;
             Platform.runLater(() -> showPhysios(physios));
         }).exceptionally(e -> {
@@ -380,10 +516,117 @@ public class Controller implements CloseController {
             return null;
         });
     }
-    private void getPhysiosBySpecialty() {
-        PhysioService.getPhysios(txtSearch.getText()).thenAccept(physios -> {
-            selectedListEntity = Entity.PHYSIO;
-            Platform.runLater(() -> showPhysios(physios));
+
+    /**
+     * Sends a POST request to create a new physio on the server.
+     * If the request is successful, the list of physios is refreshed. If there is an error, an error message is displayed.
+     */
+    private void postPhysio() {
+        /*Map<String, Object> postBody = createPhysioRequestBody();
+
+        String apiUrl = ServiceUtils.SERVER + "physios";
+        String jsonRequest = gson.toJson(postBody);
+
+        ServiceUtils.getResponseAsync(apiUrl, jsonRequest, "POST")
+                .thenApply(json -> gson.fromJson(json, PhysioResponse.class)
+                )
+                .thenAccept(response -> {
+                    if (response.isOk()) {
+                        Platform.runLater(this::getPhysios);
+                    } else {
+                        Platform.runLater(() -> Message.showError("Error Creating Physio", response.getError()));
+                    }
+                })
+                .exceptionally(ex -> {
+                    Platform.runLater(() -> {
+                        Message.showError("Error", "Error creating Physio");
+                        openLoginView(stage);
+                    });
+                    return null;
+                });*/
+    }
+
+    /**
+     * Sends a PUT request to update an existing physio's information on the server.
+     * If the update is successful, the physio's details are displayed. Otherwise, an error message is shown.
+     */
+    private void putPhysio() {
+        /*Map<String, Object> postBody = createPhysioRequestBody();
+
+        String apiUrl = ServiceUtils.SERVER + "physios/" + selectedPhysio.getId();
+        String jsonRequest = gson.toJson(postBody);
+
+        ServiceUtils.getResponseAsync(apiUrl, jsonRequest, "PUT")
+                .thenApply(json -> gson.fromJson(json, PhysioResponse.class)
+                )
+                .thenAccept(response -> {
+                    if (response.isOk()) {
+                        Platform.runLater(() -> {
+                            selectedPhysio = response.getResult();
+                            showPhysio();
+                        });
+                    } else {
+                        Platform.runLater(() -> Message.showError("Error updating Physio", response.getError()));
+                    }
+                })
+                .exceptionally(ex -> {
+                    Platform.runLater(() -> {
+                        Message.showError("Error", "Error updating Physio");
+                        openLoginView(stage);
+                    });
+                    return null;
+                });*/
+    }
+
+
+
+    /**
+     * Creates the request body for a new physio based on the current form data.
+     *
+     * @return a map containing the key-value pairs for the physio data
+     */
+    private Map<String, Object> createPhysioRequestBody() {
+        Map<String, Object> physioReqBody = new HashMap<>();
+        physioReqBody.put("name", txtName.getText());
+        physioReqBody.put("surname", txtSurname.getText());
+        physioReqBody.put("specialty", txtAddressAndSpecialty.getText());
+        physioReqBody.put("licenseNumber", txtLogin.getText());
+        physioReqBody.put("email", txtEmail.getText());
+        physioReqBody.put("password", txtPassword.getText());
+        return physioReqBody;
+    }
+
+    /**
+     * Deletes the currently selected physio by making an asynchronous DELETE request to the server.
+     * If the deletion is successful, the list of physios is refreshed. Otherwise, an error message is shown.
+     */
+    private void deletePhysio() {
+        /*String apiUrl = ServiceUtils.SERVER + "physios/" + selectedPhysio.getId();
+        ServiceUtils.getResponseAsync(apiUrl, null, "DELETE")
+                .thenApply(json -> gson.fromJson(json, PhysioResponse.class)
+                )
+                .thenAccept(response -> {
+                    if (response.isOk()) {
+                        Platform.runLater(this::getPhysios);
+                    } else {
+                        Platform.runLater(() -> Message.showError("Error deleting physio", response.getError()));
+                    }
+                })
+                .exceptionally(ex -> {
+                    System.out.println("Error deleting physio -> " + ex.getMessage());
+                    Platform.runLater(() -> {
+                        Message.showError("Error deleting physio", "Failed to delete physio");
+                        openLoginView(stage);
+                    });
+                    return null;
+                });*/
+    }
+
+//    ---------- APPOITNMENTS ----------
+    private void getAppointments(int patientId) {
+        PatientService.getPatientAppointments(patientId).thenAccept(appointments -> {
+            selectedListEntity = Entity.APPOINTMENT;
+            Platform.runLater(() -> showAppointments(appointments));
         }).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e.getCause();
             ErrorResponse errorResponse = ex.getErrorResponse();
@@ -419,7 +662,7 @@ public class Controller implements CloseController {
 //                }
 
 
-                controller.getLblDate().setText(formatter.format(appointment.getDate()));
+                controller.getLblDate().setText(appointment.getDate());
                 controller.getLblDiagnosis().setText(appointment.getDiagnosis());
 
                 controller.getLblPhysioName().setText(appointment.getPhysio().getName() + " " + appointment.getPhysio().getSurname());
@@ -442,85 +685,97 @@ public class Controller implements CloseController {
         txtPhysiosCount.setText(String.valueOf(appointments.size()));
     }
 
-    private void getAppointments(int patientId) {
-        PatientService.getPatientAppointments(patientId).thenAccept(appointments -> {
-            selectedListEntity = Entity.APPOINTMENT;
-            Platform.runLater(() -> showAppointments(appointments));
-        }).exceptionally(e -> {
-            RequestErrorException ex = (RequestErrorException) e.getCause();
+    public void showAppointmentForm() {
+        showAppointmentsFormPanel();
+        PatientService.getPatients("").thenAccept(patients ->
+                Platform.runLater(() -> {
+                    cBoxPatients.setValue(patients.get(0));
+                    cBoxPatients.setItems(FXCollections.observableList(patients));
+                })
+        ).exceptionally(e -> {
+            RequestErrorException ex = (RequestErrorException) e;
             ErrorResponse errorResponse = ex.getErrorResponse();
             Platform.runLater(() ->
                     Message.showError(errorResponse.getError(), errorResponse.getMessage())
             );
             return null;
         });
-    }
-
-    /**
-     * Deletes the currently selected physio by making an asynchronous DELETE request to the server.
-     * If the deletion is successful, the list of physios is refreshed. Otherwise, an error message is shown.
-     */
-    private void deletePhysio() {
-        /*String apiUrl = ServiceUtils.SERVER + "physios/" + selectedPhysio.getId();
-        ServiceUtils.getResponseAsync(apiUrl, null, "DELETE")
-                .thenApply(json -> gson.fromJson(json, PhysioResponse.class)
-                )
-                .thenAccept(response -> {
-                    if (response.isOk()) {
-                        Platform.runLater(this::getPhysios);
-                    } else {
-                        Platform.runLater(() -> Message.showError("Error deleting physio", response.getError()));
-                    }
+        PhysioService.getPhysios("").thenAccept(patients ->
+                Platform.runLater(() -> {
+                    cBoxPhysios.setValue(patients.get(0));
+                    cBoxPhysios.setItems(FXCollections.observableList(patients));
                 })
-                .exceptionally(ex -> {
-                    System.out.println("Error deleting physio -> " + ex.getMessage());
-                    Platform.runLater(() -> {
-                        Message.showError("Error deleting physio", "Failed to delete physio");
-                        openLoginView(stage);
-                    });
-                    return null;
-                });*/
+        ).exceptionally(e -> {
+            RequestErrorException ex = (RequestErrorException) e;
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            Platform.runLater(() ->
+                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            );
+            return null;
+        });
+        pnlAppointmentForm.setVisible(true);
     }
 
-    /**
-     * Displays detailed information of the currently selected patient.
-     * Sets text fields and labels with patient data and adjusts the UI components to display the patient's details.
-     */
-    private void showPatientForm() {
-        showUsersFormPanel();
-        editFormTextFields(false);
+    public void createAppointment() {
+        LocalDate date = dpDate.getValue();
+        String diagnosis = tfDiagnosis.getText();
+        String treatment = tfTreatment.getText();
+        String observations = tfObservations.getText();
+        int physioId = cBoxPhysios.getSelectionModel().getSelectedItem().getId();
+        int patientId = cBoxPatients.getSelectionModel().getSelectedItem().getId();
 
-        lblDetailTitle.setText(selectedPatient.getName() + " " + selectedPatient.getSurname());
-        txtName.setText(selectedPatient.getName());
-        txtSurname.setText(selectedPatient.getSurname());
-        txtEmail.setText(selectedPatient.getEmail());
-        lblAddressAndSpecialty.setText("Address");
-        txtAddressAndSpecialty.setText(selectedPatient.getAddress());
-        lblLogin.setText("Insurance Number");
-        txtLogin.setText(selectedPatient.getInsuranceNumber());
-        lblPassword.setVisible(false);
-        txtPassword.setVisible(false);
-        rbPatient.setVisible(false);
-        rbPhysio.setVisible(false);
-        splitSpecialty.setVisible(false);
-        dpBirthDate.setDisable(true);
-        dpBirthDate.setEditable(false);
-        btnUserForm.setText("EDIT");
-    }
-
-    private void showPatientDetail(Patient patient){
-
-        showUsersDetailPanel();
-        lblDetailPatientTitle.setText(patient.getName() + " " + patient.getSurname());
-        txtDetailEmail.setText(patient.getEmail());
-        if(patient.getAddress().isEmpty()){
-            txtDetailAddress.setText("Address not indicated");
-        }else{
-            txtDetailAddress.setText(patient.getAddress());
+        if (date == null) {
+            Message.showError("Error in form", "Date can not be empty");
+            return;
         }
-        txtDetailInsuranceNumber.setText(patient.getInsuranceNumber());
-        txtDetailBirthDate.setText(patient.getBirthdate());
-        getAppointments(patient.getId());
+        if (date.isBefore(LocalDate.now())) {
+            Message.showError("Error in form", "Date can not be before today");
+            return;
+        }
+        if (diagnosis.length() < 10) {
+            Message.showError(
+                    "Error in form",
+                    "Diagnosis length must be greater or equals than 10 characters"
+            );
+            return;
+        }
+        if (diagnosis.length() > 500) {
+            Message.showError(
+                    "Error in form",
+                    "Diagnosis length must be lower or equals than 500 characters"
+            );
+            return;
+        }
+        if (treatment.length() > 150) {
+            Message.showError(
+                    "Error in form",
+                    "Treatment length must be lower or equals then 150 characters"
+            );
+            return;
+        }
+        if (observations.length() > 500) {
+            Message.showError(
+                    "Error in form",
+                    "Observations length must be lower or equals than 500 characters"
+            );
+            return;
+        }
+
+        AppointmentPOSTRequest appointmentPOSTRequest = new AppointmentPOSTRequest(
+                date.toString(), diagnosis, treatment, observations, physioId, patientId
+        );
+        AppointmentService.createAppointment(appointmentPOSTRequest).thenAccept(appointment -> {
+            //TODO(Redirigir a detalle appointment)
+            System.out.println(appointment);
+        }).exceptionally(e -> {
+            e.printStackTrace();
+            RequestErrorException ex = (RequestErrorException) e;
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            Platform.runLater(() ->
+                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            );
+            return null;
+        });
     }
 
     /**
@@ -613,98 +868,7 @@ public class Controller implements CloseController {
         });
     }
 
-    public void showAppointmentForm() {
-        showAppointmentsFormPanel();
-        PatientService.getPatients("").thenAccept(patients ->
-                Platform.runLater(() -> {
-                    cBoxPatients.setValue(patients.get(0));
-                    cBoxPatients.setItems(FXCollections.observableList(patients));
-                })
-        ).exceptionally(e -> {
-            RequestErrorException ex = (RequestErrorException) e;
-            ErrorResponse errorResponse = ex.getErrorResponse();
-            Platform.runLater(() ->
-                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
-            );
-            return null;
-        });
-        PhysioService.getPhysios("").thenAccept(patients ->
-                Platform.runLater(() -> {
-                    cBoxPhysios.setValue(patients.get(0));
-                    cBoxPhysios.setItems(FXCollections.observableList(patients));
-                })
-        ).exceptionally(e -> {
-            RequestErrorException ex = (RequestErrorException) e;
-            ErrorResponse errorResponse = ex.getErrorResponse();
-            Platform.runLater(() ->
-                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
-            );
-            return null;
-        });
-        pnlAppointmentForm.setVisible(true);
-    }
 
-    public void createAppointment() {
-        LocalDate date = dpDate.getValue();
-        String diagnosis = tfDiagnosis.getText();
-        String treatment = tfTreatment.getText();
-        String observations = tfObservations.getText();
-        int physioId = cBoxPhysios.getSelectionModel().getSelectedItem().getId();
-        int patientId = cBoxPatients.getSelectionModel().getSelectedItem().getId();
-
-        if (date == null) {
-            Message.showError("Error in form", "Date can not be empty");
-            return;
-        }
-        if (date.isBefore(LocalDate.now())) {
-            Message.showError("Error in form", "Date can not be before today");
-            return;
-        }
-        if (diagnosis.length() < 10) {
-            Message.showError(
-                    "Error in form",
-                    "Diagnosis length must be greater or equals than 10 characters"
-            );
-            return;
-        }
-        if (diagnosis.length() > 500) {
-            Message.showError(
-                    "Error in form",
-                    "Diagnosis length must be lower or equals than 500 characters"
-            );
-            return;
-        }
-        if (treatment.length() > 150) {
-            Message.showError(
-                    "Error in form",
-                    "Treatment length must be lower or equals then 150 characters"
-            );
-            return;
-        }
-        if (observations.length() > 500) {
-            Message.showError(
-                    "Error in form",
-                    "Observations length must be lower or equals than 500 characters"
-            );
-            return;
-        }
-
-        AppointmentPOSTRequest appointmentPOSTRequest = new AppointmentPOSTRequest(
-                date.toString(), diagnosis, treatment, observations, physioId, patientId
-        );
-        AppointmentService.createAppointment(appointmentPOSTRequest).thenAccept(appointment -> {
-            //TODO(Redirigir a detalle appointment)
-            System.out.println(appointment);
-        }).exceptionally(e -> {
-            e.printStackTrace();
-            RequestErrorException ex = (RequestErrorException) e;
-            ErrorResponse errorResponse = ex.getErrorResponse();
-            Platform.runLater(() ->
-                Message.showError(errorResponse.getError(), errorResponse.getMessage())
-            );
-            return null;
-        });
-    }
 
     /**
      * Opens the login view in the specified stage.
@@ -767,8 +931,6 @@ public class Controller implements CloseController {
      * It also switches to the appropriate panel for user creation.
      */
     private void showAddUserForm() {
-        selectedPhysio = null;
-        selectedPatient = null;
         for (Node child: pnlUserForm.getChildren()) {
             if(child instanceof TextField){
                 ((TextField) child).setText("");
@@ -885,11 +1047,8 @@ public class Controller implements CloseController {
      * Depending on the current state of the button (CREATE, SAVE, EDIT), it performs the appropriate action (create, update, or edit) for either a patient or physio.
      */
     public void btnUserFormClick() {
-        System.out.println("HOLA 1");
         if(btnUserForm.getText().equals("CREATE") ) {
-            System.out.println("HOLA 2");
-            if(selectedPatient == null && dpBirthDate.isVisible()){
-                System.out.println("HOLA 3");
+            if(selectedPatient.getName() == null && dpBirthDate.isVisible()){
                 postPatient();
             }
 
@@ -925,161 +1084,7 @@ public class Controller implements CloseController {
     public void btnAppointmentForm(ActionEvent actionEvent) {
     }
 
-    /**
-     * Sends a POST request to create a new patient on the server.
-     * If the request is successful, the list of patients is refreshed. If there is an error, an error message is displayed.
-     */
-    private void postPatient() {
-        System.out.println("HOLA 4");
-        if(dpBirthDate.getValue() == null){
-            Message.showError("Empty Birth Date", "Value of birth date cannot be empty!");
-        } else {
-            PatientPOSTRequest newPatient = createPatientPOSTResponse();
 
-            PatientService.postPatient(newPatient)
-                    .thenAccept(_ -> {
-                        selectedListEntity = Entity.PATIENT;
-                        getPatients();
-                    }).exceptionally(e -> {
-                        RequestErrorException ex = (RequestErrorException) e.getCause();
-                        ErrorResponse errorResponse = ex.getErrorResponse();
-                        Platform.runLater(() ->
-                                Message.showError(errorResponse.getError(), errorResponse.getMessage())
-                        );
-                        return null;
-                    });
-        }
-    }
-
-    /**
-     * Sends a PUT request to update an existing patient's information on the server.
-     * If the update is successful, the patient's details are displayed. Otherwise, an error message is shown.
-     */
-    private void putPatient() {
-        /*if(dpBirthDate.getValue() == null){
-            Message.showError("Empty Birth Date", "Value of birth date cannot be empty!");
-        } else {
-            Map<String, Object> postBody = createPatientRequestBody();
-
-            String apiUrl = ServiceUtils.SERVER + "patients/" + selectedPatient.getId();
-            String jsonRequest = gson.toJson(postBody);
-
-            ServiceUtils.getResponseAsync(apiUrl, jsonRequest, "PUT")
-                    .thenApply(json -> gson.fromJson(json, PatientResponse.class)
-                    )
-                    .thenAccept(response -> {
-                        if (response.isOk()) {
-                            Platform.runLater(() -> {
-                                selectedPatient = response.getResult();
-                                showPatient();
-                            });
-                        } else {
-                            Platform.runLater(() -> Message.showError("Error updating Patient", response.getError()));
-                        }
-                    })
-                    .exceptionally(ex -> {
-                        Platform.runLater(() -> {
-                            Message.showError("Error", "Error updating patient");
-                        });
-                        return null;
-                    });
-        }*/
-    }
-
-    /**
-     * Sends a POST request to create a new physio on the server.
-     * If the request is successful, the list of physios is refreshed. If there is an error, an error message is displayed.
-     */
-    private void postPhysio() {
-        /*Map<String, Object> postBody = createPhysioRequestBody();
-
-        String apiUrl = ServiceUtils.SERVER + "physios";
-        String jsonRequest = gson.toJson(postBody);
-
-        ServiceUtils.getResponseAsync(apiUrl, jsonRequest, "POST")
-                .thenApply(json -> gson.fromJson(json, PhysioResponse.class)
-                )
-                .thenAccept(response -> {
-                    if (response.isOk()) {
-                        Platform.runLater(this::getPhysios);
-                    } else {
-                        Platform.runLater(() -> Message.showError("Error Creating Physio", response.getError()));
-                    }
-                })
-                .exceptionally(ex -> {
-                    Platform.runLater(() -> {
-                        Message.showError("Error", "Error creating Physio");
-                        openLoginView(stage);
-                    });
-                    return null;
-                });*/
-    }
-
-    /**
-     * Sends a PUT request to update an existing physio's information on the server.
-     * If the update is successful, the physio's details are displayed. Otherwise, an error message is shown.
-     */
-    private void putPhysio() {
-        /*Map<String, Object> postBody = createPhysioRequestBody();
-
-        String apiUrl = ServiceUtils.SERVER + "physios/" + selectedPhysio.getId();
-        String jsonRequest = gson.toJson(postBody);
-
-        ServiceUtils.getResponseAsync(apiUrl, jsonRequest, "PUT")
-                .thenApply(json -> gson.fromJson(json, PhysioResponse.class)
-                )
-                .thenAccept(response -> {
-                    if (response.isOk()) {
-                        Platform.runLater(() -> {
-                            selectedPhysio = response.getResult();
-                            showPhysio();
-                        });
-                    } else {
-                        Platform.runLater(() -> Message.showError("Error updating Physio", response.getError()));
-                    }
-                })
-                .exceptionally(ex -> {
-                    Platform.runLater(() -> {
-                        Message.showError("Error", "Error updating Physio");
-                        openLoginView(stage);
-                    });
-                    return null;
-                });*/
-    }
-
-    /**
-     * Creates the request body for a new patient based on the current form data.
-     *
-     * @return a map containing the key-value pairs for the patient data
-     */
-    private PatientPOSTRequest createPatientPOSTResponse() {
-        User newUser = new User(txtLogin.getText(), txtPassword.getText(), "patient");
-        Patient patient = new Patient(
-                txtName.getText(),
-                txtSurname.getText(),
-                formatter.format(dpBirthDate.getValue()),
-                txtAddressAndSpecialty.getText(),
-                txtLogin.getText(),
-                txtEmail.getText());
-
-        return new PatientPOSTRequest(newUser, patient);
-    }
-
-    /**
-     * Creates the request body for a new physio based on the current form data.
-     *
-     * @return a map containing the key-value pairs for the physio data
-     */
-    private Map<String, Object> createPhysioRequestBody() {
-        Map<String, Object> physioReqBody = new HashMap<>();
-        physioReqBody.put("name", txtName.getText());
-        physioReqBody.put("surname", txtSurname.getText());
-        physioReqBody.put("specialty", txtAddressAndSpecialty.getText());
-        physioReqBody.put("licenseNumber", txtLogin.getText());
-        physioReqBody.put("email", txtEmail.getText());
-        physioReqBody.put("password", txtPassword.getText());
-        return physioReqBody;
-    }
 
     public void searchClick(MouseEvent mouseEvent) {
         if(!txtSearch.getText().trim().isEmpty()){

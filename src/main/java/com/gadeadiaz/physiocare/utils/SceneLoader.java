@@ -26,6 +26,7 @@ public class SceneLoader {
         Scene viewScene = new Scene(root);
         stage.setScene(viewScene);
         stage.setTitle("PHYSIOCARE");
+        stage.centerOnScreen();
         stage.setResizable(false);
         stage.show();
 

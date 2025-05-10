@@ -7,7 +7,7 @@ import java.util.Date;
  */
 public class Appointment {
     private int id;
-    private Date date;
+    private String date;
     private String diagnosis;
     private String treatment;
     private String observations;
@@ -23,11 +23,11 @@ public class Appointment {
         this.id = id;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
