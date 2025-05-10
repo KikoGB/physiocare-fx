@@ -29,7 +29,7 @@ public class PhysioService {
 
     public static CompletableFuture<Physio> getPhysioById(int id) throws RequestErrorException {
         return ServiceUtils.getResponseAsync(
-                ServiceUtils.SERVER + "physios",
+                ServiceUtils.SERVER + "physios/" + id ,
                 null,
                 "GET"
         ).thenApply(response -> gson.fromJson(response, Physio.class));

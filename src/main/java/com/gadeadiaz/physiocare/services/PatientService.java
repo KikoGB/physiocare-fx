@@ -62,9 +62,9 @@ public class PatientService {
         });
     }
 
-    public static CompletableFuture<Patient> putPatient(PatientPOSTRequest patient) throws RequestErrorException {
+    public static CompletableFuture<Patient> putPatient(Patient patient, int id) throws RequestErrorException {
         return ServiceUtils.getResponseAsync(
-                ServiceUtils.SERVER + "patients",
+                ServiceUtils.SERVER + "patients/" + id,
                 gson.toJson(patient),
                 "PUT"
         ).thenApply(response -> {
