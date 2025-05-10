@@ -18,8 +18,7 @@ public class Patient {
     private List<Appointment> appointments;
     private Record record;
 
-    public Patient() {
-    }
+    public Patient() {}
 
     public Patient(String name, String surname, String birthdate, String address, String insuranceNumber, String email) {
         this.name = name;
