@@ -119,7 +119,7 @@
         </VBox>
         <StackPane layoutX="258.0" prefHeight="576.0" prefWidth="793.0" style="-fx-background-color: #02030A;">
             <children>
-            <Pane fx:id="pnlUserForm" prefHeight="597.0" prefWidth="414.0">
+            <Pane fx:id="pnlUserForm" prefHeight="597.0" prefWidth="414.0" visible="false">
                <children>
                   <Label fx:id="lblDetailTitle" alignment="TOP_CENTER" layoutY="26.0" prefHeight="27.0" prefWidth="794.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="New User" textAlignment="CENTER" textFill="#dfd2d2" />
                   <RadioButton fx:id="rbPatient" focusTraversable="false" layoutX="426.0" layoutY="77.0" mnemonicParsing="false" prefHeight="18.0" prefWidth="80.0" text="Patient" textFill="#e1dede" />
@@ -309,11 +309,17 @@
                         <Button fx:id="btnInsertAppointment" focusTraversable="false" layoutX="322.0" layoutY="527.0" mnemonicParsing="false" onAction="#btnAppointmentForm" prefHeight="25.0" prefWidth="156.0" text="Add/Edit" />
                     </children>
                 </Pane>
-            <Pane fx:id="pnlPatientDetail" prefHeight="597.0" prefWidth="414.0" visible="false">
+            <Pane fx:id="pnlPatientDetail" prefHeight="597.0" prefWidth="414.0">
                <children>
+
                   <Label fx:id="lblDetailPatientTitle" alignment="TOP_CENTER" layoutX="198.0" layoutY="26.0" prefHeight="35.0" prefWidth="506.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Marcos Pérez Pérez" textAlignment="CENTER" textFill="#dfd2d2" />
                   <Line endX="417.0" endY="-67.0" fill="BLACK" layoutX="345.0" layoutY="139.0" startX="-138.19998168945312" startY="-67.0" stroke="#a39e9ea9" />
-                  <Label fx:id="lblDetailEmail" layoutX="208.0" layoutY="159.0" prefHeight="17.0" prefWidth="76.0" style="-fx-font-weight: bold;" text="Mail:" textFill="#bfb9b9" />
+                   <Button fx:id="btnEditPatient" alignment="CENTER" layoutX="592.0" layoutY="30.0" mnemonicParsing="false" onAction="#editPatientClick" prefHeight="27.0" prefWidth="83.0" style="-fx-border-color: #ed9609; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Edit">
+                       <HBox.margin>
+                           <Insets />
+                       </HBox.margin>
+                   </Button>
+                   <Label fx:id="lblDetailEmail" layoutX="208.0" layoutY="159.0" prefHeight="17.0" prefWidth="76.0" style="-fx-font-weight: bold;" text="Mail:" textFill="#bfb9b9" />
                   <Label fx:id="txtDetailEmail" layoutX="286.0" layoutY="159.0" prefHeight="17.0" prefWidth="215.0" style="-fx-font-weight: bold;" text="davidpacheco@gmail.com" textFill="#bfb9b9" />
                   <Label fx:id="lblDetailAddress" layoutX="205.0" layoutY="99.0" prefHeight="17.0" prefWidth="80.0" style="-fx-font-weight: bold;" text="Address:" textFill="#bfb9b9" />
                   <Label fx:id="lblDetailInsuranceNumber" layoutX="503.0" layoutY="99.0" prefHeight="17.0" prefWidth="117.0" style="-fx-font-weight: bold;" text="Insurance Number:" textFill="#bfb9b9" />

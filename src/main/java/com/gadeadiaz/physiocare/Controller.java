@@ -9,11 +9,8 @@ import com.gadeadiaz.physiocare.models.*;
 import com.gadeadiaz.physiocare.models.Record;
 import com.gadeadiaz.physiocare.requests.PatientPOSTRequest;
 import com.gadeadiaz.physiocare.models.Appointment;
-import com.gadeadiaz.physiocare.models.Record;
 import com.gadeadiaz.physiocare.requests.AppointmentPOSTRequest;
 import com.gadeadiaz.physiocare.models.User;
-import com.gadeadiaz.physiocare.requests.AppointmentPOSTRequest;
-import com.gadeadiaz.physiocare.requests.PatientPOSTRequest;
 import com.gadeadiaz.physiocare.responses.ErrorResponse;
 import com.gadeadiaz.physiocare.services.AppointmentService;
 import com.gadeadiaz.physiocare.services.PatientService;
@@ -36,7 +33,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -144,6 +140,9 @@ public class Controller implements CloseController {
     private Patient selectedPatient;
     private Physio selectedPhysio;
     private Appointment selectedAppointment;
+
+
+
 
     private enum Entity { PATIENT, PHYSIO, RECORD, APPOINTMENT }
     private Entity selectedListEntity = Entity.PATIENT;
@@ -259,6 +258,22 @@ public class Controller implements CloseController {
         }
         txtPatientsCount.setText(String.valueOf(patients.size()));
     }
+
+    private void showPatientDetail(Patient patient){
+
+        showUsersDetailPanel();
+        lblDetailPatientTitle.setText(patient.getName() + " " + patient.getSurname());
+        txtDetailEmail.setText(patient.getEmail());
+        if(patient.getAddress().isEmpty()){
+            txtDetailAddress.setText("Address not indicated");
+        }else{
+            txtDetailAddress.setText(patient.getAddress());
+        }
+        txtDetailInsuranceNumber.setText(patient.getInsuranceNumber());
+        txtDetailBirthDate.setText(patient.getBirthdate());
+        getAppointments(patient.getId());
+    }
+
     private void getPatientsBySurname() {
         PatientService.getPatients(txtSearch.getText()).thenAccept(patients -> {
             selectedListEntity = Entity.PATIENT;
@@ -286,7 +301,7 @@ public class Controller implements CloseController {
             PatientService.postPatient(newPatient)
                 .thenAccept(_ -> {
                     selectedListEntity = Entity.PATIENT;
-                    getPatients();
+                    Platform.runLater(this::getPatients);
                 }).exceptionally(e -> {
                     RequestErrorException ex = (RequestErrorException) e.getCause();
                     ErrorResponse errorResponse = ex.getErrorResponse();
@@ -311,7 +326,6 @@ public class Controller implements CloseController {
                 txtAddressAndSpecialty.getText(),
                 txtLogin.getText(),
                 txtEmail.getText());
-        System.out.println(patient.getBirthdate());
 
         return new PatientPOSTRequest(newUser, patient);
     }
@@ -321,34 +335,50 @@ public class Controller implements CloseController {
      * If the update is successful, the patient's details are displayed. Otherwise, an error message is shown.
      */
     private void putPatient() {
-        /*if(dpBirthDate.getValue() == null){
+        if(dpBirthDate.getValue() == null){
             Message.showError("Empty Birth Date", "Value of birth date cannot be empty!");
         } else {
-            Map<String, Object> postBody = createPatientRequestBody();
+            PatientPOSTRequest newPatient = createPatientPOSTResponse();
 
-            String apiUrl = ServiceUtils.SERVER + "patients/" + selectedPatient.getId();
-            String jsonRequest = gson.toJson(postBody);
-
-            ServiceUtils.getResponseAsync(apiUrl, jsonRequest, "PUT")
-                    .thenApply(json -> gson.fromJson(json, PatientResponse.class)
-                    )
-                    .thenAccept(response -> {
-                        if (response.isOk()) {
-                            Platform.runLater(() -> {
-                                selectedPatient = response.getResult();
-                                showPatient();
-                            });
-                        } else {
-                            Platform.runLater(() -> Message.showError("Error updating Patient", response.getError()));
-                        }
-                    })
-                    .exceptionally(ex -> {
-                        Platform.runLater(() -> {
-                            Message.showError("Error", "Error updating patient");
-                        });
+            PatientService.postPatient(newPatient)
+                    .thenAccept(_ -> {
+                        selectedListEntity = Entity.PATIENT;
+                        Platform.runLater(this::getPatients);
+                    }).exceptionally(e -> {
+                        RequestErrorException ex = (RequestErrorException) e.getCause();
+                        ErrorResponse errorResponse = ex.getErrorResponse();
+                        Platform.runLater(() ->
+                                Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                        );
                         return null;
                     });
-        }*/
+        }
+    }
+
+    /**
+     * Displays detailed information of the currently selected patient.
+     * Sets text fields and labels with patient data and adjusts the UI components to display the patient's details.
+     */
+    private void showEditPatientForm() {
+        showUsersFormPanel();
+        editFormTextFields(true);
+
+        lblDetailTitle.setText(selectedPatient.getName() + " " + selectedPatient.getSurname());
+        txtName.setText(selectedPatient.getName());
+        txtSurname.setText(selectedPatient.getSurname());
+        txtEmail.setText(selectedPatient.getEmail());
+        lblAddressAndSpecialty.setText("Address");
+        txtAddressAndSpecialty.setText(selectedPatient.getAddress());
+        lblLogin.setText("Insurance Number");
+        txtLogin.setText(selectedPatient.getInsuranceNumber());
+        lblPassword.setVisible(false);
+        txtPassword.setVisible(false);
+        rbPatient.setVisible(false);
+        rbPhysio.setVisible(false);
+        splitSpecialty.setVisible(false);
+        dpBirthDate.setDisable(true);
+        dpBirthDate.setEditable(false);
+        btnUserForm.setText("EDIT");
     }
 
     /**
@@ -374,47 +404,6 @@ public class Controller implements CloseController {
                     });
                     return null;
                 });*/
-    }
-
-    /**
-     * Displays detailed information of the currently selected patient.
-     * Sets text fields and labels with patient data and adjusts the UI components to display the patient's details.
-     */
-    private void showPatientForm() {
-        showUsersFormPanel();
-        editFormTextFields(false);
-
-        lblDetailTitle.setText(selectedPatient.getName() + " " + selectedPatient.getSurname());
-        txtName.setText(selectedPatient.getName());
-        txtSurname.setText(selectedPatient.getSurname());
-        txtEmail.setText(selectedPatient.getEmail());
-        lblAddressAndSpecialty.setText("Address");
-        txtAddressAndSpecialty.setText(selectedPatient.getAddress());
-        lblLogin.setText("Insurance Number");
-        txtLogin.setText(selectedPatient.getInsuranceNumber());
-        lblPassword.setVisible(false);
-        txtPassword.setVisible(false);
-        rbPatient.setVisible(false);
-        rbPhysio.setVisible(false);
-        splitSpecialty.setVisible(false);
-        dpBirthDate.setDisable(true);
-        dpBirthDate.setEditable(false);
-        btnUserForm.setText("EDIT");
-    }
-
-    private void showPatientDetail(Patient patient){
-
-        showUsersDetailPanel();
-        lblDetailPatientTitle.setText(patient.getName() + " " + patient.getSurname());
-        txtDetailEmail.setText(patient.getEmail());
-        if(patient.getAddress().isEmpty()){
-            txtDetailAddress.setText("Address not indicated");
-        }else{
-            txtDetailAddress.setText(patient.getAddress());
-        }
-        txtDetailInsuranceNumber.setText(patient.getInsuranceNumber());
-        txtDetailBirthDate.setText(patient.getBirthdate());
-        getAppointments(patient.getId());
     }
 
 //    ---------- PHYSIOS ----------
@@ -463,7 +452,7 @@ public class Controller implements CloseController {
                 userItemController.setDetailListener(_ -> {
                     selectedPhysio = physio;
                     selectedPatient = null;
-                    showPhysio();
+                    showEditPhysioForm();
                 });
 
                 if (Storage.getInstance().getUserdata().getValue().equals("physio")) {
@@ -501,7 +490,6 @@ public class Controller implements CloseController {
         }
         txtPhysiosCount.setText(String.valueOf(physios.size()));
     }
-
 
     private void getPhysiosBySpecialty() {
         PhysioService.getPhysios(txtSearch.getText()).thenAccept(physios -> {
@@ -578,6 +566,32 @@ public class Controller implements CloseController {
                 });*/
     }
 
+    /**
+     * Displays detailed information of the currently selected physio.
+     * Sets text fields and labels with physio data and adjusts the UI components to display the physio's details.
+     */
+    private void showEditPhysioForm() {
+        showUsersFormPanel();
+        editFormTextFields(false);
+
+        lblDetailTitle.setText(selectedPhysio.getName() + " " + selectedPhysio.getSurname());
+        txtName.setText(selectedPhysio.getName());
+        txtSurname.setText(selectedPhysio.getSurname());
+        txtEmail.setText(selectedPhysio.getEmail());
+        lblAddressAndSpecialty.setText("Specialty");
+        txtAddressAndSpecialty.setText(selectedPhysio.getSpecialty());
+        lblLogin.setText("Insurance Number");
+        txtLogin.setText(selectedPhysio.getLicenseNumber());
+        dpBirthDate.setVisible(false);
+        lblBirthDate.setVisible(false);
+        lblPassword.setVisible(false);
+        txtPassword.setVisible(false);
+        rbPatient.setVisible(false);
+        rbPhysio.setVisible(false);
+        splitSpecialty.setVisible(false);
+
+        btnUserForm.setText("EDIT");
+    }
 
 
     /**
@@ -778,32 +792,7 @@ public class Controller implements CloseController {
         });
     }
 
-    /**
-     * Displays detailed information of the currently selected physio.
-     * Sets text fields and labels with physio data and adjusts the UI components to display the physio's details.
-     */
-    private void showPhysio() {
-        showUsersFormPanel();
-        editFormTextFields(false);
 
-        lblDetailTitle.setText(selectedPhysio.getName() + " " + selectedPhysio.getSurname());
-        txtName.setText(selectedPhysio.getName());
-        txtSurname.setText(selectedPhysio.getSurname());
-        txtEmail.setText(selectedPhysio.getEmail());
-        lblAddressAndSpecialty.setText("Specialty");
-        txtAddressAndSpecialty.setText(selectedPhysio.getSpecialty());
-        lblLogin.setText("Insurance Number");
-        txtLogin.setText(selectedPhysio.getLicenseNumber());
-        dpBirthDate.setVisible(false);
-        lblBirthDate.setVisible(false);
-        lblPassword.setVisible(false);
-        txtPassword.setVisible(false);
-        rbPatient.setVisible(false);
-        rbPhysio.setVisible(false);
-        splitSpecialty.setVisible(false);
-
-        btnUserForm.setText("EDIT");
-    }
 
     public void showRecords(List<Record> records) {
         pnItems.getChildren().clear();
@@ -1042,6 +1031,11 @@ public class Controller implements CloseController {
         this.stage = stage;
     }
 
+
+    public void editPatientClick() {
+
+        showEditPatientForm();
+    }
     /**
      * Handles the actions for the detail button in the form.
      * Depending on the current state of the button (CREATE, SAVE, EDIT), it performs the appropriate action (create, update, or edit) for either a patient or physio.
