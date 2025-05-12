@@ -20,7 +20,19 @@ public class Patient {
 
     public Patient() {}
 
-    public Patient(String name, String surname, String birthdate, String address, String insuranceNumber, String email) {
+    public Patient(String name, String surname, String birthdate, String address,
+                   String insuranceNumber, String email) {
+        this.name = name;
+        this.surname = surname;
+        this.birthdate = birthdate;
+        this.address = address;
+        this.insuranceNumber = insuranceNumber;
+        this.email = email;
+    }
+
+    public Patient(int id, String name, String surname, String birthdate, String address,
+                   String insuranceNumber, String email) {
+        this.id = id;
         this.name = name;
         this.surname = surname;
         this.birthdate = birthdate;
@@ -120,6 +132,8 @@ public class Patient {
                 ", insuranceNumber='" + insuranceNumber + '\'' +
                 ", email='" + email + '\'' +
                 ", avatar='" + avatar + '\'' +
+                ", appointments='" + appointments + '\'' +
+                ", record='" + record + '\'' +
                 '}';
     }
 }

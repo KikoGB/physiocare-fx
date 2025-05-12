@@ -50,7 +50,7 @@ public class PatientService {
         });
     }
 
-    public static CompletableFuture<Patient> postPatient(PatientPOSTRequest patient)
+    public static CompletableFuture<Patient> create(PatientPOSTRequest patient)
             throws RequestErrorException {
         return ServiceUtils.getResponseAsync(
                 ServiceUtils.SERVER + "patients",
@@ -62,7 +62,8 @@ public class PatientService {
         });
     }
 
-    public static CompletableFuture<Patient> putPatient(Patient patient, int id) throws RequestErrorException {
+    public static CompletableFuture<Patient> update(int id, Patient patient)
+            throws RequestErrorException {
         return ServiceUtils.getResponseAsync(
                 ServiceUtils.SERVER + "patients/" + id,
                 gson.toJson(patient),
@@ -73,7 +74,7 @@ public class PatientService {
         });
     }
 
-    public static CompletableFuture<Void> deletePatient(int id) throws RequestErrorException {
+    public static CompletableFuture<Void> delete(int id) throws RequestErrorException {
         return ServiceUtils.getResponseAsync(
                 ServiceUtils.SERVER + "patients/" + id,
                 null,

@@ -25,6 +25,15 @@ public class Physio {
         this.email = email;
     }
 
+    public Physio(int id, String name, String surname, String specialty, String licenseNumber, String email) {
+        this.id = id;
+        this.name = name;
+        this.surname = surname;
+        this.specialty = specialty;
+        this.licenseNumber = licenseNumber;
+        this.email = email;
+    }
+
     public int getId() {
         return id;
     }

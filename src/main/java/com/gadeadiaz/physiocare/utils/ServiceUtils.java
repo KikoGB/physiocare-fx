@@ -19,8 +19,7 @@ import java.util.zip.GZIPInputStream;
  */
 public class ServiceUtils {
     public static final String SERVER = "https://api.daviddp.dev/";
-    //public static final String SERVER = "https://kikogadea.es/";
-//    public static final String SERVER = "http://localhost:8085/";
+//    public static final String SERVER = "http://localhost:3000/";
 
     /**
      * Extracts the charset (e.g., UTF-8, ISO-8859-1) from a Content-Type header string.

@@ -35,6 +35,14 @@ public class PhysioService {
         ).thenApply(response -> gson.fromJson(response, Physio.class));
     }
 
+    public static CompletableFuture<Physio> getPhysioLogged() throws RequestErrorException {
+        return ServiceUtils.getResponseAsync(
+                ServiceUtils.SERVER + "physios/me",
+                null,
+                "GET"
+        ).thenApply(response -> gson.fromJson(response, Physio.class));
+    }
+
     public static CompletableFuture<List<Appointment>> getPhysioAppointments(int id)
             throws RequestErrorException {
         return ServiceUtils.getResponseAsync(
@@ -56,7 +64,16 @@ public class PhysioService {
         ).thenApply(response -> gson.fromJson(response, Physio.class));
     }
 
-    public static CompletableFuture<Void> deletePhysio(int id) throws RequestErrorException {
+    public static CompletableFuture<Physio> update(int id, Physio physio)
+            throws RequestErrorException {
+        return ServiceUtils.getResponseAsync(
+                ServiceUtils.SERVER + "physios/" + id,
+                gson.toJson(physio),
+                "PUT"
+        ).thenApply(response -> gson.fromJson(response, Physio.class));
+    }
+
+    public static CompletableFuture<Void> delete(int id) throws RequestErrorException {
         return ServiceUtils.getResponseAsync(
                 ServiceUtils.SERVER + "physios/" + id,
                 null,

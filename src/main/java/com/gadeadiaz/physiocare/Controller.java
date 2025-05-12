@@ -35,40 +35,29 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class Controller implements CloseController {
+    // --- LEFT BAR MENU ---
+    @FXML private Label lblLeftBarWelcome;
+    @FXML private Button btnLeftBarLogout;
+    @FXML private Button btnLeftBarPatients;
+    @FXML private Button btnLeftBarPhysios;
+    @FXML private Button btnLeftBarRecords;
+    @FXML private Button btnLeftBarAddAppointment;
 
-
+    // -----------------------------------------------------------------------------!!! mirar estos de donde son
     @FXML private VBox physioPnAppointments;
     @FXML private Label lblNoPhysioAppointments;
     @FXML private ScrollPane physioScrollPaneAppointments;
-    @FXML private Label txtPhysioDetailLicenceNumber;
-    @FXML private Label txtPhysioDetailSpecialty;
-    @FXML private Label txtPhysioDetailEmail;
-    @FXML private Label lblDetailPhysioTitle;
     @FXML private Pane pnlPhysioDetail;
     // --- BOTONES ---
     @FXML private Button btnAddUser;
 //    @FXML private Button btnPhysioForm;
 //    @FXML private Button btnPatientForm;
     @FXML private Button btnAppointmentForm;
-    @FXML private Button btnLogout;
-    @FXML private Button btnPatients;
-    @FXML private Button btnPhysios;
-    @FXML private Button btnRecords;
-    @FXML private Button btnAddAppointment;
 
     // --- LABELS ---
-    @FXML private Label lblDetailPatientTitle;
-    @FXML private Label lblPatientFormTitle;
-    @FXML private Label lblPhysioFormTitle;
-    @FXML private Label txtPatientDetailEmail;
-    @FXML private Label txtPatientDetailAddress;
-    @FXML private Label txtPatientDetailInsuranceNumber;
-    @FXML private Label txtPatientDetailBirthDate;
     @FXML private Label lblBirthDate;
     @FXML private Label lblAddressAndSpecialty;
-    @FXML private Label lblLogin;
-    @FXML private Label lblPasswordPatientForm;
-    @FXML private Label lblPasswordPhysioForm;
+    @FXML private Label lblInsuranceNumPatientForm;
     @FXML private Label lblTitle;
     @FXML private Label txtPhysiosCount;
     @FXML private Label txtPatientsCount;
@@ -80,29 +69,11 @@ public class Controller implements CloseController {
 
     // --- TEXTFIELDS ---
     @FXML private TextField txtSearch;
-    @FXML private TextField txtNamePatForm;
-    @FXML private TextField txtEmailPatForm;
-    @FXML private TextField txtPasswordPatForm;
-    @FXML private TextField txtSurnamePatForm;
-    @FXML private TextField txtAddressPatForm;
-    @FXML private TextField txtInsuranceNumberPatForm;
-    @FXML private TextField tfDiagnosis;
-    @FXML private TextField tfTreatment;
-    @FXML private TextField tfObservations;
-
-    // --- DATEPICKERS ---
-    @FXML private DatePicker dpBirthDate;
-    @FXML private DatePicker dpDate;
-
-    // --- COMBOBOXES ---
-    @FXML private ComboBox<Physio> cBoxPhysios;
-    @FXML private ComboBox<Patient> cBoxPatients;
-    @FXML private ComboBox<String> cBoxSpecialtyPhysioForm;
 
     // --- MENÚS ---
     @FXML private SplitMenuButton splitSpecialty;
 
-    // --- PANELES ---
+    // --- PANES ---
     @FXML private Pane pnlPatientForm;
     @FXML private Pane pnlPatientDetail;
     @FXML private Pane pnlUsersList;
@@ -114,14 +85,54 @@ public class Controller implements CloseController {
     @FXML private HBox hBoxRecordList;
     @FXML private VBox pnItems;
     @FXML private VBox patientPnAppointments;
+    // ---------------------------------------------------------------!!!!!!!!!!!!!!!!!! hasta aqui
 
-    // --- CAMPOS DEL FORMULARIO DE PHYSIO ---
+    // --- PATIENT DETAIL ---
+    @FXML private Label lblTitlePatientDetail;
+    @FXML private Label lblEmailPatientDetail;
+    @FXML private Label lblAddressPatientDetail;
+    @FXML private Label lblInsuranceNumPatientDetail;
+    @FXML private Label lblBirthdatePatientDetail;
+
+    // --- PHYSIO DETAIL ---
+    @FXML private Label lblTitlePhysioDetail;
+    @FXML private Button btnEditPhysio;
+    @FXML private Label lblLicenceNumPhysioDetail;
+    @FXML private Label lblSpecialtyPhysioDetail;
+    @FXML private Label lblEmailPhysioDetail;
+
+    // --- PATIENT FORM ---
+    @FXML private Label lblPatientFormTitle;
+    @FXML private Label lblNickPatientForm;
+    @FXML private TextField tfNickPatientForm;
+    @FXML private Label lblPasswordPatientForm;
+    @FXML private TextField tfPasswordPatientForm;
+    @FXML private TextField tfNamePatientForm;
+    @FXML private TextField tfEmailPatientForm;
+    @FXML private TextField tfSurnamePatientForm;
+    @FXML private TextField tfAddressPatientForm;
+    @FXML private TextField tfInsuranceNumPatientForm;
+    @FXML private DatePicker dpBirthdatePatientForm;
+
+    // --- PHYSIO FORM ---
+    @FXML private Label lblPhysioFormTitle;
     @FXML private TextField tfNickPhysioForm;
     @FXML private PasswordField tfPasswordPhysioForm;
     @FXML private TextField tfNamePhysioForm;
     @FXML private TextField tfSurnamePhysioForm;
     @FXML private TextField tfLicenseNumberPhysioForm;
     @FXML private TextField tfEmailPhysioForm;
+    @FXML private Label lblPasswordPhysioForm;
+    @FXML private Label lblNickPhysioForm;
+    @FXML private ComboBox<String> cBoxSpecialtyPhysioForm;
+
+    // --- APPOINTMENTS FORM ---
+    @FXML private DatePicker dpDateAppointmentForm;
+    @FXML private TextField tfDiagnosisAppointmentForm;
+    @FXML private TextField tfTreatmentAppointmentForm;
+    @FXML private TextField tfObservationsAppointmentForm;
+    @FXML private ComboBox<Physio> cBoxPhysiosAppointmentForm;
+    @FXML private ComboBox<Patient> cBoxPatientsAppointmentForm;
 
     // --- LÓGICA AUXILIAR ---
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -139,6 +150,23 @@ public class Controller implements CloseController {
 
 
     public void initialize() {
+        if (Storage.getInstance().getUserdata().getValue().equals("physio")) {
+            PhysioService.getPhysioLogged().thenAccept(physio ->
+                    Platform.runLater(() -> lblLeftBarWelcome.setText(
+                            String.format("Welcome back %s %s", physio.getName(), physio.getSurname())
+                    ))
+            ).exceptionally(e -> {
+                RequestErrorException ex = (RequestErrorException) e.getCause();
+                ErrorResponse errorResponse = ex.getErrorResponse();
+                Platform.runLater(() ->
+                        Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                );
+                return null;
+            });
+        } else {
+            lblLeftBarWelcome.setText("Welcome back admin");
+        }
+
         getPatients();
     }
 
@@ -194,7 +222,6 @@ public class Controller implements CloseController {
     }
 
     public void showPatientFormPanel(){
-        clearPatientForm();
         pnlPhysioForm.setVisible(false);
         pnlUsersList.setVisible(false);
         pnlPatientDetail.setVisible(false);
@@ -205,7 +232,6 @@ public class Controller implements CloseController {
     }
 
     public void showPhysioFormPanel(){
-        clearPatientForm();
         pnlPatientForm.setVisible(false);
         pnlUsersList.setVisible(false);
         pnlPatientDetail.setVisible(false);
@@ -219,41 +245,6 @@ public class Controller implements CloseController {
 
 
 //    ---------- PATIENTS ----------
-    public void getPatients() {
-        btnAddUser.setVisible(true);
-        showUsersListPanel();
-        PatientService.getPatients("")
-            .thenAccept(patients -> {
-                selectedListEntity = Entity.PATIENT;
-                Platform.runLater(() -> showPatients(patients));
-            }).exceptionally(e -> {
-                RequestErrorException ex = (RequestErrorException) e.getCause();
-                ErrorResponse errorResponse = ex.getErrorResponse();
-                Platform.runLater(() ->
-                        Message.showError(errorResponse.getError(), errorResponse.getMessage())
-                );
-                return null;
-            });
-
-    }
-
-    public void getPatientById(int id) {
-        PatientService.getPatientById(id)
-            .thenAccept(patient -> {
-                Platform.runLater(() -> {
-                    selectedPatient = patient;
-                    showPatientDetail();
-                });
-            }).exceptionally(e -> {
-                RequestErrorException ex = (RequestErrorException) e.getCause();
-                ErrorResponse errorResponse = ex.getErrorResponse();
-                Platform.runLater(() ->
-                        Message.showError(errorResponse.getError(), errorResponse.getMessage())
-                );
-                return null;
-            });
-
-    }
     public void showPatients(List<Patient> patients) {
         pnItems.getChildren().clear();
         for (Patient patient : patients) {
@@ -279,24 +270,24 @@ public class Controller implements CloseController {
                 });
 
                 userItemController.setDeleteListener(idPatient ->
-                    PatientService.deletePatient(idPatient).thenAccept(_ -> {
-                        getPatients();
-                        Platform.runLater(() ->
-                                Message.showMessage(
-                                        Alert.AlertType.INFORMATION,
-                                        "Delete",
-                                        "Patient deleted",
-                                        "Patient successfully deleted"
-                                )
-                        );
-                    }).exceptionally(e -> {
-                        RequestErrorException ex = (RequestErrorException) e;
-                        ErrorResponse errorResponse = ex.getErrorResponse();
-                        Platform.runLater(() ->
-                                Message.showError(errorResponse.getError(), errorResponse.getMessage())
-                        );
-                        return null;
-                    })
+                        PatientService.delete(idPatient).thenAccept(_ -> {
+                            getPatients();
+                            Platform.runLater(() ->
+                                    Message.showMessage(
+                                            Alert.AlertType.INFORMATION,
+                                            "Delete",
+                                            "Patient deleted",
+                                            "Patient successfully deleted"
+                                    )
+                            );
+                        }).exceptionally(e -> {
+                            RequestErrorException ex = (RequestErrorException) e;
+                            ErrorResponse errorResponse = ex.getErrorResponse();
+                            Platform.runLater(() ->
+                                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                            );
+                            return null;
+                        })
                 );
 
                 pnItems.getChildren().add(node);
@@ -307,18 +298,54 @@ public class Controller implements CloseController {
         txtPatientsCount.setText(String.valueOf(patients.size()));
     }
 
-    public void showPatientDetail(){
+    public void showPatientDetail(Patient patient) {
         showPatientDetailPanel();
-        lblDetailPatientTitle.setText(selectedPatient.getName() + " " + selectedPatient.getSurname());
-        txtPatientDetailEmail.setText(selectedPatient.getEmail());
-        if(selectedPatient.getAddress().isEmpty()){
-            txtPatientDetailAddress.setText("Address not indicated");
-        }else{
-            txtPatientDetailAddress.setText(selectedPatient.getAddress());
+        lblTitlePatientDetail.setText(patient.getName() + " " + patient.getSurname());
+        lblEmailPatientDetail.setText(patient.getEmail());
+        if (patient.getAddress().isEmpty()) {
+            lblAddressPatientDetail.setText("Address not indicated");
+        } else {
+            lblAddressPatientDetail.setText(patient.getAddress());
         }
-        txtPatientDetailInsuranceNumber.setText(selectedPatient.getInsuranceNumber());
-        txtPatientDetailBirthDate.setText(selectedPatient.getBirthdate());
-        getPatientAppointments(selectedPatient.getId());
+        lblInsuranceNumPatientDetail.setText(patient.getInsuranceNumber());
+        lblBirthdatePatientDetail.setText(patient.getBirthdate());
+        getPatientAppointments(patient.getId());
+    }
+
+    public void getPatients() {
+        btnAddUser.setVisible(true);
+        showUsersListPanel();
+        PatientService.getPatients("")
+            .thenAccept(patients -> {
+                selectedListEntity = Entity.PATIENT;
+                Platform.runLater(() -> showPatients(patients));
+            }).exceptionally(e -> {
+                RequestErrorException ex = (RequestErrorException) e.getCause();
+                ErrorResponse errorResponse = ex.getErrorResponse();
+                Platform.runLater(() ->
+                        Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                );
+                return null;
+            });
+
+    }
+
+    public void getPatientById(int id) {
+        PatientService.getPatientById(id)
+            .thenAccept(patient ->
+                Platform.runLater(() -> {
+                    selectedPatient = patient;
+                    showPatientDetail(patient);
+                    System.out.println(selectedPatient);
+                })
+            ).exceptionally(e -> {
+                RequestErrorException ex = (RequestErrorException) e.getCause();
+                ErrorResponse errorResponse = ex.getErrorResponse();
+                Platform.runLater(() ->
+                        Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                );
+                return null;
+            });
     }
 
     public void getPatientsBySurname() {
@@ -335,66 +362,54 @@ public class Controller implements CloseController {
         });
     }
 
-    public void showCreatePatientForm(){
-        selectedPatient = null;
-        lblPasswordPatientForm.setVisible(true);
-        txtPasswordPatForm.setVisible(true);
+    public void showPatientForm(Patient patient) {
+        clearPatientForm();
+        if (patient != null) {
+            lblNickPatientForm.setVisible(false);
+            tfNickPatientForm.setVisible(false);
+            lblPasswordPatientForm.setVisible(false);
+            tfPasswordPatientForm.setVisible(false);
+
+            lblPatientFormTitle.setText("Edit patient " + patient.getName() + " " + patient.getSurname());
+            tfNamePatientForm.setText(patient.getName());
+            tfSurnamePatientForm.setText(patient.getSurname());
+            dpBirthdatePatientForm.setValue(LocalDate.parse(patient.getBirthdate()));
+            tfAddressPatientForm.setText(patient.getAddress());
+            tfInsuranceNumPatientForm.setText(patient.getInsuranceNumber());
+            tfEmailPatientForm.setText(patient.getEmail());
+        }
+
         showPatientFormPanel();
     }
 
     public void btnSavePatient() {
-        if(selectedPatient == null){
-            postPatient();
-        }else{
-            putPatient();
+        if (selectedPatient == null) {
+            createPatient();
+        } else {
+            updatePatient();
         }
     }
 
-    /**
-     * Sends a POST request to create a new patient on the server.
-     * If the request is successful, the list of patients is refreshed. If there is an error, an error message is displayed.
-     */
-    public void postPatient() {
-        if (isValidPatientForm()) {
-            Patient newPatient = new Patient(
-                txtNamePatForm.getText(),
-                txtSurnamePatForm.getText(),
-                dpBirthDate.getValue().format(formatter),
-                txtAddressPatForm.getText(),
-                txtInsuranceNumberPatForm.getText(),
-                txtEmailPatForm.getText());
-
-            User newUser = new User(txtInsuranceNumberPatForm.getText(), txtPasswordPatForm.getText(), "patient");
-
-            PatientService.postPatient(new PatientPOSTRequest(newUser, newPatient))
-                .thenAccept(patient -> {
-                    Platform.runLater(() -> {
-                        selectedPatient = patient;
-                        clearPatientForm();
-                        showPatientDetail();
-                    });
-                }).exceptionally(e -> {
-                    RequestErrorException ex = (RequestErrorException) e.getCause();
-                    ErrorResponse errorResponse = ex.getErrorResponse();
-                    Platform.runLater(() ->
-                            Message.showError(errorResponse.getError(), errorResponse.getMessage())
-                    );
-                    return null;
-                });
-        }
-    }
-
-    public boolean isValidPatientForm() {
-        String name = txtNamePatForm.getText();
-        String surname = txtSurnamePatForm.getText();
-        LocalDate birthDate = dpBirthDate.getValue();
-        String email = txtEmailPatForm.getText();
-        String address = txtAddressPatForm.getText();
-        String insuranceNumber = txtInsuranceNumberPatForm.getText();
-        String password = txtPasswordPatForm.getText();
+    public boolean isValidPatientForm(boolean isEdit) {
+        String nick = tfNickPatientForm.getText();
+        String password = tfPasswordPatientForm.getText();
+        String name = tfNamePatientForm.getText();
+        String surname = tfSurnamePatientForm.getText();
+        LocalDate birthDate = dpBirthdatePatientForm.getValue();
+        String email = tfEmailPatientForm.getText();
+        String address = tfAddressPatientForm.getText();
+        String insuranceNumber = tfInsuranceNumPatientForm.getText();
 
         StringBuilder errorBuilder = new StringBuilder();
 
+        if (!isEdit) {
+            if (nick.length() < 4) {
+                errorBuilder.append("- Nick must be at least 4 characters long\n");
+            }
+            if (password.length() < 7) {
+                errorBuilder.append("- Password must be at least 7 characters long\n");
+            }
+        }
         if (name.length() < 2 || name.length() > 50) {
             errorBuilder.append("- Name must be between 2 and 50 characters\n");
         }
@@ -415,138 +430,50 @@ public class Controller implements CloseController {
         }
         if (birthDate == null) {
             errorBuilder.append("- Birth date must not be empty\n");
-        }else{
-            if (!birthDate.isBefore(LocalDate.now())) {
-                errorBuilder.append("- The birth date must be before today\n");
-            }
-        }
-        if (selectedPatient == null && password.length() < 7) {
-            errorBuilder.append("- Password must be at least 7 characters long\n");
+        } else if (!birthDate.isBefore(LocalDate.now())) {
+            errorBuilder.append("- The birth date must be before today\n");
         }
         if (!errorBuilder.isEmpty()) {
-            showValidationError(errorBuilder.toString());
+            Message.showError("Validation error", errorBuilder.toString());
             return false;
         }
 
         return true;
     }
 
-    public void clearPatientForm(){
+    public void clearPatientForm() {
         for (Node child: pnlPatientForm.getChildren()) {
-            if(child instanceof TextField){
+            if (child instanceof TextField) {
                 ((TextField) child).clear();
             }
         }
-        lblPatientFormTitle.setText("New Patient");
-        dpBirthDate.setValue(null);
-    }
-
-    public void showValidationError(String message) {
-        Message.showError("Validation Error", message);
+        dpBirthdatePatientForm.setValue(null);
     }
 
     /**
-     * Sends a PUT request to update an existing patient's information on the server.
-     * If the update is successful, the patient's details are displayed. Otherwise, an error message is shown.
+     * Sends a POST request to create a new patient on the server.
+     * If the request is successful, the list of patients is refreshed. If there is an error, an error message is displayed.
      */
-    public void putPatient() {
-//      INTERNAL SERVER ERROR si se modifica un paciente y no tien appointments
-        if (isValidPatientForm()) {
-            Patient updatedPatient = new Patient(
-                txtNamePatForm.getText(),
-                txtSurnamePatForm.getText(),
-                dpBirthDate.getValue().format(formatter),
-                txtAddressPatForm.getText(),
-                txtInsuranceNumberPatForm.getText(),
-                txtEmailPatForm.getText());
-
-            PatientService.putPatient(updatedPatient, selectedPatient.getId())
-                .thenAccept(patient -> {
-                    Platform.runLater(() -> {
-                        clearPatientForm();
-                        selectedPatient = patient;
-                        showPatientDetail();
-                    });
-                }).exceptionally(e -> {
-                    RequestErrorException ex = (RequestErrorException) e.getCause();
-                    ErrorResponse errorResponse = ex.getErrorResponse();
-                    Platform.runLater(() -> Message.showError(errorResponse.getError(), errorResponse.getMessage()));
-                    return null;
-                });
-        }
-    }
-
-    /**
-     * Displays detailed information of the currently selected patient.
-     * Sets text fields and labels with patient data and adjusts the UI components to display the patient's details.
-     */
-    public void showEditPatientForm() {
-        showPatientFormPanel();
-        lblPasswordPatientForm.setVisible(false);
-        txtPasswordPatForm.setVisible(false);
-
-        lblPatientFormTitle.setText(selectedPatient.getName() + " " + selectedPatient.getSurname());
-        txtNamePatForm.setText(selectedPatient.getName());
-        txtSurnamePatForm.setText(selectedPatient.getSurname());
-        txtEmailPatForm.setText(selectedPatient.getEmail());
-        lblAddressAndSpecialty.setText("Address");
-        txtAddressPatForm.setText(selectedPatient.getAddress());
-        lblLogin.setText("Insurance Number");
-        txtInsuranceNumberPatForm.setText(selectedPatient.getInsuranceNumber());
-        dpBirthDate.setValue(LocalDate.parse(selectedPatient.getBirthdate(), formatter));
-    }
-
-    /**
-     * Displays detailed information of the currently selected physio.
-     * Sets text fields and labels with physio data and adjusts the UI components to display the physio's details.
-     */
-    public void showEditPhysioForm() {
-        showPhysioFormPanel();
-        lblPasswordPhysioForm.setVisible(false);
-        tfPasswordPhysioForm.setVisible(false);
-
-        lblPhysioFormTitle.setText(selectedPhysio.getName() + " " + selectedPhysio.getSurname());
-        txtNamePatForm.setText(selectedPhysio.getName());
-        txtSurnamePatForm.setText(selectedPhysio.getSurname());
-        txtEmailPatForm.setText(selectedPhysio.getEmail());
-        lblAddressAndSpecialty.setText("Specialty");
-        txtAddressPatForm.setText(selectedPhysio.getSpecialty());
-        lblLogin.setText("Insurance Number");
-        txtInsuranceNumberPatForm.setText(selectedPhysio.getLicenseNumber());
-
-        splitSpecialty.setVisible(false);
-    }
-
-
-//    ---------- PHYSIOS ----------
-    /**
-     * Fetches the list of physiotherapists from the server and updates the UI with the retrieved data.
-     * If there is an error, an error message is displayed.
-     */
-    public void getPhysios() {
-        btnAddUser.setVisible(true);
-        showUsersListPanel();
-        PhysioService.getPhysios("").thenAccept(physios -> {
-            selectedListEntity = Entity.PHYSIO;
-            Platform.runLater(() -> showPhysios(physios));
-        }).exceptionally(e -> {
-            RequestErrorException ex = (RequestErrorException) e.getCause();
-            ErrorResponse errorResponse = ex.getErrorResponse();
-            Platform.runLater(() ->
-                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+    public void createPatient() {
+        if (isValidPatientForm(false)) {
+            Patient newPatient = new Patient(
+                    tfNamePatientForm.getText(), tfSurnamePatientForm.getText(),
+                    dpBirthdatePatientForm.getValue().format(formatter), tfAddressPatientForm.getText(),
+                    tfInsuranceNumPatientForm.getText(), tfEmailPatientForm.getText()
             );
-            return null;
-        });
-    }
 
-    public void getPhysioById(int id) {
-        PhysioService.getPhysioById(id)
-                .thenAccept(physio -> {
+            User newUser = new User(
+                    tfNickPatientForm.getText(), tfPasswordPatientForm.getText(), "patient"
+            );
+
+            PatientService.create(new PatientPOSTRequest(newUser, newPatient))
+                .thenAccept(patient ->
                     Platform.runLater(() -> {
-                        selectedPhysio = physio;
-                        showPhysioDetail();
-                    });
-                }).exceptionally(e -> {
+                        selectedPatient = patient;
+                        clearPatientForm();
+                        showPatientDetail(patient);
+                    })
+                ).exceptionally(e -> {
                     RequestErrorException ex = (RequestErrorException) e.getCause();
                     ErrorResponse errorResponse = ex.getErrorResponse();
                     Platform.runLater(() ->
@@ -554,9 +481,40 @@ public class Controller implements CloseController {
                     );
                     return null;
                 });
-
+        }
     }
 
+    /**
+     * Sends a PUT request to update an existing patient's information on the server.
+     * If the update is successful, the patient's details are displayed. Otherwise, an error message is shown.
+     */
+    public void updatePatient() {
+        if (isValidPatientForm(true)) {
+            Patient updatedPatient = new Patient(
+                selectedPatient.getId(), tfNamePatientForm.getText(), tfSurnamePatientForm.getText(),
+                dpBirthdatePatientForm.getValue().format(formatter), tfAddressPatientForm.getText(),
+                tfInsuranceNumPatientForm.getText(), tfEmailPatientForm.getText()
+            );
+
+            PatientService.update(selectedPatient.getId(), updatedPatient)
+                .thenAccept(patient ->
+                    Platform.runLater(() -> {
+                        clearPatientForm();
+                        selectedPatient = patient;
+                        showPatientDetail(patient);
+                    })
+                ).exceptionally(e -> {
+                    RequestErrorException ex = (RequestErrorException) e.getCause();
+                    ErrorResponse errorResponse = ex.getErrorResponse();
+                    Platform.runLater(() ->
+                            Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                    );
+                    return null;
+                });
+        }
+    }
+
+//    ---------- PHYSIOS ----------
     /**
      * Displays the list of physiotherapists on the UI.
      * @param physios The list of physiotherapists to be displayed.
@@ -589,7 +547,7 @@ public class Controller implements CloseController {
                     userItemController.setBtnDeleteVisibility(false);
 
                     userItemController.setDeleteListener(idPhysio ->
-                            PhysioService.deletePhysio(idPhysio).thenAccept(_ -> {
+                            PhysioService.delete(idPhysio).thenAccept(_ -> {
                                 getPhysios();
                                 Platform.runLater(() ->
                                         Message.showMessage(
@@ -621,16 +579,57 @@ public class Controller implements CloseController {
         txtPhysiosCount.setText(String.valueOf(physios.size()));
     }
 
-    public void showPhysioDetail(){
+    public void showPhysioDetail(Physio physio) {
         showPhysioDetailPanel();
-        lblDetailPhysioTitle.setText(selectedPhysio.getName() + " " + selectedPhysio.getSurname());
-        txtPhysioDetailEmail.setText(selectedPhysio.getEmail());
 
-        txtPhysioDetailLicenceNumber.setText(selectedPhysio.getLicenseNumber());
-        txtPhysioDetailSpecialty.setText(selectedPhysio.getSpecialty());
-        getPhysioAppointments(selectedPhysio.getId());
+        if (Storage.getInstance().getUserdata().getValue().equals("physio")) {
+            btnEditPhysio.setVisible(false);
+        }
+
+        lblTitlePhysioDetail.setText(physio.getName() + " " + physio.getSurname());
+        lblEmailPhysioDetail.setText(physio.getEmail());
+        lblLicenceNumPhysioDetail.setText(physio.getLicenseNumber());
+        lblSpecialtyPhysioDetail.setText(physio.getSpecialty());
+        getPhysioAppointments(physio.getId());
     }
 
+    /**
+     * Fetches the list of physiotherapists from the server and updates the UI with the retrieved data.
+     * If there is an error, an error message is displayed.
+     */
+    public void getPhysios() {
+        btnAddUser.setVisible(true);
+        showUsersListPanel();
+        PhysioService.getPhysios("").thenAccept(physios -> {
+            selectedListEntity = Entity.PHYSIO;
+            Platform.runLater(() -> showPhysios(physios));
+        }).exceptionally(e -> {
+            RequestErrorException ex = (RequestErrorException) e.getCause();
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            Platform.runLater(() ->
+                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            );
+            return null;
+        });
+    }
+
+    public void getPhysioById(int id) {
+        PhysioService.getPhysioById(id)
+                .thenAccept(physio ->
+                    Platform.runLater(() -> {
+                        selectedPhysio = physio;
+                        showPhysioDetail(physio);
+                    })
+                ).exceptionally(e -> {
+                    RequestErrorException ex = (RequestErrorException) e.getCause();
+                    ErrorResponse errorResponse = ex.getErrorResponse();
+                    Platform.runLater(() ->
+                            Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                    );
+                    return null;
+                });
+
+    }
 
     public void getPhysiosBySpecialty() {
         PhysioService.getPhysios(txtSearch.getText()).thenAccept(physios -> {
@@ -646,70 +645,43 @@ public class Controller implements CloseController {
         });
     }
 
-    public void showCreatePhysioForm() {
-        selectedPhysio = null;
-        tfNickPhysioForm.setVisible(true);
-        tfPasswordPhysioForm.setVisible(true);
-        cBoxSpecialtyPhysioForm.setValue("Sports");
+    public void showPhysioForm(Physio physio) {
+        clearPhysioForm();
         cBoxSpecialtyPhysioForm.setItems(
-            FXCollections.observableList(
-                    List.of("Sports", "Neurological", "Pediatric", "Geriatric", "Oncological")
-            )
+                FXCollections.observableList(
+                        List.of("Sports", "Neurological", "Pediatric", "Geriatric", "Oncological")
+                )
         );
+        if (physio == null) {
+            lblPhysioFormTitle.setText("New Physio");
+            cBoxSpecialtyPhysioForm.setValue("Sports");
+        } else {
+            lblNickPhysioForm.setVisible(false);
+            tfNickPhysioForm.setVisible(false);
+            lblPasswordPhysioForm.setVisible(false);
+            tfPasswordPhysioForm.setVisible(false);
+
+            lblPhysioFormTitle.setText("Edit physio " + physio.getName() + " " + physio.getSurname());
+            tfNamePhysioForm.setText(physio.getName());
+            tfSurnamePhysioForm.setText(physio.getSurname());
+            cBoxSpecialtyPhysioForm.setValue(physio.getSpecialty());
+            tfLicenseNumberPhysioForm.setText(physio.getLicenseNumber());
+            tfEmailPhysioForm.setText(physio.getEmail());
+        }
+
         showPhysioFormPanel();
     }
 
     public void btnSavePhysio() {
-        if(selectedPhysio == null){
-            postPhysio();
-        }else{
-            putPhysio();
-        }
-    }
-    public void postPhysio(){
-        if(isValidPhysioForm()){
-            Physio newPhysio = new Physio(
-                    tfNamePhysioForm.getText(),
-                    tfSurnamePhysioForm.getText(),
-                    cBoxSpecialtyPhysioForm.getValue(),
-                    tfLicenseNumberPhysioForm.getText(),
-                    tfEmailPhysioForm.getText()
-            );
-            User newUser =  new User(tfNickPhysioForm.getText(), tfPasswordPhysioForm.getText(), "physio");
-            PhysioPOSTRequest physioPOSTRequest = new PhysioPOSTRequest(newUser, newPhysio);
-            PhysioService.create(physioPOSTRequest).thenAccept(physio -> {
-
-                //Los mensaje de error no van
-                // Platform runlater no muestra los alert por algún motivo
-                Platform.runLater(() -> {
-                    selectedPhysio = physio;
-                    clearPhysioForm();
-                    getPhysios();
-                });
-
-//                showPhysioDetail(); Hay que implementarla
-            }).exceptionally(e -> {
-                RequestErrorException ex = (RequestErrorException) e;
-                ErrorResponse errorResponse = ex.getErrorResponse();
-                Platform.runLater(() ->
-                        Message.showError(errorResponse.getError(), errorResponse.getMessage())
-                );
-                return null;
-            });
+        System.out.println(selectedPhysio);
+        if (selectedPhysio == null) {
+            createPhysio();
+        } else {
+            updatePhysio();
         }
     }
 
-    public void clearPhysioForm(){
-        for (Node child: pnlPhysioForm.getChildren()) {
-            if(child instanceof TextField){
-                ((TextField) child).clear();
-            }
-        }
-        lblPhysioFormTitle.setText("New Physio");
-        cBoxSpecialtyPhysioForm.setValue("Sports");
-    }
-
-    public boolean isValidPhysioForm() {
+    public boolean isValidPhysioForm(boolean isEdit) {
         String nick = tfNickPhysioForm.getText();
         String password = tfPasswordPhysioForm.getText();
         String name = tfNamePhysioForm.getText();
@@ -720,11 +692,13 @@ public class Controller implements CloseController {
 
         StringBuilder errorBuilder = new StringBuilder();
 
-        if (nick.length() < 4) {
-            errorBuilder.append("- Nick must be at least 4 characters long\n");
-        }
-        if (password.length() < 7) {
-            errorBuilder.append("- Password must be at least 7 characters long\n");
+        if (!isEdit) {
+            if (nick.length() < 4) {
+                errorBuilder.append("- Nick must be at least 4 characters long\n");
+            }
+            if (password.length() < 7) {
+                errorBuilder.append("- Password must be at least 7 characters long\n");
+            }
         }
         if (name.length() < 2 || name.length() > 50) {
             errorBuilder.append("- Name must be between 2 and 50 characters\n");
@@ -746,44 +720,73 @@ public class Controller implements CloseController {
         }
 
         if (!errorBuilder.isEmpty()) {
-            showValidationError(errorBuilder.toString());
+            Message.showError("Validation error", errorBuilder.toString());
             return false;
         }
 
         return true;
     }
 
+    public void clearPhysioForm() {
+        for (Node child: pnlPhysioForm.getChildren()) {
+            if (child instanceof TextField) {
+                ((TextField) child).clear();
+            }
+        }
+    }
 
-    /**
-     * Sends a PUT request to update an existing physio's information on the server.
-     * If the update is successful, the physio's details are displayed. Otherwise, an error message is shown.
-     */
-    public void putPhysio() {
-        /*Map<String, Object> postBody = createPhysioRequestBody();
+    private void createPhysio() {
+        if (isValidPhysioForm(false)) {
+            Physio newPhysio = new Physio(
+                    tfNamePhysioForm.getText(), tfSurnamePhysioForm.getText(),
+                    cBoxSpecialtyPhysioForm.getValue(), tfLicenseNumberPhysioForm.getText(),
+                    tfEmailPhysioForm.getText()
+            );
+            User newUser =  new User(
+                    tfNickPhysioForm.getText(), tfPasswordPhysioForm.getText(), "physio"
+            );
+            PhysioPOSTRequest physioPOSTRequest = new PhysioPOSTRequest(newUser, newPhysio);
+            PhysioService.create(physioPOSTRequest).thenAccept(physio -> {
+                //Los mensaje de error no van
+                // Platform runlater no muestra los alert por algún motivo
+                Platform.runLater(() -> {
+                    selectedPhysio = physio;
+                    clearPhysioForm();
+                    showPhysioDetail(physio);
+                });
+            }).exceptionally(e -> {
+                RequestErrorException ex = (RequestErrorException) e;
+                ErrorResponse errorResponse = ex.getErrorResponse();
+                Platform.runLater(() ->
+                        Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                );
+                return null;
+            });
+        }
+    }
 
-        String apiUrl = ServiceUtils.SERVER + "physios/" + selectedPhysio.getId();
-        String jsonRequest = gson.toJson(postBody);
-
-        ServiceUtils.getResponseAsync(apiUrl, jsonRequest, "PUT")
-                .thenApply(json -> gson.fromJson(json, PhysioResponse.class)
-                )
-                .thenAccept(response -> {
-                    if (response.isOk()) {
-                        Platform.runLater(() -> {
-                            selectedPhysio = response.getResult();
-                            showPhysio();
-                        });
-                    } else {
-                        Platform.runLater(() -> Message.showError("Error updating Physio", response.getError()));
-                    }
+    private void updatePhysio() {
+        if (isValidPhysioForm(true)) {
+            Physio physioToUpdate = new Physio(
+                    selectedPhysio.getId(), tfNamePhysioForm.getText(),
+                    tfSurnamePhysioForm.getText(), cBoxSpecialtyPhysioForm.getValue(),
+                    tfLicenseNumberPhysioForm.getText(), tfEmailPhysioForm.getText()
+            );
+            PhysioService.update(selectedPhysio.getId(), physioToUpdate).thenAccept(physio ->
+                Platform.runLater(() -> {
+                    selectedPhysio = physio;
+                    clearPhysioForm();
+                    showPhysioDetail(physio);
                 })
-                .exceptionally(ex -> {
-                    Platform.runLater(() -> {
-                        Message.showError("Error", "Error updating Physio");
-                        openLoginView(stage);
-                    });
-                    return null;
-                });*/
+            ).exceptionally(e -> {
+                RequestErrorException ex = (RequestErrorException) e;
+                ErrorResponse errorResponse = ex.getErrorResponse();
+                Platform.runLater(() ->
+                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                );
+                return null;
+            });
+        }
     }
 
 
@@ -926,8 +929,8 @@ public class Controller implements CloseController {
         showAppointmentsFormPanel();
         PatientService.getPatients("").thenAccept(patients ->
                 Platform.runLater(() -> {
-                    cBoxPatients.setValue(patients.get(0));
-                    cBoxPatients.setItems(FXCollections.observableList(patients));
+                    cBoxPatientsAppointmentForm.setValue(patients.get(0));
+                    cBoxPatientsAppointmentForm.setItems(FXCollections.observableList(patients));
                 })
         ).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e;
@@ -939,8 +942,8 @@ public class Controller implements CloseController {
         });
         PhysioService.getPhysios("").thenAccept(patients ->
                 Platform.runLater(() -> {
-                    cBoxPhysios.setValue(patients.get(0));
-                    cBoxPhysios.setItems(FXCollections.observableList(patients));
+                    cBoxPhysiosAppointmentForm.setValue(patients.get(0));
+                    cBoxPhysiosAppointmentForm.setItems(FXCollections.observableList(patients));
                 })
         ).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e;
@@ -954,12 +957,12 @@ public class Controller implements CloseController {
     }
 
     public void btnAppointmentFormClick() {
-        LocalDate date = dpDate.getValue();
-        String diagnosis = tfDiagnosis.getText();
-        String treatment = tfTreatment.getText();
-        String observations = tfObservations.getText();
-        int physioId = cBoxPhysios.getSelectionModel().getSelectedItem().getId();
-        int patientId = cBoxPatients.getSelectionModel().getSelectedItem().getId();
+        LocalDate date = dpDateAppointmentForm.getValue();
+        String diagnosis = tfDiagnosisAppointmentForm.getText();
+        String treatment = tfTreatmentAppointmentForm.getText();
+        String observations = tfObservationsAppointmentForm.getText();
+        int physioId = cBoxPhysiosAppointmentForm.getSelectionModel().getSelectedItem().getId();
+        int patientId = cBoxPatientsAppointmentForm.getSelectionModel().getSelectedItem().getId();
 
         if (date == null) {
             Message.showError("Error in form", "Date can not be empty");
@@ -1103,21 +1106,21 @@ public class Controller implements CloseController {
      * @param actionEvent the action event triggered by the user
      */
     public void handleClicks(ActionEvent actionEvent) {
-        if (actionEvent.getSource() == btnPatients) {
+        if (actionEvent.getSource() == btnLeftBarPatients) {
             hBoxRecordList.setVisible(false);
             hBoxUserList.setVisible(true);
             lblTitle.setText("Patients");
             lblInsuranceLicenseNumList.setText("Insurance Number");
             getPatients();
         }
-        if (actionEvent.getSource() == btnPhysios) {
+        if (actionEvent.getSource() == btnLeftBarPhysios) {
             hBoxRecordList.setVisible(false);
             hBoxUserList.setVisible(true);
             lblTitle.setText("Physios");
             lblInsuranceLicenseNumList.setText("License Number");
             getPhysios();
         }
-        if (actionEvent.getSource() == btnRecords) {
+        if (actionEvent.getSource() == btnLeftBarRecords) {
             hBoxUserList.setVisible(false);
             hBoxRecordList.setVisible(true);
             lblTitle.setText("Records");
@@ -1125,18 +1128,18 @@ public class Controller implements CloseController {
         }
 
         if (actionEvent.getSource() == btnAddUser && selectedListEntity == Entity.PATIENT ) {
-            showCreatePatientForm();
+            showPatientForm(null);
         }
 
         if (actionEvent.getSource() == btnAddUser && selectedListEntity == Entity.PHYSIO ) {
-            showCreatePhysioForm();
+            showPhysioForm(null);
         }
 
-        if (actionEvent.getSource() == btnAddAppointment) {
+        if (actionEvent.getSource() == btnLeftBarAddAppointment) {
             showCreateAppointmentForm();
         }
 
-        if(actionEvent.getSource() == btnLogout) {
+        if(actionEvent.getSource() == btnLeftBarLogout) {
             Storage.getInstance().clearData();
             openLoginView(stage);
         }
@@ -1151,7 +1154,7 @@ public class Controller implements CloseController {
             item.setOnAction(_ -> {
                 selectedPhysio.setSpecialty(item.getText());
                 splitSpecialty.setText(selectedPhysio.getSpecialty());
-                txtAddressPatForm.setText(selectedPhysio.getSpecialty());
+                tfAddressPatientForm.setText(selectedPhysio.getSpecialty());
             });
         }
     }
@@ -1181,11 +1184,11 @@ public class Controller implements CloseController {
 
 
     public void editPatientClick() {
-        showEditPatientForm();
+        showPatientForm(selectedPatient);
     }
 
     public void editPhysioClick() {
-        System.out.println("Edit physio");
+        showPhysioForm(selectedPhysio);
     }
 
     public void searchClick() {
@@ -1198,97 +1201,4 @@ public class Controller implements CloseController {
             }
         }
     }
-
 }
-
-
-//    public void postPhysio(){
-//        String nick = tfNickPhysioForm.getText();
-//        String password = tfPasswordPhysioForm.getText();
-//        String name = tfNamePhysioForm.getText();
-//        String surname = tfSurnamePhysioForm.getText();
-//        String specialty = cBoxSpecialtyPhysioForm.getValue();
-//        String licenseNumber = tfLicenseNumberPhysioForm.getText();
-//        String email = tfEmailPhysioForm.getText();
-//
-//        if (nick.length() < 4) {
-//            Message.showError(
-//                    "Validation error",
-//                    "Nick length must be greater or equals then 4 characters"
-//            );
-//            return;
-//        }
-//        if (password.length() < 7) {
-//            Message.showError(
-//                    "Validation error",
-//                    "Password length must be greater or equals then 7 characters"
-//            );
-//            return;
-//        }
-//        if (name.length() < 2) {
-//            Message.showError(
-//                    "Validation error",
-//                    "Name length must be greater or equal than 2 characters"
-//            );
-//            return;
-//        }
-//        if (name.length() > 50) {
-//            Message.showError(
-//                    "Validation error",
-//                    "Name length must be lower or equal than 50 characters"
-//            );
-//            return;
-//        }
-//        if (surname.length() < 2) {
-//            Message.showError(
-//                    "Validation error",
-//                    "Surname length must be greater or equal than 2 characters"
-//            );
-//            return;
-//        }
-//        if (surname.length() > 50) {
-//            Message.showError(
-//                    "Validation error",
-//                    "Surname length must be lower or equal than 50 characters"
-//            );
-//            return;
-//        }
-//        if (!licenseNumber.matches("^[0-9A-Z]{8}$")) {
-//            Message.showError(
-//                    "Validation error",
-//                    "License number must be composed of 8 characters (numbers and capital letters)"
-//            );
-//            return;
-//        }
-//        if (email.length() > 75) {
-//            Message.showError(
-//                    "Validation error",
-//                    "Email length must be lower or equals than 75 characters"
-//            );
-//            return;
-//        }
-//        if (!email.matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
-//            Message.showError(
-//                    "Validation error",
-//                    "Email do not have a correct email format"
-//            );
-//            return;
-//        }
-//
-//        PhysioPOSTRequest physioPOSTRequest = new PhysioPOSTRequest(
-//                new User(nick, password, "patient"),
-//                new Physio(name, surname, specialty, licenseNumber, email)
-//        );
-//        PhysioService.create(physioPOSTRequest).thenAccept(physio -> {
-//            System.out.println(physio);
-//            // TODO(Redirigir a detail physio)
-//        }).exceptionally(e -> {
-//            RequestErrorException ex = (RequestErrorException) e;
-//            ErrorResponse errorResponse = ex.getErrorResponse();
-//            System.out.println("Holaa");
-//            Platform.runLater(() ->
-//                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
-//            );
-//            return null;
-//        });
-//    }
