@@ -55,7 +55,7 @@ public class PhysioService {
         });
     }
 
-    public static CompletableFuture<Physio> create(PhysioPOSTRequest physioPOSTRequest)
+    public static CompletableFuture<Physio> createPhysio(PhysioPOSTRequest physioPOSTRequest)
             throws RequestErrorException {
         return ServiceUtils.getResponseAsync(
                 ServiceUtils.SERVER + "physios",
@@ -64,7 +64,7 @@ public class PhysioService {
         ).thenApply(response -> gson.fromJson(response, Physio.class));
     }
 
-    public static CompletableFuture<Physio> update(int id, Physio physio)
+    public static CompletableFuture<Physio> updatePhysio(int id, Physio physio)
             throws RequestErrorException {
         return ServiceUtils.getResponseAsync(
                 ServiceUtils.SERVER + "physios/" + id,
@@ -73,7 +73,7 @@ public class PhysioService {
         ).thenApply(response -> gson.fromJson(response, Physio.class));
     }
 
-    public static CompletableFuture<Void> delete(int id) throws RequestErrorException {
+    public static CompletableFuture<Void> deletePhysio(int id) throws RequestErrorException {
         return ServiceUtils.getResponseAsync(
                 ServiceUtils.SERVER + "physios/" + id,
                 null,

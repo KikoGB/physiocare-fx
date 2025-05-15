@@ -6,26 +6,26 @@
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.layout.HBox?>
 
-<HBox fx:id="itemC" alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="53.0" prefWidth="695.0" spacing="20.0" style="-fx-background-color: #02030A; -fx-background-radius: 5; -fx-background-insets: 0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gadeadiaz.physiocare.controllers.UserItemController">
+<HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="53.0" prefWidth="695.0" spacing="20.0" style="-fx-background-color: #02030A; -fx-background-radius: 5; -fx-background-insets: 0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gadeadiaz.physiocare.controllers.UserItemController">
     <children>
-        <Label fx:id="lblAttribute1" alignment="CENTER" prefHeight="18.0" prefWidth="89.0" text="Name" textFill="#b7c3d7" />
-        <Label fx:id="lblAttribute2" alignment="CENTER" prefHeight="18.0" prefWidth="118.0" text="Surname" textFill="#b7c3d7">
+        <Label fx:id="lblName" alignment="CENTER" prefHeight="18.0" prefWidth="89.0" text="Name" textFill="#b7c3d7" />
+        <Label fx:id="lblSurname" alignment="CENTER" prefHeight="18.0" prefWidth="118.0" text="Surname" textFill="#b7c3d7">
             <HBox.margin>
                 <Insets />
             </HBox.margin>
         </Label>
-        <Label fx:id="lblAttribute3" alignment="CENTER" prefHeight="18.0" prefWidth="161.0" text="email1@gmail.com" textFill="#b7c3d7">
+        <Label fx:id="lblEmail" alignment="CENTER" prefHeight="18.0" prefWidth="161.0" text="email1@gmail.com" textFill="#b7c3d7">
             <HBox.margin>
                 <Insets />
             </HBox.margin>
         </Label>
-      <Label fx:id="lblAttribute4" alignment="CENTER" prefHeight="18.0" prefWidth="96.0" text="4529558S" textFill="#b7c3d7" />
-        <Button fx:id="btnDetailClick" alignment="CENTER" mnemonicParsing="false" onAction="#detailClick" prefHeight="27.0" prefWidth="83.0" style="-fx-border-color: #2A73FF; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Detail">
+      <Label fx:id="lblLicenseInsuranceNumber" alignment="CENTER" prefHeight="18.0" prefWidth="96.0" text="4529558S" textFill="#b7c3d7" />
+        <Button alignment="CENTER" mnemonicParsing="false" onAction="#showUserDetail" prefHeight="27.0" prefWidth="83.0" style="-fx-border-color: #2A73FF; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Detail">
             <HBox.margin>
                 <Insets />
             </HBox.margin>
         </Button>
-      <Button fx:id="btnDeleteClick" alignment="CENTER" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#deleteClick" prefHeight="27.0" prefWidth="66.0" style="-fx-border-color: #fa1f1f; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Delete">
+      <Button fx:id="btnDelete" alignment="CENTER" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#deleteUser" prefHeight="27.0" prefWidth="66.0" style="-fx-border-color: #fa1f1f; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Delete">
          <opaqueInsets>
             <Insets />
          </opaqueInsets>

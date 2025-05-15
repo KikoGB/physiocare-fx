@@ -20,12 +20,12 @@
          <padding>
             <Insets left="10.0" />
          </padding></Label>
-        <Button fx:id="btnDetail" alignment="CENTER" mnemonicParsing="false" onAction="#detailClick" prefHeight="27.0" prefWidth="83.0" style="-fx-border-color: #2A73FF; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Detail">
+        <Button alignment="CENTER" mnemonicParsing="false" onAction="#showRecordDetail" prefHeight="27.0" prefWidth="83.0" style="-fx-border-color: #2A73FF; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Detail">
             <HBox.margin>
                 <Insets left="5.0" right="5.0" />
             </HBox.margin>
         </Button>
-      <Button fx:id="btnAddMedicalRecord" alignment="CENTER" mnemonicParsing="false" onAction="#addMedicalRecord" prefHeight="27.0" prefWidth="112.0" style="-fx-border-color: #e68830; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Add medical record" visible="false">
+      <Button fx:id="btnAddMedicalRecord" alignment="CENTER" mnemonicParsing="false" onAction="#showRecordForm" prefHeight="27.0" prefWidth="112.0" style="-fx-border-color: #e68830; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Add medical record" visible="false">
          <HBox.margin>
             <Insets left="5.0" right="5.0" />
          </HBox.margin>

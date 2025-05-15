@@ -1,4 +1,4 @@
-package com.gadeadiaz.physiocare.controllers.interfaces;
+package com.gadeadiaz.physiocare.callbacks;
 
 public interface DenyAppointmentCallback {
     void denyAppointment(int appointmentId);

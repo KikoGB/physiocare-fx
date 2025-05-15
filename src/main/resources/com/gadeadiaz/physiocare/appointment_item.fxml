@@ -10,7 +10,7 @@
 
 <HBox fx:id="hbox_accept_appointment" alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#appointmentClick" prefHeight="53.0" prefWidth="695.0" spacing="20.0" style="-fx-background-color: #02030A; -fx-background-radius: 5; -fx-background-insets: 0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gadeadiaz.physiocare.controllers.AppointmentItemController">
     <children>
-      <ImageView fx:id="icAppointmentItem" fitHeight="31.0" fitWidth="31.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fx:id="ivAppointmentItem" fitHeight="31.0" fitWidth="31.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@images/pending_confirmation.png" />
          </image>
@@ -33,9 +33,9 @@
             <Insets />
          </HBox.margin>
       </Button>
-      <HBox fx:id="hboxPhysio" alignment="CENTER" prefHeight="54.0" prefWidth="0.0" visible="false">
+      <HBox fx:id="hBoxPhysio" alignment="CENTER" prefHeight="54.0" prefWidth="0.0" visible="false">
          <children>
-            <ImageView fx:id="avatarPhysio" fitHeight="23.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="ivAvatarPhysio" fitHeight="23.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@images/doctor_icon.png" />
                </image>

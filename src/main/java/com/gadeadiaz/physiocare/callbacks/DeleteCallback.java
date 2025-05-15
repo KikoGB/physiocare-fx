@@ -1,4 +1,4 @@
-package com.gadeadiaz.physiocare.controllers.interfaces;
+package com.gadeadiaz.physiocare.callbacks;
 
 /**
  * Listener interface for handling user deletion events.
@@ -6,6 +6,6 @@ package com.gadeadiaz.physiocare.controllers.interfaces;
  * Classes that implement this interface can respond to
  * user delete actions, typically from UI elements like buttons.
  */
-public interface DeleteListener {
-    void onDeletetClick(int id);
+public interface DeleteCallback {
+    void delete(int id);
 }
