@@ -216,6 +216,7 @@ public class Controller implements CloseController {
         clearPatientForm();
         clearPhysioForm();
         clearAppointmentForm();
+        vBoxPatientAppointments.getChildren().clear();
         pnlPatientForm.setVisible(false);
         pnlPhysioForm.setVisible(false);
         pnlPatientDetail.setVisible(false);
@@ -229,6 +230,7 @@ public class Controller implements CloseController {
         clearPatientForm();
         clearPhysioForm();
         clearAppointmentForm();
+        vBoxPhysioAppointments.getChildren().clear();
         pnlPatientForm.setVisible(false);
         pnlPhysioForm.setVisible(false);
         pnlPatientDetail.setVisible(false);
@@ -239,6 +241,7 @@ public class Controller implements CloseController {
     }
 
     public void showPatientFormPanel(){
+        clearPatientForm();
         clearPhysioForm();
         clearAppointmentForm();
         pnlPhysioForm.setVisible(false);
@@ -251,6 +254,7 @@ public class Controller implements CloseController {
     }
 
     public void showPhysioFormPanel(){
+        clearPatientForm();
         clearPatientForm();
         clearAppointmentForm();
         pnlPatientForm.setVisible(false);
@@ -265,6 +269,8 @@ public class Controller implements CloseController {
     public void showRecordDetailPanel(){
         clearPatientForm();
         clearPhysioForm();
+        clearAppointmentForm();
+        vBoxRecordAppointments.getChildren().clear();
         pnlPatientForm.setVisible(false);
         pnlPhysioForm.setVisible(false);
         pnlPatientDetail.setVisible(false);
@@ -839,10 +845,14 @@ public class Controller implements CloseController {
      * Displays the list of appointments on the UI.
      * @param appointments The list of appointments to be displayed.
      */
-    public void showAppointments(List<Appointment> appointments) {
-        vBoxPatientAppointments.getChildren().clear();
-        vBoxPhysioAppointments.getChildren().clear();
-        vBoxRecordAppointments.getChildren().clear();
+    public void showAppointments(List<Appointment> appointments, Controller.Entity entity) {
+        VBox vBoxUsed = null;
+        switch (entity) {
+            case PATIENT -> vBoxUsed = vBoxPatientAppointments;
+            case PHYSIO -> vBoxUsed = vBoxPhysioAppointments;
+            case RECORD -> vBoxUsed = vBoxRecordAppointments;
+        }
+
         for (Appointment appointment : appointments) {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/com/gadeadiaz/physiocare/appointment_item.fxml")
@@ -851,19 +861,17 @@ public class Controller implements CloseController {
                 Node node = loader.load();
                 AppointmentItemController appointmentItemController = loader.getController();
 
-                // mirar de controlar el NULL que puede producir
-                String icAcceptedAppointment = getClass().getResource(
-                        "/com/gadeadiaz/physiocare/images/ok_appointment.png"
+                String icAcceptedAppointment = Objects.requireNonNull(
+                        getClass().getResource("/com/gadeadiaz/physiocare/images/ok_appointment.png")
                 ).toString();
+
                 appointmentItemController.setAppointmentId(appointment.getId());
 
                 String rol = Storage.getInstance().getUserdata().getValue();
                 if (rol.equals("physio") || appointment.getConfirmed()) {
                     appointmentItemController.setIcAppointmentItemImage(new Image(icAcceptedAppointment));
                     appointmentItemController.getBtnAcceptAppointmentItem().setVisible(false);
-//                    appointmentItemController.getBtnAcceptAppointmentItem().setPrefWidth(0);
                     appointmentItemController.getBtnDenyAppointmentItem().setVisible(false);
-//                    appointmentItemController.getBtnDenyAppointmentItem().setPrefWidth(0);
                     appointmentItemController.getHboxPhysio().setPrefWidth(200);
                     appointmentItemController.getHboxPhysio().setVisible(true);
                 }
@@ -871,7 +879,9 @@ public class Controller implements CloseController {
                 appointmentItemController.setLblDateText(appointment.getDate());
                 appointmentItemController.setLblDiagnosisText(appointment.getDiagnosis());
 
-                appointmentItemController.getLblPhysioName().setText(appointment.getPhysio().getName() + " " + appointment.getPhysio().getSurname());
+                appointmentItemController.getLblPhysioName().setText(
+                        appointment.getPhysio().getName() + " " + appointment.getPhysio().getSurname()
+                );
 
                 node.setOnMouseEntered(_ -> node.setStyle("-fx-background-color : #0A0E3F"));
                 node.setOnMouseExited(_ -> node.setStyle("-fx-background-color : #02030A"));
@@ -892,6 +902,7 @@ public class Controller implements CloseController {
                                     appointmentItemController.getBtnAcceptAppointmentItem().setVisible(false);
                                     appointmentItemController.getBtnDenyAppointmentItem().setVisible(false);
                                     appointmentItemController.getHboxPhysio().setPrefWidth(200);
+                                    appointmentItemController.getHboxPhysio().setVisible(true);
                                     Message.showMessage(
                                             Alert.AlertType.INFORMATION,
                                             "Confirmed",
@@ -908,10 +919,12 @@ public class Controller implements CloseController {
                             return null;
                         })
                 );
+
+                VBox finalVBoxUsed = vBoxUsed;
                 appointmentItemController.setDenyAppointmentCallback(appointmentId ->
                         AppointmentService.deleteAppointment(appointmentId).thenAccept(_ -> {
                             Platform.runLater(() -> {
-                                vBoxPhysioAppointments.getChildren().remove(node);
+                                finalVBoxUsed.getChildren().remove(node);
                                 Message.showMessage(
                                         Alert.AlertType.INFORMATION,
                                         "Denied",
@@ -929,7 +942,7 @@ public class Controller implements CloseController {
                         })
                 );
 
-                vBoxPhysioAppointments.getChildren().add(node);
+                vBoxUsed.getChildren().add(node);
             } catch (IOException e) {
                 System.out.println("Appointment loader fail: " + e.getMessage());
             }
@@ -942,7 +955,7 @@ public class Controller implements CloseController {
                 selectedListEntity = Entity.APPOINTMENT;
                 patientScrollPaneAppointments.setVisible(true);
                 lblNoPatientAppointments.setVisible(true);
-                showAppointments(appointments);
+                showAppointments(appointments, Entity.PATIENT);
             });
         }).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e.getCause();
@@ -950,7 +963,6 @@ public class Controller implements CloseController {
             Platform.runLater(() -> {
                 lblNoPatientAppointments.setVisible(true);
                 patientScrollPaneAppointments.setVisible(false);
-//                Message.showError(errorResponse.getError(), errorResponse.getMessage()); Hay que ver que hacer con este error
             });
             return null;
         });
@@ -962,7 +974,7 @@ public class Controller implements CloseController {
                 selectedListEntity = Entity.APPOINTMENT;
                 physioScrollPaneAppointments.setVisible(true);
                 lblNoPhysioAppointments.setVisible(true);
-                showAppointments(appointments);
+                showAppointments(appointments, Entity.PHYSIO);
             });
         }).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e.getCause();
@@ -981,13 +993,12 @@ public class Controller implements CloseController {
                 selectedListEntity = Entity.APPOINTMENT;
                 recordScrollPaneAppointments.setVisible(true);
                 lblNoRecordAppointments.setVisible(true);
-                showAppointments(appointments);
+                showAppointments(appointments, Entity.RECORD);
             });
         }).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e.getCause();
             ErrorResponse errorResponse = ex.getErrorResponse();
             Platform.runLater(() -> {
-                Message.showError(errorResponse.getError(), errorResponse.getMessage());
                 lblNoRecordAppointments.setVisible(true);
                 recordScrollPaneAppointments.setVisible(false);
             });
