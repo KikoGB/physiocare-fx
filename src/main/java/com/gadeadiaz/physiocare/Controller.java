@@ -43,11 +43,11 @@ import java.util.Objects;
 
 public class Controller implements CloseController {
     // --- LEFT BAR MENU ---
+    @FXML ImageView ivAvatarLoggedPhysio;
     @FXML private Label lblLeftBarWelcome;
+    @FXML Button btnMyProfile;
 
     // -----------------------------------------------------------------------------!!! mirar estos de donde son
-
-    @FXML ImageView ivAvatarLoggedPhysio;
     // --- BOTONES ---
     @FXML private Button btnAddUser;
 //    @FXML private Button btnPhysioForm;
@@ -150,24 +150,31 @@ public class Controller implements CloseController {
     private Appointment selectedAppointment;
     private Record selectedRecord;
 
+    // Physio object representing the data of the logged physio
+    private Physio physioLogged;
+
     // --- ENUMS Y VARIABLES DE ESTADO ---
     private enum Entity { PATIENT, PHYSIO, RECORD, APPOINTMENT }
     private Entity selectedListEntity = Entity.PATIENT;
 
     public void initialize() {
         if (Storage.getInstance().getUserdata().getValue().equals("physio")) {
-            PhysioService.getPhysioLogged().thenAccept(physio ->
-                    Platform.runLater(() -> {
-                        lblLeftBarWelcome.setText(
-                                String.format("Welcome back %s %s", physio.getName(), physio.getSurname())
+            PhysioService.getPhysioLogged().thenAccept(physio -> {
+                physioLogged = physio;
+                Platform.runLater(() -> {
+                    lblLeftBarWelcome.setText(
+                            String.format("Welcome back %s %s", physio.getName(), physio.getSurname())
+                    );
+                    btnMyProfile.setOnMouseClicked(_ -> showPhysioDetail(physio));
+                    try {
+                        ivAvatarLoggedPhysio.setImage(
+                                new Image(String.valueOf(new URL(physio.getAvatar())))
                         );
-                        try {
-                            Image image = new Image(String.valueOf(new URL(physio.getAvatar())));
-                            ivAvatarLoggedPhysio.setImage(image);
-                        } catch (IOException _) {}
+                    } catch (IOException _) {
+                    }
 
-                    })
-            ).exceptionally(e -> {
+                });
+            }).exceptionally(e -> {
                 RequestErrorException ex = (RequestErrorException) e.getCause();
                 ErrorResponse errorResponse = ex.getErrorResponse();
                 Platform.runLater(() ->
@@ -177,6 +184,7 @@ public class Controller implements CloseController {
             });
         } else {
             lblLeftBarWelcome.setText("Welcome back admin");
+            btnMyProfile.setVisible(false);
         }
 
         getPatients();
@@ -850,9 +858,14 @@ public class Controller implements CloseController {
 //    ---------- APPOINTMENTS ----------
     /**
      * Displays the list of appointments on the UI.
+     *
      * @param appointments The list of appointments to be displayed.
+     * @param entity The entity displayed in the detail view PATIENT, PHYSIO, RECORD
+     * @param physioId The ID of the physio displayed, this parameter is only necessary when is a physio
+     *                 the object displayed. This is used to allow physios to accept or deny only their
+     *                 appointments. If the object displayed is not a physio put 0 in this parameter
      */
-    public void showAppointments(List<Appointment> appointments, Controller.Entity entity) {
+    public void showAppointments(List<Appointment> appointments, Controller.Entity entity, int physioId) {
         VBox vBoxUsed = null;
         switch (entity) {
             case PATIENT -> vBoxUsed = vBoxPatientAppointments;
@@ -875,7 +888,7 @@ public class Controller implements CloseController {
                 appointmentItemController.setAppointmentId(appointment.getId());
 
                 String rol = Storage.getInstance().getUserdata().getValue();
-                if (rol.equals("physio")) {
+                if (rol.equals("physio") && physioLogged.getId() != physioId) {
                     appointmentItemController.getBtnAcceptAppointmentItem().setVisible(false);
                     appointmentItemController.getBtnDenyAppointmentItem().setVisible(false);
                     appointmentItemController.getHBoxPhysio().setPrefWidth(200);
@@ -970,7 +983,7 @@ public class Controller implements CloseController {
                 selectedListEntity = Entity.APPOINTMENT;
                 patientScrollPaneAppointments.setVisible(true);
                 lblNoPatientAppointments.setVisible(true);
-                showAppointments(appointments, Entity.PATIENT);
+                showAppointments(appointments, Entity.PATIENT, 0);
             });
         }).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e.getCause();
@@ -989,7 +1002,7 @@ public class Controller implements CloseController {
                 selectedListEntity = Entity.APPOINTMENT;
                 physioScrollPaneAppointments.setVisible(true);
                 lblNoPhysioAppointments.setVisible(true);
-                showAppointments(appointments, Entity.PHYSIO);
+                showAppointments(appointments, Entity.PHYSIO, physioId);
             });
         }).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e.getCause();
@@ -1008,7 +1021,7 @@ public class Controller implements CloseController {
                 selectedListEntity = Entity.APPOINTMENT;
                 recordScrollPaneAppointments.setVisible(true);
                 lblNoRecordAppointments.setVisible(true);
-                showAppointments(appointments, Entity.RECORD);
+                showAppointments(appointments, Entity.RECORD, 0);
             });
         }).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e.getCause();
@@ -1254,36 +1267,9 @@ public class Controller implements CloseController {
         }
     }
 
-    public void showMyProfile() {
-
-    }
-
     public void logout() {
         Storage.getInstance().clearData();
         openLoginView(stage);
-    }
-
-    /**
-     * Sets up a listener for when the application window is closed. It opens the login view when the window is closed.
-     *
-     * @param stage the stage to attach the close listener
-     */
-    @Override
-    public void setOnCloseListener(Stage stage) {
-        stage.setOnCloseRequest(e -> {
-            openLoginView(stage);
-            e.consume();
-        });
-    }
-
-    /**
-     * Sets the primary stage for the application.
-     *
-     * @param stage the primary stage of the application
-     */
-    @Override
-    public void setStage(Stage stage) {
-        this.stage = stage;
     }
 
     public void savePdfClick() {
@@ -1293,13 +1279,26 @@ public class Controller implements CloseController {
 
 
     public void searchClick() {
-        if(!txtSearch.getText().trim().isEmpty()){
-            if(selectedListEntity.equals(Entity.PATIENT)){
+        if (!txtSearch.getText().trim().isEmpty()) {
+            if (selectedListEntity.equals(Entity.PATIENT)) {
                 getPatientsBySurname();
             }
-            if(selectedListEntity.equals(Entity.PHYSIO)){
+            if (selectedListEntity.equals(Entity.PHYSIO)) {
                 getPhysiosBySpecialty();
             }
         }
+    }
+
+    @Override
+    public void setOnCloseListener(Stage stage) {
+        stage.setOnCloseRequest(e -> {
+            openLoginView(stage);
+            e.consume();
+        });
+    }
+
+    @Override
+    public void setStage(Stage stage) {
+        this.stage = stage;
     }
 }
