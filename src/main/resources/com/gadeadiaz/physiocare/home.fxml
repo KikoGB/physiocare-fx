@@ -362,7 +362,7 @@
                   <Button fx:id="btnPhysioForm" layoutX="336.0" layoutY="494.0" mnemonicParsing="false" onAction="#btnSavePhysio" prefHeight="25.0" prefWidth="149.0" text="Add" />
                </children>
             </Pane>
-                <Pane fx:id="pnlAppointmentForm" prefHeight="597.0" prefWidth="414.0">
+                <Pane fx:id="pnlAppointmentForm" prefHeight="597.0" prefWidth="414.0" visible="false">
                     <children>
                         <Label fx:id="lblDetailTitle1" alignment="TOP_CENTER" layoutY="26.0" prefHeight="27.0" prefWidth="794.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="New Appointment" textAlignment="CENTER" textFill="#dfd2d2" />
                         <Label fx:id="lblDate" alignment="CENTER" layoutX="1.0" layoutY="74.0" prefHeight="17.0" prefWidth="794.0" style="-fx-font-weight: bold;" text="Date" textAlignment="CENTER" textFill="#bfb9b9" />

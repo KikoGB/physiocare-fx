@@ -193,6 +193,7 @@ public class Controller implements CloseController {
         pnlPatientDetail.setVisible(false);
         pnlAppointmentForm.setVisible(false);
         pnlPhysioDetail.setVisible(false);
+        pnlRecordDetail.setVisible(false);
         //Por ultimo, el que se muestra
         pnlUsersList.setVisible(true);
         pnlUsersList.toFront();
@@ -205,9 +206,9 @@ public class Controller implements CloseController {
         pnlUsersList.setVisible(false);
         pnlPatientForm.setVisible(false);
         pnlPatientDetail.setVisible(false);
-        pnlUsersList.setVisible(false);
         pnlPhysioForm.setVisible(false);
         pnlPhysioDetail.setVisible(false);
+        pnlRecordDetail.setVisible(false);
         pnlAppointmentForm.setVisible(true);
         pnlAppointmentForm.toFront();
     }
@@ -221,6 +222,7 @@ public class Controller implements CloseController {
         pnlPatientDetail.setVisible(false);
         pnlUsersList.setVisible(false);
         pnlPhysioDetail.setVisible(false);
+        pnlRecordDetail.setVisible(false);
         pnlPatientDetail.setVisible(true);
         pnlPatientDetail.toFront();
     }
@@ -234,6 +236,7 @@ public class Controller implements CloseController {
         pnlPatientDetail.setVisible(false);
         pnlUsersList.setVisible(false);
         pnlPatientDetail.setVisible(false);
+        pnlRecordDetail.setVisible(false);
         pnlPhysioDetail.setVisible(true);
         pnlPhysioDetail.toFront();
     }
@@ -246,6 +249,7 @@ public class Controller implements CloseController {
         pnlPatientDetail.setVisible(false);
         pnlAppointmentForm.setVisible(false);
         pnlPhysioDetail.setVisible(false);
+        pnlRecordDetail.setVisible(false);
         pnlPatientForm.setVisible(true);
         pnlPatientForm.toFront();
     }
@@ -258,6 +262,7 @@ public class Controller implements CloseController {
         pnlPatientDetail.setVisible(false);
         pnlAppointmentForm.setVisible(false);
         pnlPhysioDetail.setVisible(false);
+        pnlRecordDetail.setVisible(false);
         pnlPhysioForm.setVisible(true);
         pnlPhysioForm.toFront();
     }
@@ -265,6 +270,7 @@ public class Controller implements CloseController {
     public void showRecordDetailPanel(){
         clearPatientForm();
         clearPhysioForm();
+        clearAppointmentForm();
         pnlPatientForm.setVisible(false);
         pnlPhysioForm.setVisible(false);
         pnlPatientDetail.setVisible(false);
@@ -274,8 +280,6 @@ public class Controller implements CloseController {
         pnlRecordDetail.setVisible(true);
         pnlRecordDetail.toFront();
     }
-
-
 
 
 //    ---------- PATIENTS ----------
