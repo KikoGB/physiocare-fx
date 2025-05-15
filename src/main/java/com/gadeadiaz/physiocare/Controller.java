@@ -82,8 +82,6 @@ public class Controller implements CloseController {
     @FXML private HBox hBoxUserList;
     @FXML private HBox hBoxRecordList;
     @FXML private VBox pnItems;
-    @FXML private VBox vBoxPatientAppointments;
-    @FXML private VBox vBoxPhysioAppointments;
     // ---------------------------------------------------------------!!!!!!!!!!!!!!!!!! hasta aqui
 
     // --- PATIENT DETAIL ---
@@ -94,6 +92,7 @@ public class Controller implements CloseController {
     @FXML private Label lblBirthdatePatientDetail;
     @FXML private ScrollPane patientScrollPaneAppointments;
     @FXML private Label lblNoPatientAppointments;
+    @FXML private VBox vBoxPatientAppointments;
 
     // --- PHYSIO DETAIL ---
     @FXML private Label lblTitlePhysioDetail;
@@ -101,9 +100,10 @@ public class Controller implements CloseController {
     @FXML private Label lblLicenceNumPhysioDetail;
     @FXML private Label lblSpecialtyPhysioDetail;
     @FXML private Label lblEmailPhysioDetail;
-
     @FXML private Label lblNoPhysioAppointments;
     @FXML private ScrollPane physioScrollPaneAppointments;
+    @FXML private VBox vBoxPhysioAppointments;
+
 
     // --- PATIENT FORM ---
     @FXML private Label lblPatientFormTitle;
@@ -840,8 +840,9 @@ public class Controller implements CloseController {
      * @param appointments The list of appointments to be displayed.
      */
     public void showAppointments(List<Appointment> appointments) {
-        patientPnAppointments.getChildren().clear();
-        physioPnAppointments.getChildren().clear();
+        vBoxPatientAppointments.getChildren().clear();
+        vBoxPhysioAppointments.getChildren().clear();
+        vBoxRecordAppointments.getChildren().clear();
         for (Appointment appointment : appointments) {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/com/gadeadiaz/physiocare/appointment_item.fxml")
@@ -910,7 +911,7 @@ public class Controller implements CloseController {
                 appointmentItemController.setDenyAppointmentCallback(appointmentId ->
                         AppointmentService.deleteAppointment(appointmentId).thenAccept(_ -> {
                             Platform.runLater(() -> {
-                                physioPnAppointments.getChildren().remove(node);
+                                vBoxPhysioAppointments.getChildren().remove(node);
                                 Message.showMessage(
                                         Alert.AlertType.INFORMATION,
                                         "Denied",
@@ -928,7 +929,7 @@ public class Controller implements CloseController {
                         })
                 );
 
-                physioPnAppointments.getChildren().add(node);
+                vBoxPhysioAppointments.getChildren().add(node);
             } catch (IOException e) {
                 System.out.println("Appointment loader fail: " + e.getMessage());
             }
@@ -969,6 +970,26 @@ public class Controller implements CloseController {
             Platform.runLater(() -> {
                 lblNoPhysioAppointments.setVisible(true);
                 physioScrollPaneAppointments.setVisible(false);
+            });
+            return null;
+        });
+    }
+
+    public void getRecordAppointments(int recordId) {
+        RecordService.getRecordAppointments(recordId).thenAccept(appointments -> {
+            Platform.runLater(() -> {
+                selectedListEntity = Entity.APPOINTMENT;
+                recordScrollPaneAppointments.setVisible(true);
+                lblNoRecordAppointments.setVisible(true);
+                showAppointments(appointments);
+            });
+        }).exceptionally(e -> {
+            RequestErrorException ex = (RequestErrorException) e.getCause();
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            Platform.runLater(() -> {
+                Message.showError(errorResponse.getError(), errorResponse.getMessage());
+                lblNoRecordAppointments.setVisible(true);
+                recordScrollPaneAppointments.setVisible(false);
             });
             return null;
         });

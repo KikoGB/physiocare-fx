@@ -301,7 +301,7 @@
                         <Label fx:id="lblNoPhysioAppointments" alignment="TOP_CENTER" layoutX="239.0" layoutY="346.0" prefHeight="17.0" prefWidth="316.0" style="-fx-font-weight: bold;" text="The current physio does not have any appointments" textFill="#bfb9b9" />
                         <ScrollPane fx:id="physioScrollPaneAppointments" layoutX="31.0" layoutY="224.0" prefHeight="306.0" prefWidth="729.0" stylesheets="@style.css">
                             <content>
-                                <VBox fx:id="physioPnAppointments" prefHeight="318.0" prefWidth="744.0" spacing="5.0" style="-fx-background-color: #02030A;">
+                                <VBox fx:id="vBoxPhysioAppointments" prefHeight="318.0" prefWidth="744.0" spacing="5.0" style="-fx-background-color: #02030A;">
                                     <padding>
                                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                     </padding>
@@ -388,69 +388,99 @@
                         <Button fx:id="btnAppointmentForm" focusTraversable="false" layoutX="322.0" layoutY="527.0" mnemonicParsing="false" onAction="#sendAppointmentForm" prefHeight="25.0" prefWidth="156.0" text="Add/Edit" />
                     </children>
                 </Pane>
-            <Pane fx:id="pnlPatientDetail" prefHeight="597.0" prefWidth="414.0" visible="false">
-               <children>
+                <Pane fx:id="pnlPatientDetail" prefHeight="597.0" prefWidth="414.0" visible="false">
+                   <children>
 
-                  <Label fx:id="lblTitlePatientDetail" alignment="TOP_CENTER" layoutX="198.0" layoutY="26.0" prefHeight="35.0" prefWidth="506.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Marcos Pérez Pérez" textAlignment="CENTER" textFill="#dfd2d2" />
-                  <Line endX="417.0" endY="-67.0" fill="BLACK" layoutX="345.0" layoutY="139.0" startX="-138.19998168945312" startY="-67.0" stroke="#a39e9ea9" />
-                   <Button fx:id="btnEditPatient" alignment="CENTER" layoutX="592.0" layoutY="30.0" mnemonicParsing="false" onAction="#editPatientClick" prefHeight="27.0" prefWidth="83.0" style="-fx-border-color: #ed9609; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Edit">
-                       <HBox.margin>
-                           <Insets />
-                       </HBox.margin>
-                   </Button>
-                   <Label layoutX="208.0" layoutY="159.0" prefHeight="17.0" prefWidth="76.0" style="-fx-font-weight: bold;" text="Mail:" textFill="#bfb9b9" />
-                  <Label fx:id="lblEmailPatientDetail" layoutX="286.0" layoutY="159.0" prefHeight="17.0" prefWidth="215.0" text="davidpacheco@gmail.com" textFill="#bfb9b9" />
-                  <Label layoutX="205.0" layoutY="99.0" prefHeight="17.0" prefWidth="80.0" style="-fx-font-weight: bold;" text="Address:" textFill="#bfb9b9" />
-                  <Label layoutX="503.0" layoutY="99.0" prefHeight="17.0" prefWidth="117.0" style="-fx-font-weight: bold;" text="Insurance Number:" textFill="#bfb9b9" />
-                  <Label layoutX="502.0" layoutY="152.0" prefHeight="17.0" prefWidth="76.0" style="-fx-font-weight: bold;" text="Birth Date:" textFill="#bfb9b9" />
-                  <Label fx:id="lblAddressPatientDetail" layoutX="286.0" layoutY="99.0" prefHeight="17.0" prefWidth="162.0" text="Carrer La movida 2" textFill="#bfb9b9" />
-                  <Label fx:id="lblInsuranceNumPatientDetail" layoutX="633.0" layoutY="99.0" prefHeight="17.0" prefWidth="108.0" text="1234567ER" textFill="#bfb9b9" />
-                  <Label fx:id="lblBirthdatePatientDetail" layoutX="633.0" layoutY="152.0" prefHeight="17.0" prefWidth="108.0" text="06/09/1999" textFill="#bfb9b9" />
-                  <ImageView fitHeight="110.0" fitWidth="128.0" layoutX="48.0" layoutY="61.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@images/patient_icon.png" />
-                     </image>
-                  </ImageView>
-                  <Line endX="589.60009765625" endY="-67.00001525878906" fill="BLACK" layoutX="170.0" layoutY="282.0" startX="-138.19998168945312" startY="-67.0" stroke="#a39e9ea9" />
-                  <Label fx:id="lblNoPatientAppointments" alignment="TOP_CENTER" layoutX="239.0" layoutY="346.0" prefHeight="17.0" prefWidth="316.0" style="-fx-font-weight: bold;" text="The current patient does not have any appointments" textFill="#bfb9b9" />
-                  <ScrollPane fx:id="patientScrollPaneAppointments" layoutX="31.0" layoutY="224.0" prefHeight="306.0" prefWidth="729.0" stylesheets="@style.css">
-                     <content>
-                        <VBox fx:id="patientPnAppointments" prefHeight="318.0" prefWidth="744.0" spacing="5.0" style="-fx-background-color: #02030A;">
-                           <padding>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                           </padding>
-                        </VBox>
-                     </content>
-                  </ScrollPane>
-               </children>
-            </Pane>
-            <Pane fx:id="pnlPatientForm" prefHeight="597.0" prefWidth="414.0" visible="false">
-               <children>
-                  <Label fx:id="lblPatientFormTitle" alignment="TOP_CENTER" layoutY="94.0" prefHeight="27.0" prefWidth="794.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="New Patient" textAlignment="CENTER" textFill="#dfd2d2" />
-                  <Button fx:id="btnPatientForm" focusTraversable="false" layoutX="335.0" layoutY="465.0" mnemonicParsing="false" onAction="#btnSavePatient" prefHeight="25.0" prefWidth="141.0" text="SAVE" />
-                  <Label fx:id="lblName" layoutX="86.0" layoutY="274.0" prefHeight="17.0" prefWidth="141.0" style="-fx-font-weight: bold;" text="Name" textAlignment="CENTER" textFill="#bfb9b9" />
-                  <TextField fx:id="tfNamePatientForm" alignment="TOP_CENTER" focusTraversable="false" layoutX="86.0" layoutY="295.0" prefHeight="26.0" prefWidth="141.0" style="-fx-text-fill: #777;" />
-                  <Label fx:id="lblMail" contentDisplay="CENTER" layoutX="289.0" layoutY="276.0" prefHeight="17.0" prefWidth="226.0" style="-fx-font-weight: bold;" text="Email" textFill="#bfb9b9" />
-                  <TextField fx:id="tfEmailPatientForm" alignment="TOP_CENTER" focusTraversable="false" layoutX="288.0" layoutY="295.0" prefHeight="26.0" prefWidth="226.0" promptText="e.g. example@example.com" style="-fx-text-fill: #777;" />
-                  <Label fx:id="lblPasswordPatientForm" contentDisplay="CENTER" layoutX="476.0" layoutY="207.0" prefHeight="17.0" prefWidth="141.0" style="-fx-font-weight: bold;" text="Password" textFill="#bfb9b9" />
-                  <TextField fx:id="tfPasswordPatientForm" alignment="TOP_CENTER" focusTraversable="false" layoutX="476.0" layoutY="230.0" prefHeight="25.0" prefWidth="141.0" style="-fx-text-fill: #777;" />
-                  <Label fx:id="lblSurname" contentDisplay="CENTER" layoutX="86.0" layoutY="341.0" prefHeight="17.0" prefWidth="141.0" style="-fx-font-weight: bold;" text="Surname" textFill="#bfb9b9" />
-                  <TextField fx:id="tfSurnamePatientForm" alignment="TOP_CENTER" focusTraversable="false" layoutX="86.0" layoutY="362.0" prefHeight="26.0" prefWidth="141.0" style="-fx-text-fill: #777;" />
-                  <Label fx:id="lblBirthDate" contentDisplay="CENTER" layoutX="567.0" layoutY="276.0" prefHeight="17.0" prefWidth="141.0" style="-fx-font-weight: bold;" text="Birth Date" textFill="#bfb9b9" />
-                  <DatePicker fx:id="dpBirthdatePatientForm" focusTraversable="false" layoutX="567.0" layoutY="296.0" prefHeight="25.0" prefWidth="141.0" />
-                  <Label fx:id="lblAddressAndSpecialty" contentDisplay="CENTER" layoutX="289.0" layoutY="341.0" prefHeight="17.0" prefWidth="226.0" style="-fx-font-weight: bold;" text="Address" textFill="#bfb9b9" />
-                  <TextField fx:id="tfAddressPatientForm" alignment="TOP_CENTER" focusTraversable="false" layoutX="288.0" layoutY="364.0" prefHeight="26.0" prefWidth="226.0" style="-fx-text-fill: #777;" />
-                  <Label fx:id="lblInsuranceNumPatientForm" contentDisplay="CENTER" layoutX="567.0" layoutY="341.0" prefHeight="17.0" prefWidth="117.0" style="-fx-font-weight: bold;" text="Insurance number" textFill="#bfb9b9" />
-                  <TextField fx:id="tfInsuranceNumPatientForm" alignment="TOP_CENTER" focusTraversable="false" layoutX="567.0" layoutY="362.0" prefHeight="26.0" prefWidth="142.0" promptText="e.g. SDE365FTG" style="-fx-text-fill: #777;" />
-                  <Line endX="505.0" endY="-389.1981201171875" fill="BLACK" layoutX="259.0" layoutY="538.0" startX="-213.0" startY="-389.1981201171875" stroke="#a39e9ea9" />
-                  <Label fx:id="lblNickPatientForm" layoutX="186.0" layoutY="208.0" text="Nick" textFill="#bfb9b9">
-                     <font>
-                        <Font name="System Bold" size="12.0" />
-                     </font>
-                  </Label>
-                  <TextField fx:id="tfNickPatientForm" layoutX="186.0" layoutY="230.0" />
-               </children>
-            </Pane>
+                      <Label fx:id="lblTitlePatientDetail" alignment="TOP_CENTER" layoutX="198.0" layoutY="26.0" prefHeight="35.0" prefWidth="506.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Marcos Pérez Pérez" textAlignment="CENTER" textFill="#dfd2d2" />
+                      <Line endX="417.0" endY="-67.0" fill="BLACK" layoutX="345.0" layoutY="139.0" startX="-138.19998168945312" startY="-67.0" stroke="#a39e9ea9" />
+                       <Button fx:id="btnEditPatient" alignment="CENTER" layoutX="592.0" layoutY="30.0" mnemonicParsing="false" onAction="#editPatientClick" prefHeight="27.0" prefWidth="83.0" style="-fx-border-color: #ed9609; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Edit">
+                           <HBox.margin>
+                               <Insets />
+                           </HBox.margin>
+                       </Button>
+                       <Label layoutX="208.0" layoutY="159.0" prefHeight="17.0" prefWidth="76.0" style="-fx-font-weight: bold;" text="Mail:" textFill="#bfb9b9" />
+                      <Label fx:id="lblEmailPatientDetail" layoutX="286.0" layoutY="159.0" prefHeight="17.0" prefWidth="215.0" text="davidpacheco@gmail.com" textFill="#bfb9b9" />
+                      <Label layoutX="205.0" layoutY="99.0" prefHeight="17.0" prefWidth="80.0" style="-fx-font-weight: bold;" text="Address:" textFill="#bfb9b9" />
+                      <Label layoutX="503.0" layoutY="99.0" prefHeight="17.0" prefWidth="117.0" style="-fx-font-weight: bold;" text="Insurance Number:" textFill="#bfb9b9" />
+                      <Label layoutX="502.0" layoutY="152.0" prefHeight="17.0" prefWidth="76.0" style="-fx-font-weight: bold;" text="Birth Date:" textFill="#bfb9b9" />
+                      <Label fx:id="lblAddressPatientDetail" layoutX="286.0" layoutY="99.0" prefHeight="17.0" prefWidth="162.0" text="Carrer La movida 2" textFill="#bfb9b9" />
+                      <Label fx:id="lblInsuranceNumPatientDetail" layoutX="633.0" layoutY="99.0" prefHeight="17.0" prefWidth="108.0" text="1234567ER" textFill="#bfb9b9" />
+                      <Label fx:id="lblBirthdatePatientDetail" layoutX="633.0" layoutY="152.0" prefHeight="17.0" prefWidth="108.0" text="06/09/1999" textFill="#bfb9b9" />
+                      <ImageView fitHeight="110.0" fitWidth="128.0" layoutX="48.0" layoutY="61.0" pickOnBounds="true" preserveRatio="true">
+                         <image>
+                            <Image url="@images/patient_icon.png" />
+                         </image>
+                      </ImageView>
+                      <Line endX="589.60009765625" endY="-67.00001525878906" fill="BLACK" layoutX="170.0" layoutY="282.0" startX="-138.19998168945312" startY="-67.0" stroke="#a39e9ea9" />
+                      <Label fx:id="lblNoPatientAppointments" alignment="TOP_CENTER" layoutX="239.0" layoutY="346.0" prefHeight="17.0" prefWidth="316.0" style="-fx-font-weight: bold;" text="The current patient does not have any appointments" textFill="#bfb9b9" />
+                      <ScrollPane fx:id="patientScrollPaneAppointments" layoutX="31.0" layoutY="224.0" prefHeight="306.0" prefWidth="729.0" stylesheets="@style.css">
+                         <content>
+                            <VBox fx:id="vBoxPatientAppointments" prefHeight="318.0" prefWidth="744.0" spacing="5.0" style="-fx-background-color: #02030A;">
+                               <padding>
+                                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                               </padding>
+                            </VBox>
+                         </content>
+                      </ScrollPane>
+                   </children>
+                </Pane>
+                <Pane fx:id="pnlPatientForm" prefHeight="597.0" prefWidth="414.0" visible="false">
+                   <children>
+                      <Label fx:id="lblPatientFormTitle" alignment="TOP_CENTER" layoutY="94.0" prefHeight="27.0" prefWidth="794.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="New Patient" textAlignment="CENTER" textFill="#dfd2d2" />
+                      <Button fx:id="btnPatientForm" focusTraversable="false" layoutX="335.0" layoutY="465.0" mnemonicParsing="false" onAction="#btnSavePatient" prefHeight="25.0" prefWidth="141.0" text="SAVE" />
+                      <Label fx:id="lblName" layoutX="86.0" layoutY="274.0" prefHeight="17.0" prefWidth="141.0" style="-fx-font-weight: bold;" text="Name" textAlignment="CENTER" textFill="#bfb9b9" />
+                      <TextField fx:id="tfNamePatientForm" alignment="TOP_CENTER" focusTraversable="false" layoutX="86.0" layoutY="295.0" prefHeight="26.0" prefWidth="141.0" style="-fx-text-fill: #777;" />
+                      <Label fx:id="lblMail" contentDisplay="CENTER" layoutX="289.0" layoutY="276.0" prefHeight="17.0" prefWidth="226.0" style="-fx-font-weight: bold;" text="Email" textFill="#bfb9b9" />
+                      <TextField fx:id="tfEmailPatientForm" alignment="TOP_CENTER" focusTraversable="false" layoutX="288.0" layoutY="295.0" prefHeight="26.0" prefWidth="226.0" promptText="e.g. example@example.com" style="-fx-text-fill: #777;" />
+                      <Label fx:id="lblPasswordPatientForm" contentDisplay="CENTER" layoutX="476.0" layoutY="207.0" prefHeight="17.0" prefWidth="141.0" style="-fx-font-weight: bold;" text="Password" textFill="#bfb9b9" />
+                      <TextField fx:id="tfPasswordPatientForm" alignment="TOP_CENTER" focusTraversable="false" layoutX="476.0" layoutY="230.0" prefHeight="25.0" prefWidth="141.0" style="-fx-text-fill: #777;" />
+                      <Label fx:id="lblSurname" contentDisplay="CENTER" layoutX="86.0" layoutY="341.0" prefHeight="17.0" prefWidth="141.0" style="-fx-font-weight: bold;" text="Surname" textFill="#bfb9b9" />
+                      <TextField fx:id="tfSurnamePatientForm" alignment="TOP_CENTER" focusTraversable="false" layoutX="86.0" layoutY="362.0" prefHeight="26.0" prefWidth="141.0" style="-fx-text-fill: #777;" />
+                      <Label fx:id="lblBirthDate" contentDisplay="CENTER" layoutX="567.0" layoutY="276.0" prefHeight="17.0" prefWidth="141.0" style="-fx-font-weight: bold;" text="Birth Date" textFill="#bfb9b9" />
+                      <DatePicker fx:id="dpBirthdatePatientForm" focusTraversable="false" layoutX="567.0" layoutY="296.0" prefHeight="25.0" prefWidth="141.0" />
+                      <Label fx:id="lblAddressAndSpecialty" contentDisplay="CENTER" layoutX="289.0" layoutY="341.0" prefHeight="17.0" prefWidth="226.0" style="-fx-font-weight: bold;" text="Address" textFill="#bfb9b9" />
+                      <TextField fx:id="tfAddressPatientForm" alignment="TOP_CENTER" focusTraversable="false" layoutX="288.0" layoutY="364.0" prefHeight="26.0" prefWidth="226.0" style="-fx-text-fill: #777;" />
+                      <Label fx:id="lblInsuranceNumPatientForm" contentDisplay="CENTER" layoutX="567.0" layoutY="341.0" prefHeight="17.0" prefWidth="117.0" style="-fx-font-weight: bold;" text="Insurance number" textFill="#bfb9b9" />
+                      <TextField fx:id="tfInsuranceNumPatientForm" alignment="TOP_CENTER" focusTraversable="false" layoutX="567.0" layoutY="362.0" prefHeight="26.0" prefWidth="142.0" promptText="e.g. SDE365FTG" style="-fx-text-fill: #777;" />
+                      <Line endX="505.0" endY="-389.1981201171875" fill="BLACK" layoutX="259.0" layoutY="538.0" startX="-213.0" startY="-389.1981201171875" stroke="#a39e9ea9" />
+                      <Label fx:id="lblNickPatientForm" layoutX="186.0" layoutY="208.0" text="Nick" textFill="#bfb9b9">
+                         <font>
+                            <Font name="System Bold" size="12.0" />
+                         </font>
+                      </Label>
+                      <TextField fx:id="tfNickPatientForm" layoutX="186.0" layoutY="230.0" />
+                   </children>
+                </Pane>
+                <!--       RECORD DETAIL       -->
+                <Pane fx:id="pnlRecordDetail" prefHeight="597.0" prefWidth="414.0" visible="false">
+                    <children>
+                        <Label fx:id="lblTitleRecordDetail" alignment="TOP_CENTER" layoutX="198.0" layoutY="26.0" prefHeight="35.0" prefWidth="506.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Marcos Pérez Pérez" textAlignment="CENTER" textFill="#dfd2d2" />
+                        <Line endX="417.0" endY="-67.0" fill="BLACK" layoutX="345.0" layoutY="139.0" startX="-138.19998168945312" startY="-67.0" stroke="#a39e9ea9" />
+                        <Button fx:id="btnSavePdf" alignment="CENTER" layoutX="592.0" layoutY="30.0" mnemonicParsing="false" onAction="#savePdfClick" prefHeight="27.0" prefWidth="83.0" style="-fx-border-color: #ed9609; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Save PDF">
+                            <HBox.margin>
+                                <Insets />
+                            </HBox.margin>
+                        </Button>
+                        <Label layoutX="206.0" layoutY="99.0" prefHeight="17.0" prefWidth="53.0" style="-fx-font-weight: bold;" text="Mail:" textFill="#bfb9b9" />
+                        <Label fx:id="lblEmailRecordDetail" layoutX="269.0" layoutY="99.0" prefHeight="17.0" prefWidth="215.0" text="davidpacheco@gmail.com" textFill="#bfb9b9" />
+                        <Label layoutX="503.0" layoutY="99.0" prefHeight="17.0" prefWidth="117.0" style="-fx-font-weight: bold;" text="Insurance Number:" textFill="#bfb9b9" />
+                        <Label fx:id="lblInsuranceNumRecordDetail" layoutX="633.0" layoutY="99.0" prefHeight="17.0" prefWidth="108.0" text="1234567ER" textFill="#bfb9b9" />
+                        <Label fx:id="lblRecordDescription" alignment="CENTER" layoutX="205.0" layoutY="158.0" prefHeight="43.0" prefWidth="506.0" text="Paciente presenta dolor lumbar crónico. Se recomienda fisioterapia semanal." textFill="#bfb9b9" />
+                        <ImageView fx:id="ivRecord" fitHeight="110.0" fitWidth="128.0" layoutX="48.0" layoutY="61.0" pickOnBounds="true" preserveRatio="true">
+                            <Image url="@images/patient_icon.png" />
+                        </ImageView>
+                        <Line endX="589.60009765625" endY="-67.00001525878906" fill="BLACK" layoutX="170.0" layoutY="282.0" startX="-138.19998168945312" startY="-67.0" stroke="#a39e9ea9" />
+                        <Label fx:id="lblNoRecordAppointments" alignment="TOP_CENTER" layoutX="239.0" layoutY="346.0" prefHeight="17.0" prefWidth="316.0" style="-fx-font-weight: bold;" text="The current record does not have any appointments" textFill="#bfb9b9" />
+                        <ScrollPane fx:id="recordScrollPaneAppointments" layoutX="31.0" layoutY="224.0" prefHeight="306.0" prefWidth="729.0" stylesheets="@style.css">
+                            <VBox fx:id="vBoxRecordAppointments" prefHeight="318.0" prefWidth="744.0" spacing="5.0" style="-fx-background-color: #02030A;">
+                                <padding>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                </padding>
+                            </VBox>
+                        </ScrollPane>
+                        <Label alignment="CENTER" layoutX="393.0" layoutY="135.0" prefHeight="17.0" prefWidth="117.0" style="-fx-font-weight: bold;" text="Medical Record:" textFill="#bfb9b9" />
+                    </children>
+                </Pane>
             </children>
         </StackPane>
     </children>
