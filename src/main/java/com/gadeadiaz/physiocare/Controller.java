@@ -17,6 +17,7 @@ import com.gadeadiaz.physiocare.services.PhysioService;
 import com.gadeadiaz.physiocare.services.RecordService;
 import com.gadeadiaz.physiocare.utils.*;
 import com.gadeadiaz.physiocare.utils.Storage;
+import com.itextpdf.layout.Document;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -24,6 +25,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -38,6 +40,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class Controller implements CloseController {
+
+
+
+    @FXML private ScrollPane recordScrollPaneAppointments;
+    @FXML private VBox vBoxRecordAppointments;
     // --- LEFT BAR MENU ---
     @FXML private Label lblLeftBarWelcome;
     @FXML private Button btnLeftBarLogout;
@@ -47,46 +54,36 @@ public class Controller implements CloseController {
     @FXML private Button btnLeftBarShowAppointmentForm;
 
     // -----------------------------------------------------------------------------!!! mirar estos de donde son
-    @FXML private VBox physioPnAppointments;
-    @FXML private Label lblNoPhysioAppointments;
-    @FXML private ScrollPane physioScrollPaneAppointments;
-    @FXML private Pane pnlPhysioDetail;
+
+
     // --- BOTONES ---
     @FXML private Button btnAddUser;
 //    @FXML private Button btnPhysioForm;
 //    @FXML private Button btnPatientForm;
 
-    // --- LABELS ---
-    @FXML private Label lblBirthDate;
-    @FXML private Label lblAddressAndSpecialty;
-    @FXML private Label lblInsuranceNumPatientForm;
+    // --- ITEMS LIST PAGE ---
     @FXML private Label lblTitle;
     @FXML private Label txtPhysiosCount;
     @FXML private Label txtPatientsCount;
     @FXML private Label txtRecordsCount;
     @FXML private Label lblInsuranceLicenseNumList;
-
-    @FXML private ScrollPane patientScrollPaneAppointments;
-    @FXML private Label lblNoPatientAppointments;
-
-    // --- TEXTFIELDS ---
     @FXML private TextField txtSearch;
 
-    // --- MENÚS ---
-    @FXML private SplitMenuButton splitSpecialty;
-
     // --- PANES ---
-    @FXML private Pane pnlPatientForm;
-    @FXML private Pane pnlPatientDetail;
     @FXML private Pane pnlUsersList;
-    @FXML private Pane pnlAppointmentForm;
+    @FXML private Pane pnlPatientDetail;
+    @FXML private Pane pnlPatientForm;
+    @FXML private Pane pnlPhysioDetail;
     @FXML private Pane pnlPhysioForm;
+    @FXML private Pane pnlAppointmentForm;
+    @FXML private Pane pnlRecordDetail;
 
     // --- CONTENEDORES ---
     @FXML private HBox hBoxUserList;
     @FXML private HBox hBoxRecordList;
     @FXML private VBox pnItems;
-    @FXML private VBox patientPnAppointments;
+    @FXML private VBox vBoxPatientAppointments;
+    @FXML private VBox vBoxPhysioAppointments;
     // ---------------------------------------------------------------!!!!!!!!!!!!!!!!!! hasta aqui
 
     // --- PATIENT DETAIL ---
@@ -95,6 +92,8 @@ public class Controller implements CloseController {
     @FXML private Label lblAddressPatientDetail;
     @FXML private Label lblInsuranceNumPatientDetail;
     @FXML private Label lblBirthdatePatientDetail;
+    @FXML private ScrollPane patientScrollPaneAppointments;
+    @FXML private Label lblNoPatientAppointments;
 
     // --- PHYSIO DETAIL ---
     @FXML private Label lblTitlePhysioDetail;
@@ -102,6 +101,9 @@ public class Controller implements CloseController {
     @FXML private Label lblLicenceNumPhysioDetail;
     @FXML private Label lblSpecialtyPhysioDetail;
     @FXML private Label lblEmailPhysioDetail;
+
+    @FXML private Label lblNoPhysioAppointments;
+    @FXML private ScrollPane physioScrollPaneAppointments;
 
     // --- PATIENT FORM ---
     @FXML private Label lblPatientFormTitle;
@@ -137,6 +139,15 @@ public class Controller implements CloseController {
     @FXML private ComboBox<Patient> cBoxPatientsAppointmentForm;
     @FXML private Button btnAppointmentForm;
 
+
+    // --- RECORD DETAIL ---
+    @FXML private Label lblTitleRecordDetail;
+    @FXML private Label lblEmailRecordDetail;
+    @FXML private Label lblInsuranceNumRecordDetail;
+    @FXML private Label lblRecordDescription;
+    @FXML private Label lblNoRecordAppointments;
+    @FXML private ImageView ivRecord; //Patient image
+
     // --- LÓGICA AUXILIAR ---
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 //    private final Gson gson = new Gson();
@@ -144,8 +155,7 @@ public class Controller implements CloseController {
     private Patient selectedPatient;
     private Physio selectedPhysio;
     private Appointment selectedAppointment;
-
-
+    private Record selectedRecord;
 
     // --- ENUMS Y VARIABLES DE ESTADO ---
     private enum Entity { PATIENT, PHYSIO, RECORD, APPOINTMENT }
@@ -175,6 +185,7 @@ public class Controller implements CloseController {
 
     public void showUsersListPanel(){
         clearPatientForm();
+        clearAppointmentForm();
         clearPhysioForm();
         //Primero los que se ocultan
         pnlPatientForm.setVisible(false);
@@ -190,6 +201,7 @@ public class Controller implements CloseController {
     public void showAppointmentsFormPanel(){
         clearPatientForm();
         clearPhysioForm();
+        clearAppointmentForm();
         pnlUsersList.setVisible(false);
         pnlPatientForm.setVisible(false);
         pnlPatientDetail.setVisible(false);
@@ -203,6 +215,7 @@ public class Controller implements CloseController {
     public void showPatientDetailPanel(){
         clearPatientForm();
         clearPhysioForm();
+        clearAppointmentForm();
         pnlPatientForm.setVisible(false);
         pnlPhysioForm.setVisible(false);
         pnlPatientDetail.setVisible(false);
@@ -215,6 +228,7 @@ public class Controller implements CloseController {
     public void showPhysioDetailPanel(){
         clearPatientForm();
         clearPhysioForm();
+        clearAppointmentForm();
         pnlPatientForm.setVisible(false);
         pnlPhysioForm.setVisible(false);
         pnlPatientDetail.setVisible(false);
@@ -225,6 +239,8 @@ public class Controller implements CloseController {
     }
 
     public void showPatientFormPanel(){
+        clearPhysioForm();
+        clearAppointmentForm();
         pnlPhysioForm.setVisible(false);
         pnlUsersList.setVisible(false);
         pnlPatientDetail.setVisible(false);
@@ -235,6 +251,8 @@ public class Controller implements CloseController {
     }
 
     public void showPhysioFormPanel(){
+        clearPatientForm();
+        clearAppointmentForm();
         pnlPatientForm.setVisible(false);
         pnlUsersList.setVisible(false);
         pnlPatientDetail.setVisible(false);
@@ -242,6 +260,19 @@ public class Controller implements CloseController {
         pnlPhysioDetail.setVisible(false);
         pnlPhysioForm.setVisible(true);
         pnlPhysioForm.toFront();
+    }
+
+    public void showRecordDetailPanel(){
+        clearPatientForm();
+        clearPhysioForm();
+        pnlPatientForm.setVisible(false);
+        pnlPhysioForm.setVisible(false);
+        pnlPatientDetail.setVisible(false);
+        pnlUsersList.setVisible(false);
+        pnlPhysioDetail.setVisible(false);
+        pnlPatientDetail.setVisible(false);
+        pnlRecordDetail.setVisible(true);
+        pnlRecordDetail.toFront();
     }
 
 
@@ -451,6 +482,15 @@ public class Controller implements CloseController {
             }
         }
         dpBirthdatePatientForm.setValue(null);
+    }
+
+    public void clearAppointmentForm() {
+        for (Node child: pnlAppointmentForm.getChildren()) {
+            if (child instanceof TextField) {
+                ((TextField) child).clear();
+            }
+        }
+        dpDateAppointmentForm.setValue(null);
     }
 
     /**
@@ -1032,6 +1072,7 @@ public class Controller implements CloseController {
     }
 
 
+    //    ---------- RECORDS ----------
     public void showRecords(List<Record> records) {
         pnItems.getChildren().clear();
         for (Record record: records) {
@@ -1044,13 +1085,16 @@ public class Controller implements CloseController {
 
                 recordItemController.setRecordId(record.getId());
                 recordItemController.setDetailListener(recordId -> {
-                    // TODO(Redirigir a vista detalle record con el id para hacer la peticion)
+                    selectedPhysio = null;
+                    selectedPatient = null;
+                    getRecordById(recordId);
                 });
                 if (record.getMedicalRecord().isEmpty()) {
                     recordItemController.setBtnAddMedicalRecordVisibility(true);
                     recordItemController.setAddMedicalRecordListener(recordId -> {
-                        // TODO(Redirigir formulario para editar el medical record, este boton solo
-                        //  aparecera si el medical record esta vacio)
+                        /* TODO(Redirigir formulario para editar el medical record, este boton solo
+                            aparecera si el medical record esta vacio) Nota para David: Podria hacerse que solo se modifique el
+                            texto del medical record desde su detalle? Así no haria falta la vista del form*/
                     });
                 }
                 recordItemController.setLblRecordPatientText(
@@ -1080,6 +1124,19 @@ public class Controller implements CloseController {
         txtRecordsCount.setText(String.valueOf(records.size()));
     }
 
+//    Preguntar a David si lo de pasar el el objeto a mostra lo ha implementado el en todos los modelos
+//    Se podria obviar y usar el selectedPatient, selectedRecord, etc...
+    public void showRecordDetail(Record record) {
+        showRecordDetailPanel();
+        lblTitleRecordDetail.setText(record.getPatient().getName() + " " + record.getPatient().getSurname());
+        lblEmailRecordDetail.setText(record.getPatient().getEmail());
+        lblInsuranceNumRecordDetail.setText(record.getPatient().getInsuranceNumber());
+        lblRecordDescription.setText(record.getMedicalRecord());
+//        ivRecord -> Asignar la imágen del paciente
+        getRecordAppointments(record.getId());
+    }
+
+
     public void getRecords() {
         btnAddUser.setVisible(false);
         showUsersListPanel();
@@ -1096,7 +1153,23 @@ public class Controller implements CloseController {
         });
     }
 
-
+    public void getRecordById(int id) {
+        RecordService.getRecordById(id)
+                .thenAccept(record ->
+                        Platform.runLater(() -> {
+                            selectedRecord = record;
+                            showRecordDetail(record);
+                            System.out.println(selectedRecord);
+                        })
+                ).exceptionally(e -> {
+                    RequestErrorException ex = (RequestErrorException) e.getCause();
+                    ErrorResponse errorResponse = ex.getErrorResponse();
+                    Platform.runLater(() ->
+                            Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                    );
+                    return null;
+                });
+    }
 
     /**
      * Opens the login view in the specified stage.
@@ -1159,20 +1232,6 @@ public class Controller implements CloseController {
     }
 
     /**
-     * Sets up the listener for selecting a specialty for the physio.
-     * When a specialty is selected from the dropdown, it updates the specialty in the form.
-     */
-    public void specialtyListener() {
-        for(MenuItem item : splitSpecialty.getItems()){
-            item.setOnAction(_ -> {
-                selectedPhysio.setSpecialty(item.getText());
-                splitSpecialty.setText(selectedPhysio.getSpecialty());
-                tfAddressPatientForm.setText(selectedPhysio.getSpecialty());
-            });
-        }
-    }
-
-    /**
      * Sets up a listener for when the application window is closed. It opens the login view when the window is closed.
      *
      * @param stage the stage to attach the close listener
@@ -1203,6 +1262,12 @@ public class Controller implements CloseController {
     public void editPhysioClick() {
         showPhysioForm(selectedPhysio);
     }
+
+    public void savePdfClick(ActionEvent actionEvent) {
+//        Todo: Restringir en el caso de que esté vacío?
+        Pdf.medicalRecordPdfCreator(selectedRecord);
+    }
+
 
     public void searchClick() {
         if(!txtSearch.getText().trim().isEmpty()){

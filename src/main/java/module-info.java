@@ -3,6 +3,12 @@ module com.gadeadiaz.physiocare {
     requires javafx.fxml;
     requires com.google.gson;
     requires com.jfoenix;
+    requires kernel;
+    requires layout;
+    requires java.desktop;
+    requires jsch;
+    requires org.apache.commons.net;
+    requires io.github.cdimascio.dotenv.java;
 
 
     opens com.gadeadiaz.physiocare to javafx.fxml;
