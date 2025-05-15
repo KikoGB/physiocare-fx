@@ -24,12 +24,15 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -41,7 +44,7 @@ public class Controller implements CloseController {
     @FXML private Button btnLeftBarPatients;
     @FXML private Button btnLeftBarPhysios;
     @FXML private Button btnLeftBarRecords;
-    @FXML private Button btnLeftBarAddAppointment;
+    @FXML private Button btnLeftBarShowAppointmentForm;
 
     // -----------------------------------------------------------------------------!!! mirar estos de donde son
     @FXML private VBox physioPnAppointments;
@@ -52,7 +55,6 @@ public class Controller implements CloseController {
     @FXML private Button btnAddUser;
 //    @FXML private Button btnPhysioForm;
 //    @FXML private Button btnPatientForm;
-    @FXML private Button btnAppointmentForm;
 
     // --- LABELS ---
     @FXML private Label lblBirthDate;
@@ -133,6 +135,7 @@ public class Controller implements CloseController {
     @FXML private TextField tfObservationsAppointmentForm;
     @FXML private ComboBox<Physio> cBoxPhysiosAppointmentForm;
     @FXML private ComboBox<Patient> cBoxPatientsAppointmentForm;
+    @FXML private Button btnAppointmentForm;
 
     // --- LÓGICA AUXILIAR ---
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -791,14 +794,114 @@ public class Controller implements CloseController {
 
 
 
-//    ---------- APPOITNMENTS ----------
+//    ---------- APPOINTMENTS ----------
+    /**
+     * Displays the list of appointments on the UI.
+     * @param appointments The list of appointments to be displayed.
+     */
+    public void showAppointments(List<Appointment> appointments) {
+        patientPnAppointments.getChildren().clear();
+        physioPnAppointments.getChildren().clear();
+        for (Appointment appointment : appointments) {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/gadeadiaz/physiocare/appointment_item.fxml")
+            );
+            try {
+                Node node = loader.load();
+                AppointmentItemController appointmentItemController = loader.getController();
+
+                // mirar de controlar el NULL que puede producir
+                String icAcceptedAppointment = getClass().getResource(
+                        "/com/gadeadiaz/physiocare/images/ok_appointment.png"
+                ).toString();
+                appointmentItemController.setAppointmentId(appointment.getId());
+
+                String rol = Storage.getInstance().getUserdata().getValue();
+                if (rol.equals("physio") || appointment.getConfirmed()) {
+                    appointmentItemController.setIcAppointmentItemImage(new Image(icAcceptedAppointment));
+                    appointmentItemController.getBtnAcceptAppointmentItem().setVisible(false);
+//                    appointmentItemController.getBtnAcceptAppointmentItem().setPrefWidth(0);
+                    appointmentItemController.getBtnDenyAppointmentItem().setVisible(false);
+//                    appointmentItemController.getBtnDenyAppointmentItem().setPrefWidth(0);
+                    appointmentItemController.getHboxPhysio().setPrefWidth(200);
+                    appointmentItemController.getHboxPhysio().setVisible(true);
+                }
+
+                appointmentItemController.setLblDateText(appointment.getDate());
+                appointmentItemController.setLblDiagnosisText(appointment.getDiagnosis());
+
+                appointmentItemController.getLblPhysioName().setText(appointment.getPhysio().getName() + " " + appointment.getPhysio().getSurname());
+
+                node.setOnMouseEntered(_ -> node.setStyle("-fx-background-color : #0A0E3F"));
+                node.setOnMouseExited(_ -> node.setStyle("-fx-background-color : #02030A"));
+
+                appointmentItemController.setAppointmentDetailListener(_ -> {
+//                    selectedAppointment = appointment;
+//                    selectedPatient = null;
+//                    selectedPhysio = null;
+                    System.out.println(appointment);
+                });
+
+                appointmentItemController.setAcceptAppointmentCallback(appointmentId ->
+                        AppointmentService.confirmAppointment(appointmentId).thenAccept(_ ->
+                                Platform.runLater(() -> {
+                                    appointmentItemController.setIcAppointmentItemImage(
+                                            new Image(icAcceptedAppointment)
+                                    );
+                                    appointmentItemController.getBtnAcceptAppointmentItem().setVisible(false);
+                                    appointmentItemController.getBtnDenyAppointmentItem().setVisible(false);
+                                    appointmentItemController.getHboxPhysio().setPrefWidth(200);
+                                    Message.showMessage(
+                                            Alert.AlertType.INFORMATION,
+                                            "Confirmed",
+                                            "Appointment confirmed",
+                                            "Appointment successfully confirmed"
+                                    );
+                                })
+                        ).exceptionally(e -> {
+                            RequestErrorException ex = (RequestErrorException) e;
+                            ErrorResponse errorResponse = ex.getErrorResponse();
+                            Platform.runLater(() ->
+                                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                            );
+                            return null;
+                        })
+                );
+                appointmentItemController.setDenyAppointmentCallback(appointmentId ->
+                        AppointmentService.deleteAppointment(appointmentId).thenAccept(_ -> {
+                            Platform.runLater(() -> {
+                                physioPnAppointments.getChildren().remove(node);
+                                Message.showMessage(
+                                        Alert.AlertType.INFORMATION,
+                                        "Denied",
+                                        "Appointment denied",
+                                        "Appointment successfully denied"
+                                );
+                            });
+                        }).exceptionally(e -> {
+                            RequestErrorException ex = (RequestErrorException) e;
+                            ErrorResponse errorResponse = ex.getErrorResponse();
+                            Platform.runLater(() ->
+                                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                            );
+                            return null;
+                        })
+                );
+
+                physioPnAppointments.getChildren().add(node);
+            } catch (IOException e) {
+                System.out.println("Appointment loader fail: " + e.getMessage());
+            }
+        }
+    }
+
     public void getPatientAppointments(int patientId) {
         PatientService.getPatientAppointments(patientId).thenAccept(appointments -> {
             Platform.runLater(() -> {
                 selectedListEntity = Entity.APPOINTMENT;
                 patientScrollPaneAppointments.setVisible(true);
                 lblNoPatientAppointments.setVisible(true);
-                showPatientAppointments(appointments);
+                showAppointments(appointments);
             });
         }).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e.getCause();
@@ -812,59 +915,13 @@ public class Controller implements CloseController {
         });
     }
 
-    /**
-     * Displays the list of appointments on the UI.
-     * @param appointments The list of appointments to be displayed.
-     */
-    public void showPatientAppointments(List<Appointment> appointments) {
-        patientPnAppointments.getChildren().clear();
-        for (Appointment appointment : appointments) {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/gadeadiaz/physiocare/appointment_item.fxml")
-            );
-            try {
-                Node node = loader.load();
-                AppointmentItemController controller = loader.getController();
-
-                String questionImage = "/com/gadeagiaz/physiocare/images/question.jpg";
-                String acceptAppointmentImage = "/com/gadeagiaz/physiocare/images/ok_appointment.jpg";
-
-                controller.setAppointmentId(appointment.getId());
-//                if(appointment.getConfirmed()){
-//                    controller.getImgAppointment().setImage(new Image(acceptAppointmentImage));
-//                }else{
-//                    controller.getImgAppointment().setImage(new Image(questionImage));
-//                }
-
-
-                controller.getLblDate().setText(appointment.getDate());
-                controller.getLblDiagnosis().setText(appointment.getDiagnosis());
-
-                controller.getLblPhysioName().setText(appointment.getPhysio().getName() + " " + appointment.getPhysio().getSurname());
-
-                node.setOnMouseEntered(_ -> node.setStyle("-fx-background-color : #0A0E3F"));
-                node.setOnMouseExited(_ -> node.setStyle("-fx-background-color : #02030A"));
-
-                controller.setAppointmentDetailListener(_ -> {
-//                    selectedAppointment = appointment;
-//                    selectedPatient = null;
-//                    selectedPhysio = null;
-                    System.out.println(appointment);
-                });
-
-                patientPnAppointments.getChildren().add(node);
-            } catch (IOException e) {
-                System.out.println("Appointment loader fail: " + e.getMessage());
-            }
-        }
-    }
     public void getPhysioAppointments(int physioId) {
         PhysioService.getPhysioAppointments(physioId).thenAccept(appointments -> {
             Platform.runLater(() -> {
                 selectedListEntity = Entity.APPOINTMENT;
                 physioScrollPaneAppointments.setVisible(true);
                 lblNoPhysioAppointments.setVisible(true);
-                showPhysioAppointments(appointments);
+                showAppointments(appointments);
             });
         }).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e.getCause();
@@ -877,55 +934,7 @@ public class Controller implements CloseController {
         });
     }
 
-    /**
-     * Displays the list of appointments on the UI.
-     * @param appointments The list of appointments to be displayed.
-     */
-    public void showPhysioAppointments(List<Appointment> appointments) {
-        physioPnAppointments.getChildren().clear();
-        for (Appointment appointment : appointments) {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/gadeadiaz/physiocare/appointment_item.fxml")
-            );
-            try {
-                Node node = loader.load();
-                AppointmentItemController controller = loader.getController();
-
-                String questionImage = "/com/gadeagiaz/physiocare/images/question.jpg";
-                String acceptAppointmentImage = "/com/gadeagiaz/physiocare/images/ok_appointment.jpg";
-
-                controller.setAppointmentId(appointment.getId());
-//                if(appointment.getConfirmed()){
-//                    controller.getImgAppointment().setImage(new Image(acceptAppointmentImage));
-//                }else{
-//                    controller.getImgAppointment().setImage(new Image(questionImage));
-//                }
-
-
-                controller.getLblDate().setText(appointment.getDate());
-                controller.getLblDiagnosis().setText(appointment.getDiagnosis());
-
-                controller.getLblPhysioName().setText(appointment.getPhysio().getName() + " " + appointment.getPhysio().getSurname());
-
-                node.setOnMouseEntered(_ -> node.setStyle("-fx-background-color : #0A0E3F"));
-                node.setOnMouseExited(_ -> node.setStyle("-fx-background-color : #02030A"));
-
-                controller.setAppointmentDetailListener(_ -> {
-//                    selectedAppointment = appointment;
-//                    selectedPatient = null;
-//                    selectedPhysio = null;
-                    System.out.println(appointment);
-                });
-
-                physioPnAppointments.getChildren().add(node);
-            } catch (IOException e) {
-                System.out.println("Appointment loader fail: " + e.getMessage());
-            }
-        }
-    }
-
-
-    public void showCreateAppointmentForm() {
+    public void showAppointmentForm() {
         showAppointmentsFormPanel();
         PatientService.getPatients("").thenAccept(patients ->
                 Platform.runLater(() -> {
@@ -933,6 +942,8 @@ public class Controller implements CloseController {
                     cBoxPatientsAppointmentForm.setItems(FXCollections.observableList(patients));
                 })
         ).exceptionally(e -> {
+            // en este caso hay que redirigir en caso de error a una de las vistas por defecto por
+            // ejemplo patient o physios
             RequestErrorException ex = (RequestErrorException) e;
             ErrorResponse errorResponse = ex.getErrorResponse();
             Platform.runLater(() ->
@@ -946,6 +957,8 @@ public class Controller implements CloseController {
                     cBoxPhysiosAppointmentForm.setItems(FXCollections.observableList(patients));
                 })
         ).exceptionally(e -> {
+            // en este caso hay que redirigir en caso de error a una de las vistas por defecto por
+            // ejemplo patient o physios
             RequestErrorException ex = (RequestErrorException) e;
             ErrorResponse errorResponse = ex.getErrorResponse();
             Platform.runLater(() ->
@@ -956,66 +969,66 @@ public class Controller implements CloseController {
         pnlAppointmentForm.setVisible(true);
     }
 
-    public void btnAppointmentFormClick() {
+    private boolean isValidAppointmentForm() {
         LocalDate date = dpDateAppointmentForm.getValue();
         String diagnosis = tfDiagnosisAppointmentForm.getText();
         String treatment = tfTreatmentAppointmentForm.getText();
         String observations = tfObservationsAppointmentForm.getText();
-        int physioId = cBoxPhysiosAppointmentForm.getSelectionModel().getSelectedItem().getId();
-        int patientId = cBoxPatientsAppointmentForm.getSelectionModel().getSelectedItem().getId();
+
+        StringBuilder errorBuilder = new StringBuilder();
 
         if (date == null) {
-            Message.showError("Error in form", "Date can not be empty");
-            return;
+            errorBuilder.append("- Date can not be empty\n");
         }
-        if (date.isBefore(LocalDate.now())) {
-            Message.showError("Error in form", "Date can not be before today");
-            return;
+        if (date != null && date.isBefore(LocalDate.now())) {
+            errorBuilder.append("- Date can not be before today\n");
         }
         if (diagnosis.length() < 10) {
-            Message.showError(
-                    "Error in form",
-                    "Diagnosis length must be greater or equals than 10 characters"
-            );
-            return;
+            errorBuilder.append("- Diagnosis length must be greater or equals than 10 characters\n");
         }
         if (diagnosis.length() > 500) {
-            Message.showError(
-                    "Error in form",
-                    "Diagnosis length must be lower or equals than 500 characters"
-            );
-            return;
+            errorBuilder.append("- Diagnosis length must be lower or equals than 500 characters\n");
         }
         if (treatment.length() > 150) {
-            Message.showError(
-                    "Error in form",
-                    "Treatment length must be lower or equals then 150 characters"
-            );
-            return;
+            errorBuilder.append("- Treatment length must be lower or equals then 150 characters\n");
         }
         if (observations.length() > 500) {
-            Message.showError(
-                    "Error in form",
-                    "Observations length must be lower or equals than 500 characters"
-            );
-            return;
+            errorBuilder.append("- Observations length must be lower or equals than 500 characters\n");
         }
 
-        AppointmentPOSTRequest appointmentPOSTRequest = new AppointmentPOSTRequest(
-                date.toString(), diagnosis, treatment, observations, physioId, patientId
-        );
-        AppointmentService.createAppointment(appointmentPOSTRequest).thenAccept(appointment -> {
-            //TODO(Redirigir a detalle appointment)
-            System.out.println(appointment);
-        }).exceptionally(e -> {
-            e.printStackTrace();
-            RequestErrorException ex = (RequestErrorException) e;
-            ErrorResponse errorResponse = ex.getErrorResponse();
-            Platform.runLater(() ->
-                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+        if (!errorBuilder.isEmpty()) {
+            Message.showError("Validation error", errorBuilder.toString());
+            return false;
+        }
+
+        return true;
+    }
+
+    public void sendAppointmentForm() {
+        LocalDate date = dpDateAppointmentForm.getValue();
+        String diagnosis = tfDiagnosisAppointmentForm.getText();
+        String treatment = tfTreatmentAppointmentForm.getText();
+        String observations = tfObservationsAppointmentForm.getText();
+        int patientId = cBoxPatientsAppointmentForm.getSelectionModel().getSelectedItem().getId();
+        int physioId = cBoxPhysiosAppointmentForm.getSelectionModel().getSelectedItem().getId();
+
+        if (isValidAppointmentForm()) {
+            AppointmentPOSTRequest appointmentPOSTRequest = new AppointmentPOSTRequest(
+                    date.toString(), diagnosis, treatment, observations, patientId, physioId
             );
-            return null;
-        });
+            System.out.println(appointmentPOSTRequest);
+            AppointmentService.createAppointment(appointmentPOSTRequest).thenAccept(appointment -> {
+                // TODO(Redirigir a detalle appointment)
+                System.out.println(appointment);
+            }).exceptionally(e -> {
+                RequestErrorException ex = (RequestErrorException) e;
+                ErrorResponse errorResponse = ex.getErrorResponse();
+                Platform.runLater(() ->
+                        Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                );
+                return null;
+            });
+        }
     }
 
 
@@ -1135,8 +1148,8 @@ public class Controller implements CloseController {
             showPhysioForm(null);
         }
 
-        if (actionEvent.getSource() == btnLeftBarAddAppointment) {
-            showCreateAppointmentForm();
+        if (actionEvent.getSource() == btnLeftBarShowAppointmentForm) {
+            showAppointmentForm();
         }
 
         if(actionEvent.getSource() == btnLeftBarLogout) {

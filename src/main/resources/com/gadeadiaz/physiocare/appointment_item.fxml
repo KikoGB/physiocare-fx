@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.Image?>
@@ -9,23 +10,32 @@
 
 <HBox fx:id="hbox_accept_appointment" alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#appointmentClick" prefHeight="53.0" prefWidth="695.0" spacing="20.0" style="-fx-background-color: #02030A; -fx-background-radius: 5; -fx-background-insets: 0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gadeadiaz.physiocare.controllers.AppointmentItemController">
     <children>
-      <ImageView fx:id="imgAppointment" fitHeight="31.0" fitWidth="31.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fx:id="icAppointmentItem" fitHeight="31.0" fitWidth="31.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@images/ok_appointment.png" />
+            <Image url="@images/pending_confirmation.png" />
          </image>
          <HBox.margin>
             <Insets left="20.0" />
          </HBox.margin>
       </ImageView>
-        <Label fx:id="lblDate" alignment="CENTER" prefHeight="18.0" prefWidth="88.0" text="15/05/2025" textFill="#b7c3d7">
+        <Label fx:id="lblDate" alignment="CENTER" prefHeight="18.0" prefWidth="92.0" text="15/05/2025" textFill="#b7c3d7">
             <HBox.margin>
                 <Insets />
             </HBox.margin>
         </Label>
       <Label fx:id="lblDiagnosis" alignment="CENTER" prefHeight="18.0" prefWidth="305.0" text="Paciente bastante tocado de la cabeza" textFill="#b7c3d7" />
-      <HBox fx:id="hboxPhysio" alignment="CENTER" prefHeight="32.0" prefWidth="197.0">
+      <Button fx:id="btnAccept" alignment="CENTER" mnemonicParsing="false" onAction="#acceptAppointment" prefHeight="27.0" prefWidth="78.0" style="-fx-border-color: #8fce00; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Accept" />
+      <Button fx:id="btnDeny" alignment="CENTER" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#denyAppointment" prefHeight="27.0" prefWidth="76.0" style="-fx-border-color: #fa1f1f; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Deny">
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <HBox.margin>
+            <Insets />
+         </HBox.margin>
+      </Button>
+      <HBox fx:id="hboxPhysio" alignment="CENTER" prefHeight="54.0" prefWidth="0.0" visible="false">
          <children>
-            <ImageView fx:id="imgPhysio" fitHeight="23.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="avatarPhysio" fitHeight="23.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@images/doctor_icon.png" />
                </image>

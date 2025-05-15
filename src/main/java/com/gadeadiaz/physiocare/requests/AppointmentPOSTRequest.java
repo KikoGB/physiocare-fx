@@ -1,7 +1,5 @@
 package com.gadeadiaz.physiocare.requests;
 
-import java.util.Date;
-
 public class AppointmentPOSTRequest {
     private String date;
     private String diagnosis;

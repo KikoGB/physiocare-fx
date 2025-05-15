@@ -44,4 +44,20 @@ public class AppointmentService {
                 "POST"
         ).thenApply(response -> gson.fromJson(response, Appointment.class));
     }
+
+    public static CompletableFuture<Void> confirmAppointment(int appointmentId) {
+        return ServiceUtils.getResponseAsync(
+                ServiceUtils.SERVER + "appointments/" + appointmentId + "/confirm",
+                null,
+                "PUT"
+        ).thenApply(_ -> null);
+    }
+
+    public static CompletableFuture<Void> deleteAppointment(int appointmentId) {
+        return ServiceUtils.getResponseAsync(
+                ServiceUtils.SERVER + "appointments/" + appointmentId,
+                null,
+                "DELETE"
+        ).thenApply(_ -> null);
+    }
 }

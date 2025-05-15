@@ -1,68 +1,84 @@
 package com.gadeadiaz.physiocare.controllers;
 
+import com.gadeadiaz.physiocare.controllers.interfaces.AcceptAppointmentCallback;
 import com.gadeadiaz.physiocare.controllers.interfaces.AppointmentDetailListener;
+import com.gadeadiaz.physiocare.controllers.interfaces.DenyAppointmentCallback;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 
 public class AppointmentItemController {
     @FXML
-    private ImageView imgAppointment;
+    private ImageView icAppointmentItem;
     @FXML
     private Label lblDate;
     @FXML
     private Label lblDiagnosis;
     @FXML
-    private ImageView imgPhysio;
+    private Button btnAccept;
+    @FXML
+    private Button btnDeny;
+    @FXML
+    private HBox hboxPhysio;
+    @FXML
+    private ImageView avatarPhysio;
     @FXML
     private Label lblPhysioName;
 
     private int appointmentId;
 
-    public int getAppointmentId() {
-        return appointmentId;
-    }
+    private AppointmentDetailListener appointmentDetailListener;
+    private AcceptAppointmentCallback acceptAppointmentCallback;
+    private DenyAppointmentCallback denyAppointmentCallback;
+
 
     public void setAppointmentId(int appointmentId) {
         this.appointmentId = appointmentId;
     }
 
-    public AppointmentDetailListener getAppointmentDetailListener() {
-        return appointmentDetailListener;
+    public void setAppointmentDetailListener(AppointmentDetailListener appointmentDetailListener) {
+        this.appointmentDetailListener = appointmentDetailListener;
     }
 
-    public ImageView getImgAppointment() {
-        return imgAppointment;
+    public void setAcceptAppointmentCallback(AcceptAppointmentCallback acceptAppointmentCallback) {
+        this.acceptAppointmentCallback = acceptAppointmentCallback;
     }
 
-    public void setImgAppointment(ImageView imgAppointment) {
-        this.imgAppointment = imgAppointment;
+    public void setDenyAppointmentCallback(DenyAppointmentCallback denyAppointmentCallback) {
+        this.denyAppointmentCallback = denyAppointmentCallback;
     }
 
-    public Label getLblDate() {
-        return lblDate;
+    public void setIcAppointmentItemImage(Image image) {
+        this.icAppointmentItem.setImage(image);
     }
 
-    public void setLblDate(Label lblDate) {
-        this.lblDate = lblDate;
+    public void setLblDateText(String text) {
+        this.lblDate.setText(text);
     }
 
-    public Label getLblDiagnosis() {
-        return lblDiagnosis;
+    public void setLblDiagnosisText(String text) {
+        this.lblDiagnosis.setText(text);
     }
 
-    public void setLblDiagnosis(Label lblDiagnosis) {
-        this.lblDiagnosis = lblDiagnosis;
+    public Button getBtnAcceptAppointmentItem() {
+        return btnAccept;
     }
 
-    public ImageView getImgPhysio() {
-        return imgPhysio;
+    public Button getBtnDenyAppointmentItem() {
+        return btnDeny;
     }
 
-    public void setImgPhysio(ImageView imgPhysio) {
-        this.imgPhysio = imgPhysio;
+    // no hace falta setter de esto en principio
+    public HBox getHboxPhysio() {
+        return hboxPhysio;
+    }
+
+    public void setAvatarPhysio(Image image) {
+        avatarPhysio.setImage(image);
     }
 
     public Label getLblPhysioName() {
@@ -73,14 +89,15 @@ public class AppointmentItemController {
         this.lblPhysioName = lblPhysioName;
     }
 
-    private AppointmentDetailListener appointmentDetailListener;
-
-
-    public void setAppointmentDetailListener(AppointmentDetailListener appointmentDetailListener) {
-        this.appointmentDetailListener = appointmentDetailListener;
-    }
-
     public void appointmentClick(MouseEvent mouseEvent) {
         appointmentDetailListener.onAppointmentDetailClick(appointmentId);
+    }
+
+    public void acceptAppointment() {
+        acceptAppointmentCallback.acceptAppointment(appointmentId);
+    }
+
+    public void denyAppointment() {
+        denyAppointmentCallback.denyAppointment(appointmentId);
     }
 }
