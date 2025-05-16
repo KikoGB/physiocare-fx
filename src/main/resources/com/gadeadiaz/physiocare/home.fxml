@@ -142,7 +142,7 @@
         </VBox>
         <StackPane layoutX="258.0" prefHeight="576.0" prefWidth="793.0" style="-fx-background-color: #02030A;">
             <children>
-                <Pane fx:id="pnlUsersList" prefHeight="200.0" prefWidth="200.0" visible="false">
+                <Pane fx:id="pnlUsersList" prefHeight="200.0" prefWidth="200.0">
                     <children>
 
 
@@ -361,7 +361,7 @@
                   </Label>
                   <PasswordField fx:id="tfPasswordPhysioForm" layoutX="336.0" layoutY="159.0" />
                   <ComboBox fx:id="cBoxSpecialtyPhysioForm" layoutX="335.0" layoutY="319.0" prefWidth="150.0" />
-                  <Button fx:id="btnPhysioForm" layoutX="336.0" layoutY="494.0" mnemonicParsing="false" onAction="#btnSavePhysio" prefHeight="25.0" prefWidth="149.0" text="Add" />
+                  <Button fx:id="btnSendPhysioForm" layoutX="336.0" layoutY="494.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Add" />
                </children>
             </Pane>
                 <Pane fx:id="pnlAppointmentForm" prefHeight="597.0" prefWidth="414.0" visible="false">
@@ -429,7 +429,7 @@
                 <Pane fx:id="pnlPatientForm" prefHeight="597.0" prefWidth="414.0" visible="false">
                    <children>
                       <Label fx:id="lblPatientFormTitle" alignment="TOP_CENTER" layoutY="94.0" prefHeight="27.0" prefWidth="794.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="New Patient" textAlignment="CENTER" textFill="#dfd2d2" />
-                      <Button fx:id="btnPatientForm" focusTraversable="false" layoutX="335.0" layoutY="465.0" mnemonicParsing="false" onAction="#btnSavePatient" prefHeight="25.0" prefWidth="141.0" text="SAVE" />
+                      <Button fx:id="btnSendPatientForm" focusTraversable="false" layoutX="335.0" layoutY="465.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="141.0" text="SAVE" />
                       <Label layoutX="86.0" layoutY="274.0" prefHeight="17.0" prefWidth="141.0" style="-fx-font-weight: bold;" text="Name" textAlignment="CENTER" textFill="#bfb9b9" />
                       <TextField fx:id="tfNamePatientForm" alignment="TOP_CENTER" focusTraversable="false" layoutX="86.0" layoutY="295.0" prefHeight="26.0" prefWidth="141.0" style="-fx-text-fill: #777;" />
                       <Label contentDisplay="CENTER" layoutX="289.0" layoutY="276.0" prefHeight="17.0" prefWidth="226.0" style="-fx-font-weight: bold;" text="Email" textFill="#bfb9b9" />
@@ -458,11 +458,12 @@
                     <children>
                         <Label fx:id="lblTitleRecordDetail" alignment="TOP_CENTER" layoutX="198.0" layoutY="26.0" prefHeight="35.0" prefWidth="506.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Marcos Pérez Pérez" textAlignment="CENTER" textFill="#dfd2d2" />
                         <Line endX="417.0" endY="-67.0" fill="BLACK" layoutX="345.0" layoutY="139.0" startX="-138.19998168945312" startY="-67.0" stroke="#a39e9ea9" />
-                        <Button fx:id="btnSavePdf" alignment="CENTER" layoutX="592.0" layoutY="30.0" mnemonicParsing="false" onAction="#savePdfClick" prefHeight="27.0" prefWidth="83.0" style="-fx-border-color: #ed9609; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Save PDF">
+                        <Button fx:id="btnSavePdfRecordDetail" alignment="CENTER" layoutX="592.0" layoutY="30.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="83.0" style="-fx-border-color: #ed9609; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Save PDF">
                             <HBox.margin>
                                 <Insets />
                             </HBox.margin>
                         </Button>
+                  <Button fx:id="btnEditRecordDetail" layoutX="697.0" layoutY="30.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="63.0" style="-fx-border-color: #78a8f5; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Edit" />
                         <Label layoutX="206.0" layoutY="99.0" prefHeight="17.0" prefWidth="53.0" style="-fx-font-weight: bold;" text="Mail:" textFill="#bfb9b9" />
                         <Label fx:id="lblEmailRecordDetail" layoutX="269.0" layoutY="99.0" prefHeight="17.0" prefWidth="215.0" text="davidpacheco@gmail.com" textFill="#bfb9b9" />
                         <Label layoutX="503.0" layoutY="99.0" prefHeight="17.0" prefWidth="117.0" style="-fx-font-weight: bold;" text="Insurance Number:" textFill="#bfb9b9" />

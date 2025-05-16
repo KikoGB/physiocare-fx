@@ -10,6 +10,7 @@ import com.gadeadiaz.physiocare.models.*;
 import com.gadeadiaz.physiocare.requests.AppointmentPOSTRequest;
 import com.gadeadiaz.physiocare.requests.PatientPOSTRequest;
 import com.gadeadiaz.physiocare.requests.PhysioPOSTRequest;
+import com.gadeadiaz.physiocare.requests.RecordPUTRequest;
 import com.gadeadiaz.physiocare.responses.ErrorResponse;
 import com.gadeadiaz.physiocare.services.AppointmentService;
 import com.gadeadiaz.physiocare.services.PatientService;
@@ -40,6 +41,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class Controller implements CloseController {
     // --- LEFT BAR MENU ---
@@ -97,6 +99,18 @@ public class Controller implements CloseController {
     @FXML private VBox vBoxPhysioAppointments;
     @FXML private Label lblNoPhysioAppointments;
 
+    // --- RECORD DETAIL ---
+    @FXML private Button btnEditRecordDetail;
+    @FXML private Button btnSavePdfRecordDetail;
+    @FXML private Label lblTitleRecordDetail;
+    @FXML private Label lblEmailRecordDetail;
+    @FXML private Label lblInsuranceNumRecordDetail;
+    @FXML private Label lblRecordDescription;
+    @FXML private Label lblNoRecordAppointments;
+    @FXML private ImageView ivRecord; //Patient image
+    @FXML private ScrollPane recordScrollPaneAppointments;
+    @FXML private VBox vBoxRecordAppointments;
+
     // --- PATIENT FORM ---
     @FXML private Label lblPatientFormTitle;
     @FXML private Label lblNickPatientForm;
@@ -109,6 +123,7 @@ public class Controller implements CloseController {
     @FXML private TextField tfAddressPatientForm;
     @FXML private TextField tfInsuranceNumPatientForm;
     @FXML private DatePicker dpBirthdatePatientForm;
+    @FXML private Button btnSendPatientForm;
 
     // --- PHYSIO FORM ---
     @FXML private Label lblPhysioFormTitle;
@@ -121,6 +136,7 @@ public class Controller implements CloseController {
     @FXML private Label lblPasswordPhysioForm;
     @FXML private Label lblNickPhysioForm;
     @FXML private ComboBox<String> cBoxSpecialtyPhysioForm;
+    @FXML private Button btnSendPhysioForm;
 
     // --- APPOINTMENTS FORM ---
     @FXML private DatePicker dpDateAppointmentForm;
@@ -131,29 +147,11 @@ public class Controller implements CloseController {
     @FXML private ComboBox<Patient> cBoxPatientsAppointmentForm;
     @FXML private Button btnAppointmentForm;
 
-    // --- RECORD DETAIL ---
-    @FXML private Label lblTitleRecordDetail;
-    @FXML private Label lblEmailRecordDetail;
-    @FXML private Label lblInsuranceNumRecordDetail;
-    @FXML private Label lblRecordDescription;
-    @FXML private Label lblNoRecordAppointments;
-    @FXML private ImageView ivRecord; //Patient image
-    @FXML private ScrollPane recordScrollPaneAppointments;
-    @FXML private VBox vBoxRecordAppointments;
-
     // --- LÓGICA AUXILIAR ---
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//    private final Gson gson = new Gson();
     private Stage stage;
-    private Patient selectedPatient;
-    private Physio selectedPhysio;
-    private Appointment selectedAppointment;
-    private Record selectedRecord;
-
     // Physio object representing the data of the logged physio
     private Physio physioLogged;
-
-    // --- ENUMS Y VARIABLES DE ESTADO ---
     private enum Entity { PATIENT, PHYSIO, RECORD, APPOINTMENT }
     private Entity selectedListEntity = Entity.PATIENT;
 
@@ -196,6 +194,11 @@ public class Controller implements CloseController {
         clearPhysioForm();
         //Primero los que se ocultan
         vBoxItems.getChildren().clear();
+        // mirar esto por que no va
+//        if (Storage.getInstance().getUserdata().getValue().equals("physio") &&
+//                selectedListEntity == Entity.PHYSIO) {
+//            btnAddUser.setVisible(false);
+//        }
         pnlPatientForm.setVisible(false);
         pnlPhysioForm.setVisible(false);
         pnlPatientDetail.setVisible(false);
@@ -315,10 +318,7 @@ public class Controller implements CloseController {
                 node.setOnMouseEntered(_ -> node.setStyle("-fx-background-color : #0A0E3F"));
                 node.setOnMouseExited(_ -> node.setStyle("-fx-background-color : #02030A"));
 
-                userItemController.setDetailListener(_ -> {
-                    selectedPhysio = null;
-                    getPatientById(patient.getId());
-                });
+                userItemController.setDetailListener(_ -> getPatientById(patient.getId()));
 
                 userItemController.setDeleteListener(idPatient ->
                         PatientService.delete(idPatient).thenAccept(_ ->
@@ -387,20 +387,15 @@ public class Controller implements CloseController {
 
     public void getPatientById(int id) {
         PatientService.getPatientById(id)
-            .thenAccept(patient ->
-                Platform.runLater(() -> {
-                    selectedPatient = patient;
-                    showPatientDetail(patient);
-                    System.out.println(selectedPatient);
-                })
-            ).exceptionally(e -> {
-                RequestErrorException ex = (RequestErrorException) e.getCause();
-                ErrorResponse errorResponse = ex.getErrorResponse();
-                Platform.runLater(() ->
-                        Message.showError(errorResponse.getError(), errorResponse.getMessage())
-                );
-                return null;
-            });
+                .thenAccept(patient -> Platform.runLater(() -> showPatientDetail(patient)))
+                .exceptionally(e -> {
+                    RequestErrorException ex = (RequestErrorException) e.getCause();
+                    ErrorResponse errorResponse = ex.getErrorResponse();
+                    Platform.runLater(() ->
+                            Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                    );
+                    return null;
+                });
     }
 
     public void getPatientsBySurname() {
@@ -420,6 +415,7 @@ public class Controller implements CloseController {
     public void showPatientForm(Patient patient) {
         clearPatientForm();
         if (patient != null) {
+            btnSendPatientForm.setOnMouseClicked(_ -> updatePatient(patient));
             lblNickPatientForm.setVisible(false);
             tfNickPatientForm.setVisible(false);
             lblPasswordPatientForm.setVisible(false);
@@ -432,17 +428,11 @@ public class Controller implements CloseController {
             tfAddressPatientForm.setText(patient.getAddress());
             tfInsuranceNumPatientForm.setText(patient.getInsuranceNumber());
             tfEmailPatientForm.setText(patient.getEmail());
+        } else {
+            btnSendPatientForm.setOnMouseClicked(_ -> createPatient());
         }
 
         showPatientFormPanel();
-    }
-
-    public void btnSavePatient() {
-        if (selectedPatient == null) {
-            createPatient();
-        } else {
-            updatePatient();
-        }
     }
 
     public boolean isValidPatientForm(boolean isEdit) {
@@ -531,20 +521,15 @@ public class Controller implements CloseController {
             );
 
             PatientService.create(new PatientPOSTRequest(newUser, newPatient))
-                .thenAccept(patient ->
-                    Platform.runLater(() -> {
-                        selectedPatient = patient;
-                        clearPatientForm();
-                        showPatientDetail(patient);
-                    })
-                ).exceptionally(e -> {
-                    RequestErrorException ex = (RequestErrorException) e.getCause();
-                    ErrorResponse errorResponse = ex.getErrorResponse();
-                    Platform.runLater(() ->
-                            Message.showError(errorResponse.getError(), errorResponse.getMessage())
-                    );
-                    return null;
-                });
+                    .thenAccept(patient -> Platform.runLater(() -> showPatientDetail(patient)))
+                    .exceptionally(e -> {
+                        RequestErrorException ex = (RequestErrorException) e.getCause();
+                        ErrorResponse errorResponse = ex.getErrorResponse();
+                        Platform.runLater(() ->
+                                Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                        );
+                        return null;
+                    });
         }
     }
 
@@ -552,29 +537,24 @@ public class Controller implements CloseController {
      * Sends a PUT request to update an existing patient's information on the server.
      * If the update is successful, the patient's details are displayed. Otherwise, an error message is shown.
      */
-    public void updatePatient() {
+    public void updatePatient(Patient patient) {
         if (isValidPatientForm(true)) {
             Patient updatedPatient = new Patient(
-                selectedPatient.getId(), tfNamePatientForm.getText(), tfSurnamePatientForm.getText(),
+                patient.getId(), tfNamePatientForm.getText(), tfSurnamePatientForm.getText(),
                 dpBirthdatePatientForm.getValue().format(formatter), tfAddressPatientForm.getText(),
                 tfInsuranceNumPatientForm.getText(), tfEmailPatientForm.getText()
             );
 
-            PatientService.update(selectedPatient.getId(), updatedPatient)
-                .thenAccept(patient ->
-                    Platform.runLater(() -> {
-                        clearPatientForm();
-                        selectedPatient = patient;
-                        showPatientDetail(patient);
-                    })
-                ).exceptionally(e -> {
-                    RequestErrorException ex = (RequestErrorException) e.getCause();
-                    ErrorResponse errorResponse = ex.getErrorResponse();
-                    Platform.runLater(() ->
-                            Message.showError(errorResponse.getError(), errorResponse.getMessage())
-                    );
-                    return null;
-                });
+            PatientService.update(patient.getId(), updatedPatient)
+                    .thenAccept(patientUpdated -> Platform.runLater(() -> showPatientDetail(patientUpdated)))
+                    .exceptionally(e -> {
+                        RequestErrorException ex = (RequestErrorException) e.getCause();
+                        ErrorResponse errorResponse = ex.getErrorResponse();
+                        Platform.runLater(() ->
+                                Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                        );
+                        return null;
+                    });
         }
     }
 
@@ -601,10 +581,7 @@ public class Controller implements CloseController {
                 node.setOnMouseEntered(_ -> node.setStyle("-fx-background-color : #0A0E3F"));
                 node.setOnMouseExited(_ -> node.setStyle("-fx-background-color : #02030A"));
 
-                userItemController.setDetailListener(_ -> {
-                    selectedPatient = null;
-                    getPhysioById(physio.getId());
-                });
+                userItemController.setDetailListener(_ -> getPhysioById(physio.getId()));
 
                 if (Storage.getInstance().getUserdata().getValue().equals("physio")) {
                     userItemController.setBtnDeleteVisibility(false);
@@ -679,12 +656,8 @@ public class Controller implements CloseController {
 
     public void getPhysioById(int id) {
         PhysioService.getPhysioById(id)
-                .thenAccept(physio ->
-                    Platform.runLater(() -> {
-                        selectedPhysio = physio;
-                        showPhysioDetail(physio);
-                    })
-                ).exceptionally(e -> {
+                .thenAccept(physio -> Platform.runLater(() -> showPhysioDetail(physio)))
+                .exceptionally(e -> {
                     RequestErrorException ex = (RequestErrorException) e.getCause();
                     ErrorResponse errorResponse = ex.getErrorResponse();
                     Platform.runLater(() ->
@@ -717,9 +690,11 @@ public class Controller implements CloseController {
                 )
         );
         if (physio == null) {
+            btnSendPhysioForm.setOnMouseClicked(_ -> createPhysio());
             lblPhysioFormTitle.setText("New Physio");
             cBoxSpecialtyPhysioForm.setValue("Sports");
         } else {
+            btnSendPhysioForm.setOnMouseClicked(_ -> updatePhysio(physio));
             lblNickPhysioForm.setVisible(false);
             tfNickPhysioForm.setVisible(false);
             lblPasswordPhysioForm.setVisible(false);
@@ -734,15 +709,6 @@ public class Controller implements CloseController {
         }
 
         showPhysioFormPanel();
-    }
-
-    public void btnSavePhysio() {
-        System.out.println(selectedPhysio);
-        if (selectedPhysio == null) {
-            createPhysio();
-        } else {
-            updatePhysio();
-        }
     }
 
     public boolean isValidPhysioForm(boolean isEdit) {
@@ -810,15 +776,9 @@ public class Controller implements CloseController {
                     tfNickPhysioForm.getText(), tfPasswordPhysioForm.getText(), "physio"
             );
             PhysioPOSTRequest physioPOSTRequest = new PhysioPOSTRequest(newUser, newPhysio);
-            PhysioService.createPhysio(physioPOSTRequest).thenAccept(physio -> {
-                //Los mensaje de error no van
-                // Platform runlater no muestra los alert por algún motivo
-                Platform.runLater(() -> {
-                    selectedPhysio = physio;
-                    clearPhysioForm();
-                    showPhysioDetail(physio);
-                });
-            }).exceptionally(e -> {
+            PhysioService.createPhysio(physioPOSTRequest).thenAccept(physio ->
+                    Platform.runLater(() -> showPhysioDetail(physio))
+            ).exceptionally(e -> {
                 RequestErrorException ex = (RequestErrorException) e;
                 ErrorResponse errorResponse = ex.getErrorResponse();
                 Platform.runLater(() ->
@@ -829,19 +789,15 @@ public class Controller implements CloseController {
         }
     }
 
-    private void updatePhysio() {
+    private void updatePhysio(Physio physio) {
         if (isValidPhysioForm(true)) {
             Physio physioToUpdate = new Physio(
-                    selectedPhysio.getId(), tfNamePhysioForm.getText(),
+                    physio.getId(), tfNamePhysioForm.getText(),
                     tfSurnamePhysioForm.getText(), cBoxSpecialtyPhysioForm.getValue(),
                     tfLicenseNumberPhysioForm.getText(), tfEmailPhysioForm.getText()
             );
-            PhysioService.updatePhysio(selectedPhysio.getId(), physioToUpdate).thenAccept(physio ->
-                Platform.runLater(() -> {
-                    selectedPhysio = physio;
-                    clearPhysioForm();
-                    showPhysioDetail(physio);
-                })
+            PhysioService.updatePhysio(physio.getId(), physioToUpdate).thenAccept(physioUpdated ->
+                Platform.runLater(() -> showPhysioDetail(physioUpdated))
             ).exceptionally(e -> {
                 RequestErrorException ex = (RequestErrorException) e;
                 ErrorResponse errorResponse = ex.getErrorResponse();
@@ -914,10 +870,7 @@ public class Controller implements CloseController {
                 node.setOnMouseExited(_ -> node.setStyle("-fx-background-color : #02030A"));
 
                 appointmentItemController.setShowDetailCallback(_ -> {
-//                    selectedAppointment = appointment;
-//                    selectedPatient = null;
-//                    selectedPhysio = null;
-//                    selectedPhysio = null;
+                    // TODO mostrar appointment detail
                     System.out.println(appointment);
                 });
 
@@ -1144,18 +1097,11 @@ public class Controller implements CloseController {
 
                 recordItemController.setRecord(record);
 
-                recordItemController.setDetailListener(recordId -> {
-                    selectedPhysio = null;
-                    selectedPatient = null;
-                    getRecordById(recordId);
-                });
+                recordItemController.setDetailListener(this::getRecordById);
 
                 if (record.getMedicalRecord().isEmpty()) {
                     recordItemController.setBtnAddMedicalRecordVisibility(true);
-                    recordItemController.setShowRecordFormCallback(recordToUpdate -> {
-                        // TODO(mostrra alert con input para modificar este record, ya que es solo un input con
-                        //  el medical record)
-                    });
+                    recordItemController.setShowRecordFormCallback(this::updateRecord);
                 }
                 recordItemController.setLblRecordPatientText(
                         record.getPatient().getName() + " " + record.getPatient().getSurname()
@@ -1173,10 +1119,10 @@ public class Controller implements CloseController {
         txtRecordsCount.setText(String.valueOf(records.size()));
     }
 
-//    Preguntar a David si lo de pasar el el objeto a mostra lo ha implementado el en todos los modelos
-//    Se podria obviar y usar el selectedPatient, selectedRecord, etc...
     public void showRecordDetail(Record record) {
         showRecordDetailPanel();
+        btnEditRecordDetail.setOnMouseClicked(_ -> updateRecord(record));
+        btnSavePdfRecordDetail.setOnMouseClicked(_ -> saveRecordPdf(record));
         lblTitleRecordDetail.setText(record.getPatient().getName() + " " + record.getPatient().getSurname());
         lblEmailRecordDetail.setText(record.getPatient().getEmail());
         lblInsuranceNumRecordDetail.setText(record.getPatient().getInsuranceNumber());
@@ -1204,13 +1150,8 @@ public class Controller implements CloseController {
 
     public void getRecordById(int id) {
         RecordService.getRecordById(id)
-                .thenAccept(record ->
-                        Platform.runLater(() -> {
-                            selectedRecord = record;
-                            showRecordDetail(record);
-                            System.out.println(selectedRecord);
-                        })
-                ).exceptionally(e -> {
+                .thenAccept(record -> Platform.runLater(() -> showRecordDetail(record)))
+                .exceptionally(e -> {
                     RequestErrorException ex = (RequestErrorException) e.getCause();
                     ErrorResponse errorResponse = ex.getErrorResponse();
                     Platform.runLater(() ->
@@ -1218,6 +1159,26 @@ public class Controller implements CloseController {
                     );
                     return null;
                 });
+    }
+
+    private void updateRecord(Record record) {
+        TextInputDialog dialogRecordForm = new TextInputDialog(record.getMedicalRecord());
+        dialogRecordForm.setTitle("Edit record");
+        dialogRecordForm.setHeaderText("Add or edit medical record of this record");
+        Optional<String> optMedicalRecord = dialogRecordForm.showAndWait();
+        if (optMedicalRecord.isPresent()) {
+            RecordPUTRequest recordPUTRequest = new RecordPUTRequest(record.getId(), optMedicalRecord.get());
+            RecordService.updateRecord(record.getId(), recordPUTRequest)
+                    .thenAccept(recordToUpdate -> Platform.runLater(() -> showRecordDetail(recordToUpdate)))
+                    .exceptionally(e -> {
+                        RequestErrorException ex = (RequestErrorException) e;
+                        ErrorResponse errorResponse = ex.getErrorResponse();
+                        Platform.runLater(() ->
+                            Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                        );
+                        return null;
+                    });
+        }
     }
 
     /**
@@ -1273,9 +1234,9 @@ public class Controller implements CloseController {
         openLoginView();
     }
 
-    public void savePdfClick() {
+    public void saveRecordPdf(Record record) {
 //        Todo: Restringir en el caso de que esté vacío?
-        Pdf.medicalRecordPdfCreator(selectedRecord);
+        Pdf.medicalRecordPdfCreator(record);
     }
 
 

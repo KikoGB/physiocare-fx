@@ -4,6 +4,7 @@ import com.gadeadiaz.physiocare.exceptions.RequestErrorException;
 import com.gadeadiaz.physiocare.models.Appointment;
 import com.gadeadiaz.physiocare.models.Patient;
 import com.gadeadiaz.physiocare.models.Record;
+import com.gadeadiaz.physiocare.requests.RecordPUTRequest;
 import com.gadeadiaz.physiocare.utils.ServiceUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -45,5 +46,13 @@ public class RecordService {
             Type listType = new TypeToken<List<Appointment>>() {}.getType();
             return gson.fromJson(response, listType);
         });
+    }
+
+    public static CompletableFuture<Record> updateRecord(int id, RecordPUTRequest recordPUTRequest) {
+        return ServiceUtils.getResponseAsync(
+                ServiceUtils.SERVER + "records/" + id,
+                gson.toJson(recordPUTRequest),
+                "PUT"
+        ).thenApply(response -> gson.fromJson(response, Record.class));
     }
 }

@@ -55,11 +55,11 @@ public class LoginController implements Initializable, CloseController{
 
 
     @FXML
-    public void loginClick(ActionEvent actionEvent) throws IOException {
-        login(actionEvent);
+    public void loginClick() throws IOException {
+        login();
     }
 
-    private void login(ActionEvent actionEvent) throws IOException {
+    private void login() throws IOException {
         String login = txtLogin.getText();
         String password = txtPassword.getText();
 
@@ -69,18 +69,18 @@ public class LoginController implements Initializable, CloseController{
 //        password = "1234567";
 
         // Physio credentials
-//        login = "Sergi";
-//        password = "1234567";
+        login = "Sergi";
+        password = "1234567";
 
         if (Validations.validateLogin(login) && Validations.validatePassword(password)) {
             if (LoginService.login(login, password)) {
-                showHome(actionEvent);
+                showHome();
             }
         }
     }
 
 
-    private void showHome(ActionEvent event) {
+    private void showHome() {
         try {
             SceneLoader.loadScreen("home.fxml", new Stage(), false);
             this.stage.close();
