@@ -3,11 +3,12 @@ package com.gadeadiaz.physiocare.controllers;
 import com.gadeadiaz.physiocare.services.LoginService;
 import com.google.gson.Gson;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import com.gadeadiaz.physiocare.utils.SceneLoader;
 import com.gadeadiaz.physiocare.utils.Validations;
@@ -22,49 +23,42 @@ import java.util.ResourceBundle;
  * <p>
  * Implements {@link CloseController} to support clean window closing logic.
  */
-public class LoginController implements Initializable, CloseController {
+public class LoginController implements Initializable, CloseController{
 
-    /** Text field for entering the user's login/username. */
+    private Stage stage;
+
+    @FXML
+    private AnchorPane sideBar;
+
     @FXML
     private TextField txtLogin;
 
-    /** Text field for entering the user's password. */
     @FXML
     private TextField txtPassword;
 
-    /** Gson instance for JSON parsing (currently unused). */
     private Gson gson = new Gson();
 
-    /**
-     * Called automatically after the FXML is loaded.
-     * Used to initialize any required UI logic.
-     *
-     * @param url not used
-     * @param resourceBundle not used
-     */
+    private double x = 0,y = 0;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Initialization logic can go here
+        sideBar.setOnMousePressed(mouseEvent -> {
+            x = mouseEvent.getSceneX();
+            y = mouseEvent.getSceneY();
+        });
+
+        sideBar.setOnMouseDragged(mouseEvent -> {
+            stage.setX(mouseEvent.getScreenX() - x);
+            stage.setY(mouseEvent.getScreenY() - y);
+        });
     }
 
-    /**
-     * Triggered when the login button is clicked.
-     *
-     * @param actionEvent the event object containing source info
-     * @throws IOException if screen loading fails
-     */
+
     @FXML
-    public void click(ActionEvent actionEvent) throws IOException {
+    public void loginClick(ActionEvent actionEvent) throws IOException {
         login(actionEvent);
     }
 
-    /**
-     * Attempts to log in the user by validating input fields and
-     * calling the login service. If successful, navigates to the home screen.
-     *
-     * @param actionEvent the triggering event used to obtain the current window
-     * @throws IOException if the home screen fails to load
-     */
     private void login(ActionEvent actionEvent) throws IOException {
         String login = txtLogin.getText();
         String password = txtPassword.getText();
@@ -85,45 +79,31 @@ public class LoginController implements Initializable, CloseController {
         }
     }
 
-    /**
-     * Loads the main application menu (home screen).
-     *
-     * @param event the event used to obtain the current stage
-     * @throws IOException if the FXML file cannot be loaded
-     */
-    private void showHome(ActionEvent event) throws IOException {
-        SceneLoader.loadScreen("home.fxml",
-                (Stage)((Node) event.getSource()).getScene().getWindow());
+
+    private void showHome(ActionEvent event) {
+        try {
+            SceneLoader.loadScreen("home.fxml", new Stage(), false);
+            this.stage.close();
+        } catch (IOException e) {
+            System.out.println("Show home error");
+        }
     }
 
-    /**
-     * Assigns a close request listener to the stage that closes the window.
-     *
-     * @param stage the current JavaFX stage
-     */
+    @FXML
+    void closeProgram() {
+        if (stage != null) {
+            stage.close();
+        }
+    }
+
     @Override
     public void setOnCloseListener(Stage stage) {
-        stage.setOnCloseRequest(e -> stage.close());
+        stage.setOnCloseRequest(Event::consume);
     }
 
-    /**
-     * Stores or initializes the JavaFX stage if needed.
-     * Currently unused.
-     *
-     * @param stage the current JavaFX stage
-     */
+
     @Override
     public void setStage(Stage stage) {
-        // No-op
-    }
-
-    /**
-     * Handles mouse click actions on buttons.
-     * Currently a placeholder with no implementation.
-     *
-     * @param mouseEvent the mouse event
-     */
-    public void handleButtonAction(MouseEvent mouseEvent) {
-        // No-op
+        this.stage = stage;
     }
 }

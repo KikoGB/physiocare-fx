@@ -1224,13 +1224,14 @@ public class Controller implements CloseController {
      * Opens the login view in the specified stage.
      * Handles any potential IOExceptions when loading the view.
      *
-     * @param stage the primary stage of the application
      */
-    public static void openLoginView(Stage stage) {
+    public void openLoginView() {
+
         try {
-            SceneLoader.loadScreen("login.fxml", stage);
-        } catch (IOException ex) {
-            stage.setOnCloseRequest(_ -> stage.close());
+            SceneLoader.loadScreen("login.fxml", new Stage(), true);
+            this.stage.close();
+        } catch (IOException e) {
+            System.out.println("Show login error");
         }
     }
 
@@ -1269,7 +1270,7 @@ public class Controller implements CloseController {
 
     public void logout() {
         Storage.getInstance().clearData();
-        openLoginView(stage);
+        openLoginView();
     }
 
     public void savePdfClick() {
@@ -1292,7 +1293,7 @@ public class Controller implements CloseController {
     @Override
     public void setOnCloseListener(Stage stage) {
         stage.setOnCloseRequest(e -> {
-            openLoginView(stage);
+            stage.close();
             e.consume();
         });
     }

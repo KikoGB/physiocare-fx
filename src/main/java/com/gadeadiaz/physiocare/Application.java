@@ -8,7 +8,7 @@ import java.io.IOException;
 public class Application extends javafx.application.Application {
     @Override
     public void start(Stage stage) throws IOException {
-        SceneLoader.loadScreen("login.fxml", stage);
+        SceneLoader.loadScreen("login.fxml", stage, true);
     }
 
     public static void main(String[] args) {

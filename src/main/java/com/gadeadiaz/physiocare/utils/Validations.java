@@ -25,7 +25,7 @@ public class Validations {
      */
     public static boolean validateLogin(String login) {
         if (login.isEmpty()) {
-            Message.showError("Login Error", "Admin identifier is not valid.");
+            Message.showError("Login Error", "Identifier is not valid.");
             return false;
         } else {
             return true;

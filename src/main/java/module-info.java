@@ -2,7 +2,6 @@ module com.gadeadiaz.physiocare {
     requires javafx.controls;
     requires javafx.fxml;
     requires com.google.gson;
-    requires com.jfoenix;
     requires kernel;
     requires layout;
     requires java.desktop;
