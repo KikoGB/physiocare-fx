@@ -42,3 +42,6 @@ build/
 
 # Pdf's
 /src/main/resources/records/*
+
+# OAuth
+/src/main/resources/client_secret_*.json
