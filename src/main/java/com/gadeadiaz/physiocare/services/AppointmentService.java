@@ -4,6 +4,7 @@ import com.gadeadiaz.physiocare.exceptions.RequestErrorException;
 import com.gadeadiaz.physiocare.models.Appointment;
 import com.gadeadiaz.physiocare.models.Patient;
 import com.gadeadiaz.physiocare.requests.AppointmentPOSTRequest;
+import com.gadeadiaz.physiocare.requests.AppointmentPUTRequest;
 import com.gadeadiaz.physiocare.utils.ServiceUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -42,6 +43,15 @@ public class AppointmentService {
                 ServiceUtils.SERVER + "appointments",
                 gson.toJson(appointmentPOSTRequest),
                 "POST"
+        ).thenApply(response -> gson.fromJson(response, Appointment.class));
+    }
+
+    public static CompletableFuture<Appointment> updateAppointment(int id, AppointmentPUTRequest appointmentPUTRequest)
+            throws RequestErrorException {
+        return ServiceUtils.getResponseAsync(
+                ServiceUtils.SERVER + "appointments/" + id,
+                gson.toJson(appointmentPUTRequest),
+                "PUT"
         ).thenApply(response -> gson.fromJson(response, Appointment.class));
     }
 
