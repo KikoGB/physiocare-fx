@@ -45,3 +45,4 @@ build/
 
 # OAuth
 /src/main/resources/client_secret_*.json
+/tokens/
