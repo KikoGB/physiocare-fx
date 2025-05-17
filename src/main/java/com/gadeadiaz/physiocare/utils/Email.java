@@ -15,6 +15,7 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.GmailScopes;
 import com.google.api.services.gmail.model.Message;
+import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Multipart;
@@ -28,16 +29,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 
 public class Email {
 
-    private static final String APPLICATION_NAME = "Physiocare Gmail";
+    private static final String APPLICATION_NAME = "Physiocare";
     private static final JsonFactory JSON_FACTORY =
             GsonFactory.getDefaultInstance();
+
+    private static final Dotenv dotenv = Dotenv.load();
+    private static final String SENDER = dotenv.get("SENDER");
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
-    private static final String CREDENTIALS_FILE_PATH = "src/main/resources/client_secret_199476945917-rka0sacuport1212vng3foe6gbdfij0n.apps.googleusercontent.com.json";
+    private static final String CREDENTIALS_FILE_PATH = dotenv.get("CREDENTIALS_FILE_PATH");
 
     /**
      * Autenticación con Gmail API (getCredentials)
@@ -52,7 +57,6 @@ public class Email {
         File dest = Pdf.getPatientPdf(patient);
         System.out.println(dest.getName());
         try {
-
             // Build a new authorized API client service.
             final NetHttpTransport HTTP_TRANSPORT = new com.google.api.client.http.javanet.NetHttpTransport();
             Gmail service = new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY,
@@ -76,10 +80,13 @@ public class Email {
         }
     }
 
+    public static void sendPhysiosEmails(List<Physio> physios){
+        physios.forEach(Email::sendPhysioMail);
+    }
+
     public static void sendPhysioMail(Physio physio) {
 
         File dest = Pdf.getPhysioPdf(physio);
-        System.out.println(dest.getName());
         try {
 
             // Build a new authorized API client service.
@@ -92,10 +99,10 @@ public class Email {
             // Define the email parameters
             String user = "me";
             MimeMessage emailContent= createEmailWithAttachment(
-                    "kikogadeabravo@gmail.com",
-                    "kikogadeabravo@gmail.com", //Change to physio email
+                    SENDER,
+                    physio.getEmail(), //Change to physio email
                     "Salary",
-                    "Hi " + physio.getFullName() + ", we have processed your last salary for last month.",
+                    "Hi " + physio.getFullName() + ", we have processed your salary for this current month.",
                     dest.getAbsolutePath());
 
             // Send the email
@@ -160,7 +167,6 @@ public class Email {
         Message message = createMessageWithEmail(emailContent);
         message = service.users().messages()
                 .send(userId, message).execute();
-        System.out.println("Message id: " + message.getId());
         System.out.println("Email sent successfully.");
     }
 

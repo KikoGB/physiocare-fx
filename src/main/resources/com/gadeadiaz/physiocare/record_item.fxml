@@ -13,7 +13,7 @@
          <padding>
             <Insets left="20.0" />
          </padding></Label>
-      <Label fx:id="lblMedicalRecord" prefHeight="18.0" prefWidth="299.0" text="This is a medical record" textFill="#b7c3d7">
+      <Label fx:id="lblMedicalRecord" alignment="CENTER" prefHeight="18.0" prefWidth="299.0" text="This is a medical record" textFill="#b7c3d7">
          <HBox.margin>
             <Insets />
          </HBox.margin>

@@ -275,6 +275,7 @@
                         </ImageView>
                      </graphic>
                   </Button>
+                  <Button fx:id="btnSendPayRolls" layoutX="293.0" layoutY="38.0" mnemonicParsing="false" onAction="#sendPayRollsClick" prefHeight="27.0" prefWidth="175.0" style="-fx-border-radius: 20; -fx-background-color: transparent; -fx-border-color: #78a8f5;" stylesheets="@style.css" text="Send Payrolls" />
                     </children>
                 </Pane>
                 <Pane fx:id="pnlPhysioDetail" prefHeight="597.0" prefWidth="414.0" visible="false">
@@ -311,7 +312,7 @@
                         </ScrollPane>
                     </children>
                 </Pane>
-            <Pane fx:id="pnlPhysioForm" prefHeight="200.0" prefWidth="200.0" visible="false">
+            <Pane fx:id="pnlPhysioForm" prefHeight="200.0" prefWidth="200.0">
                <children>
                   <Label fx:id="lblPhysioFormTitle" layoutX="335.0" layoutY="41.0" text="Add physio" textFill="#dfd2d2">
                      <font>
@@ -323,19 +324,19 @@
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="tfNickPhysioForm" layoutX="336.0" layoutY="107.0" />
+                  <TextField fx:id="tfNickPhysioForm" focusTraversable="false" layoutX="336.0" layoutY="107.0" />
                   <Label layoutX="336.0" layoutY="414.0" text="Email" textFill="#dfd2d2">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="tfEmailPhysioForm" layoutX="336.0" layoutY="431.0" prefHeight="25.0" prefWidth="183.0" promptText="e.g. example@example.com" />
+                  <TextField fx:id="tfEmailPhysioForm" focusTraversable="false" layoutX="336.0" layoutY="431.0" prefHeight="25.0" prefWidth="183.0" promptText="e.g. example@example.com" />
                   <Label layoutX="336.0" layoutY="360.0" text="License number" textFill="#dfd2d2">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="tfLicenseNumberPhysioForm" layoutX="336.0" layoutY="377.0" promptText="e.g. SDR345TG" />
+                  <TextField fx:id="tfLicenseNumberPhysioForm" focusTraversable="false" layoutX="336.0" layoutY="377.0" promptText="e.g. SDR345TG" />
                   <Label layoutX="336.0" layoutY="302.0" text="Specialty" textFill="#dfd2d2">
                      <font>
                         <Font name="System Bold" size="12.0" />
@@ -346,20 +347,20 @@
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="tfSurnamePhysioForm" layoutX="336.0" layoutY="263.0" />
+                  <TextField fx:id="tfSurnamePhysioForm" focusTraversable="false" layoutX="336.0" layoutY="263.0" />
                   <Label layoutX="336.0" layoutY="193.0" text="Name" textFill="#dfd2d2">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="tfNamePhysioForm" layoutX="336.0" layoutY="210.0" />
+                  <TextField fx:id="tfNamePhysioForm" focusTraversable="false" layoutX="336.0" layoutY="210.0" />
                   <Label fx:id="lblPasswordPhysioForm" layoutX="336.0" layoutY="142.0" text="Password" textFill="#dfd2d2">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Label>
-                  <PasswordField fx:id="tfPasswordPhysioForm" layoutX="336.0" layoutY="159.0" />
-                  <ComboBox fx:id="cBoxSpecialtyPhysioForm" layoutX="335.0" layoutY="319.0" prefWidth="150.0" />
+                  <PasswordField fx:id="tfPasswordPhysioForm" focusTraversable="false" layoutX="336.0" layoutY="159.0" />
+                  <ComboBox fx:id="cBoxSpecialtyPhysioForm" focusTraversable="false" layoutX="335.0" layoutY="319.0" prefWidth="150.0" />
                   <Button fx:id="btnSendPhysioForm" layoutX="336.0" layoutY="494.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Add" />
                </children>
             </Pane>

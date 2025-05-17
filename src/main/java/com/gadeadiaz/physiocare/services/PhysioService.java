@@ -27,6 +27,17 @@ public class PhysioService {
         });
     }
 
+    public static CompletableFuture<List<Physio>> getPhysiosWithAllData() throws RequestErrorException {
+        return ServiceUtils.getResponseAsync(
+                ServiceUtils.SERVER + "physios/with-all-data",
+                null,
+                "GET"
+        ).thenApply(response -> {
+            Type listType = new TypeToken<List<Physio>>() {}.getType();
+            return gson.fromJson(response, listType);
+        });
+    }
+
     public static CompletableFuture<Physio> getPhysioById(int id) throws RequestErrorException {
         return ServiceUtils.getResponseAsync(
                 ServiceUtils.SERVER + "physios/" + id ,

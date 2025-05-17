@@ -14,8 +14,10 @@ import com.gadeadiaz.physiocare.services.PatientService;
 import com.gadeadiaz.physiocare.services.PhysioService;
 import com.gadeadiaz.physiocare.services.RecordService;
 import com.gadeadiaz.physiocare.utils.*;
+import jakarta.mail.MessageAware;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -40,14 +42,15 @@ import java.util.Optional;
 
 public class Controller implements CloseController {
     // --- LEFT BAR MENU ---
-    @FXML Circle circleAvatarLoggedPhysioLeftBar;
+    @FXML private Circle circleAvatarLoggedPhysioLeftBar;
     @FXML private Label lblWelcomeLeftBar;
-    @FXML Button btnMyProfileLeftBar;
-    @FXML Button btnAddAppointmentLeftBar;
+    @FXML private Button btnMyProfileLeftBar;
+    @FXML private Button btnAddAppointmentLeftBar;
 
     // -----------------------------------------------------------------------------!!! mirar estos de donde son
     // --- BOTONES ---
     @FXML private Button btnAddUser;
+    @FXML private Button btnSendPayRolls;
 //    @FXML private Button btnPhysioForm;
 //    @FXML private Button btnPatientForm;
 
@@ -163,6 +166,8 @@ public class Controller implements CloseController {
     private Stage stage;
     // Physio object representing the data of the logged physio
     private Physio loggedPhysio;
+
+
     private enum Entity { PATIENT, PHYSIO, RECORD }
     private Entity selectedListEntity = Entity.PATIENT;
 
@@ -415,6 +420,7 @@ public class Controller implements CloseController {
 
     public void getPatients() {
         btnAddUser.setVisible(true);
+        btnSendPayRolls.setVisible(false);
         showUsersListPanel();
         PatientService.getPatients("")
             .thenAccept(patients -> {
@@ -695,6 +701,7 @@ public class Controller implements CloseController {
             btnAddUser.setVisible(false);
         } else {
             btnAddUser.setVisible(true);
+            btnSendPayRolls.setVisible(true);
         }
         showUsersListPanel();
         PhysioService.getPhysios("").thenAccept(physios -> {
@@ -1345,10 +1352,28 @@ public class Controller implements CloseController {
     }
 
     public void saveRecordPdf(Record record) {
-//        Todo: Restringir en el caso de que esté vacío?
         Pdf.medicalRecordPdfCreator(record);
     }
 
+    public void sendPayRollsClick() {
+        PhysioService.getPhysiosWithAllData().thenAccept(physios -> {
+            Platform.runLater(() -> {
+                Email.sendPhysiosEmails(physios);
+                Message.showMessage(
+                        Alert.AlertType.INFORMATION,
+                        "Well Done",
+                        "Payrolls sent successfully",
+                        "Payrolls have been sent to all employees");
+            });
+        }).exceptionally(e -> {
+            RequestErrorException ex = (RequestErrorException) e.getCause();
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            Platform.runLater(() ->
+                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            );
+            return null;
+        });
+    }
 
     public void searchClick() {
         if (!txtSearch.getText().trim().isEmpty()) {
