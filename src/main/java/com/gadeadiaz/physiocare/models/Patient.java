@@ -121,6 +121,9 @@ public class Patient {
         this.record = record;
     }
 
+    public String getFullName(){
+        return this.getName() + " " + this.getSurname();
+    }
     @Override
     public String toString() {
         return "Patient{" +

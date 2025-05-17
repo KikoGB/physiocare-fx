@@ -13,10 +13,7 @@ import com.gadeadiaz.physiocare.services.AppointmentService;
 import com.gadeadiaz.physiocare.services.PatientService;
 import com.gadeadiaz.physiocare.services.PhysioService;
 import com.gadeadiaz.physiocare.services.RecordService;
-import com.gadeadiaz.physiocare.utils.Message;
-import com.gadeadiaz.physiocare.utils.Pdf;
-import com.gadeadiaz.physiocare.utils.SceneLoader;
-import com.gadeadiaz.physiocare.utils.Storage;
+import com.gadeadiaz.physiocare.utils.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -37,6 +34,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -395,6 +393,9 @@ public class Controller implements CloseController {
     }
 
     public void showPatientDetail(Patient patient) {
+        // Todo: Esto hay que hacerlo bien. Con un schedule o como sea. Lo dejo así para ver como genera el
+        // pdf y si envia el mail.
+        Email.sendPatientEmail(patient);
         showPatientDetailPanel();
         btnEditPatient.setOnMouseClicked(_ -> showPatientForm(patient));
         lblTitlePatientDetail.setText(patient.getName() + " " + patient.getSurname());

@@ -98,6 +98,9 @@ public class Physio {
         this.appointments = appointments;
     }
 
+    public String getFullName(){
+        return this.getName() + " " + this.getSurname();
+    }
     @Override
     public String toString() {
         return "Physio{" +
