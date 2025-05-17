@@ -1,6 +1,7 @@
 package com.gadeadiaz.physiocare.utils;
 
 
+import com.gadeadiaz.physiocare.models.Appointment;
 import com.gadeadiaz.physiocare.models.Patient;
 import com.gadeadiaz.physiocare.models.Physio;
 import com.google.api.client.auth.oauth2.Credential;
@@ -22,6 +23,7 @@ import jakarta.mail.Multipart;
 import jakarta.mail.Session;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 
 import java.io.ByteArrayOutputStream;
@@ -44,15 +46,22 @@ public class Email {
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
     private static final String CREDENTIALS_FILE_PATH = dotenv.get("CREDENTIALS_FILE_PATH");
 
+    public static void sendPatientsEmails(List<Patient> patients) {
+        patients.stream()
+                .filter(p -> p.getAppointments().stream()
+                        .filter(Appointment::getConfirmed)
+                        .toList()
+                        .size() >= 8
+                ).forEach(Email::sendPatientEmail);
+    }
+
     /**
      * Autenticación con Gmail API (getCredentials)
      * 1. Usa OAuth 2.0 para autorizar el acceso a Gmail del usuario.
      * 2. Carga un archivo JSON con las credenciales (client_secret_...json) desde el proyecto.
      * 3. Guarda tokens en tokens/ para reutilizar el acceso sin pedir permiso cada vez.
      */
-
-
-    public static void sendPatientMail(Patient patient) {
+    public static void sendPatientEmail(Patient patient) {
 
         File dest = Pdf.getPatientPdf(patient);
         System.out.println(dest.getName());
@@ -67,10 +76,11 @@ public class Email {
             // Define the email parameters
             String user = "me";
             MimeMessage emailContent= createEmailWithAttachment(
-                            "kikogadeabravo@gmail.com",
-                            "kikogadeabravo@gmail.com", // Change to patient email
+                            SENDER,
+                            patient.getEmail(), // Change to patient email
                             "Physiocare Notice",
-                            "You are about to reach the limit of available appointments. See the attached document for more details.",
+                            "You are about to reach the limit of available appointments. " +
+                                    "See the attached document for more details.",
                     dest.getAbsolutePath());
 
             // Send the email

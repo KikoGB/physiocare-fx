@@ -18,8 +18,11 @@ import jakarta.mail.MessageAware;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
+import javafx.concurrent.ScheduledService;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -31,6 +34,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.net.URL;
@@ -39,6 +43,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Controller implements CloseController {
     // --- LEFT BAR MENU ---
@@ -166,12 +174,24 @@ public class Controller implements CloseController {
     private Stage stage;
     // Physio object representing the data of the logged physio
     private Physio loggedPhysio;
-
-
     private enum Entity { PATIENT, PHYSIO, RECORD }
     private Entity selectedListEntity = Entity.PATIENT;
 
+    private void startServiceSendPatientsEmails() {
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+
+        executor.scheduleAtFixedRate(() -> {
+            PatientService.getPatientsWithAllData().thenAccept(Email::sendPatientsEmails)
+                    .exceptionally(e -> {
+                        RequestErrorException ex = (RequestErrorException) e;
+                        ErrorResponse errorResponse = ex.getErrorResponse();
+                        return null;
+                    });
+        }, 0, 5, TimeUnit.SECONDS);
+    }
+
     public void initialize() {
+//        startServiceSendPatientsEmails();
         if (Storage.getInstance().getUserdata().getValue().equals("physio")) {
             PhysioService.getPhysioLogged().thenAccept(physio -> {
                 loggedPhysio = physio;
@@ -397,10 +417,6 @@ public class Controller implements CloseController {
     }
 
     public void showPatientDetail(Patient patient) {
-        // Todo: Esto hay que hacerlo bien. Con un schedule o como sea. Lo dejo así para ver como genera el
-        // pdf y si envia el mail.
-//        Descomentar para probar:
-//        Email.sendPatientEmail(patient);
         showPatientDetailPanel();
         btnEditPatient.setOnMouseClicked(_ -> showPatientForm(patient));
         lblTitlePatientDetail.setText(patient.getName() + " " + patient.getSurname());
@@ -672,12 +688,6 @@ public class Controller implements CloseController {
     }
 
     public void showPhysioDetail(Physio physio) {
-
-        // Todo: Esto hay que hacerlo bien. Con un schedule o como sea. Lo dejo así para ver como genera el
-        // pdf y si envia el mail.
-//        Descomentar para probar:
-//        Email.sendPhysioMail(physio);
-
         showPhysioDetailPanel();
 
         if (Storage.getInstance().getUserdata().getValue().equals("physio")) {
@@ -747,11 +757,11 @@ public class Controller implements CloseController {
 
     public void showPhysioForm(Physio physio) {
         clearPhysioForm();
-        cBoxSpecialtyPhysioForm.setItems(
+        Platform.runLater(() -> cBoxSpecialtyPhysioForm.setItems(
                 FXCollections.observableList(
                         List.of("Sports", "Neurological", "Pediatric", "Geriatric", "Oncological")
                 )
-        );
+        ));
         if (physio == null) {
             btnSendPhysioForm.setOnMouseClicked(_ -> createPhysio());
             lblPhysioFormTitle.setText("New Physio");
