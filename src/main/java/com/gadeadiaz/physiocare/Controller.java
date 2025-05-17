@@ -257,9 +257,6 @@ public class Controller implements CloseController {
     }
 
     public void showAppointmentsFormPanel() {
-//        clearPatientForm();
-//        clearPhysioForm();
-//        clearAppointmentForm();
         pnlUsersList.setVisible(false);
         pnlPatientForm.setVisible(false);
         pnlPatientDetail.setVisible(false);
@@ -305,9 +302,6 @@ public class Controller implements CloseController {
     }
 
     public void showPatientFormPanel() {
-//        clearPatientForm();
-//        clearPhysioForm();
-//        clearAppointmentForm();
         pnlPhysioForm.setVisible(false);
         pnlUsersList.setVisible(false);
         pnlPatientDetail.setVisible(false);
@@ -320,9 +314,6 @@ public class Controller implements CloseController {
     }
 
     public void showPhysioFormPanel() {
-//        clearPatientForm();
-//        clearPatientForm();
-//        clearAppointmentForm();
         pnlPatientForm.setVisible(false);
         pnlUsersList.setVisible(false);
         pnlPatientDetail.setVisible(false);
@@ -482,7 +473,14 @@ public class Controller implements CloseController {
 
     public void showPatientForm(Patient patient) {
         clearPatientForm();
-        if (patient != null) {
+        if (patient == null) {
+            btnSendPatientForm.setOnMouseClicked(_ -> createPatient());
+            lblNickPatientForm.setVisible(true);
+            tfNickPatientForm.setVisible(true);
+            lblPasswordPatientForm.setVisible(true);
+            tfPasswordPatientForm.setVisible(true);
+            lblPatientFormTitle.setText("Add patient");
+        } else {
             btnSendPatientForm.setOnMouseClicked(_ -> updatePatient(patient));
             lblNickPatientForm.setVisible(false);
             tfNickPatientForm.setVisible(false);
@@ -496,8 +494,6 @@ public class Controller implements CloseController {
             tfAddressPatientForm.setText(patient.getAddress());
             tfInsuranceNumPatientForm.setText(patient.getInsuranceNumber());
             tfEmailPatientForm.setText(patient.getEmail());
-        } else {
-            btnSendPatientForm.setOnMouseClicked(_ -> createPatient());
         }
 
         showPatientFormPanel();
@@ -764,7 +760,11 @@ public class Controller implements CloseController {
         ));
         if (physio == null) {
             btnSendPhysioForm.setOnMouseClicked(_ -> createPhysio());
-            lblPhysioFormTitle.setText("New Physio");
+            lblNickPhysioForm.setVisible(true);
+            tfNickPhysioForm.setVisible(true);
+            lblPasswordPhysioForm.setVisible(true);
+            tfPasswordPhysioForm.setVisible(true);
+            lblPhysioFormTitle.setText("Add physio");
             cBoxSpecialtyPhysioForm.setValue("Sports");
         } else {
             btnSendPhysioForm.setOnMouseClicked(_ -> updatePhysio(physio));
@@ -1080,9 +1080,15 @@ public class Controller implements CloseController {
     }
 
     public void showAppointmentForm(Appointment appointment) {
-        showAppointmentsFormPanel();
+        clearAppointmentForm();
         if (appointment == null) {
+
             btnAppointmentForm.setOnMouseClicked(_ -> sendAppointmentForm(null));
+            lblPhysioAppointmentForm.setVisible(true);
+            cBoxPhysiosAppointmentForm.setVisible(true);
+            lblPatientAppointmentForm.setVisible(true);
+            cBoxPatientsAppointmentForm.setVisible(true);
+            lblTitleAppointmentForm.setText("Add appointment");
             PatientService.getPatients("").thenAccept(patients ->
                     Platform.runLater(() -> {
                         cBoxPatientsAppointmentForm.setValue(patients.get(0));
@@ -1127,6 +1133,7 @@ public class Controller implements CloseController {
             tfTreatmentAppointmentForm.setText(appointment.getTreatment());
             tfObservationsAppointmentForm.setText(appointment.getObservations());
         }
+        showAppointmentsFormPanel();
     }
 
     private boolean isValidAppointmentForm() {
