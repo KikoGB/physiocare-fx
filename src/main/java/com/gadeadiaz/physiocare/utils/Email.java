@@ -2,6 +2,7 @@ package com.gadeadiaz.physiocare.utils;
 
 
 import com.gadeadiaz.physiocare.models.Patient;
+import com.gadeadiaz.physiocare.models.Physio;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -46,7 +47,7 @@ public class Email {
      */
 
 
-    public static void sendPatientEmail(Patient patient) {
+    public static void sendPatientMail(Patient patient) {
 
         File dest = Pdf.getPatientPdf(patient);
         System.out.println(dest.getName());
@@ -63,7 +64,7 @@ public class Email {
             String user = "me";
             MimeMessage emailContent= createEmailWithAttachment(
                             "kikogadeabravo@gmail.com",
-                            "kikogadeabravo@gmail.com",
+                            "kikogadeabravo@gmail.com", // Change to patient email
                             "Physiocare Notice",
                             "You are about to reach the limit of available appointments. See the attached document for more details.",
                     dest.getAbsolutePath());
@@ -72,6 +73,35 @@ public class Email {
             sendMessage(service, user, emailContent);
         } catch (Exception e) {
             System.out.println("Error sending patient email");
+        }
+    }
+
+    public static void sendPhysioMail(Physio physio) {
+
+        File dest = Pdf.getPhysioPdf(physio);
+        System.out.println(dest.getName());
+        try {
+
+            // Build a new authorized API client service.
+            final NetHttpTransport HTTP_TRANSPORT = new com.google.api.client.http.javanet.NetHttpTransport();
+            Gmail service = new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY,
+                    getCredentials(HTTP_TRANSPORT))
+                    .setApplicationName(APPLICATION_NAME)
+                    .build();
+
+            // Define the email parameters
+            String user = "me";
+            MimeMessage emailContent= createEmailWithAttachment(
+                    "kikogadeabravo@gmail.com",
+                    "kikogadeabravo@gmail.com", //Change to physio email
+                    "Salary",
+                    "Hi " + physio.getFullName() + ", we have processed your last salary for last month.",
+                    dest.getAbsolutePath());
+
+            // Send the email
+            sendMessage(service, user, emailContent);
+        } catch (Exception e) {
+            System.out.println("Error sending physio email");
         }
     }
     public static Credential getCredentials(

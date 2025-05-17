@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -395,7 +394,8 @@ public class Controller implements CloseController {
     public void showPatientDetail(Patient patient) {
         // Todo: Esto hay que hacerlo bien. Con un schedule o como sea. Lo dejo así para ver como genera el
         // pdf y si envia el mail.
-        Email.sendPatientEmail(patient);
+//        Descomentar para probar:
+//        Email.sendPatientEmail(patient);
         showPatientDetailPanel();
         btnEditPatient.setOnMouseClicked(_ -> showPatientForm(patient));
         lblTitlePatientDetail.setText(patient.getName() + " " + patient.getSurname());
@@ -666,6 +666,12 @@ public class Controller implements CloseController {
     }
 
     public void showPhysioDetail(Physio physio) {
+
+        // Todo: Esto hay que hacerlo bien. Con un schedule o como sea. Lo dejo así para ver como genera el
+        // pdf y si envia el mail.
+//        Descomentar para probar:
+//        Email.sendPhysioMail(physio);
+
         showPhysioDetailPanel();
 
         if (Storage.getInstance().getUserdata().getValue().equals("physio")) {
