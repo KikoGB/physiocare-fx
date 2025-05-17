@@ -20,7 +20,7 @@
       <AnchorPane fx:id="sideBar" layoutX="31.0" layoutY="53.0" prefHeight="295.0" prefWidth="220.0" style="-fx-background-radius: 25;" styleClass="colorBackground" stylesheets="@style.css">
          <children>
             <Button layoutX="181.0" layoutY="14.0" onAction="#closeProgram" style="-fx-background-radius: 8; -fx-background-color: #deedfa; -fx-text-fill: black;" text="X" />
-            <ImageView fitHeight="94.0" fitWidth="227.0" layoutX="32.0" layoutY="70.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fitHeight="94.0" fitWidth="227.0" layoutX="68.0" layoutY="72.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@images/admin_logo.png" />
                </image>

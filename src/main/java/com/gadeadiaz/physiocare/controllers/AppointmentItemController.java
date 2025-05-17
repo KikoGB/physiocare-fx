@@ -2,7 +2,9 @@ package com.gadeadiaz.physiocare.controllers;
 
 import com.gadeadiaz.physiocare.callbacks.AcceptAppointmentCallback;
 import com.gadeadiaz.physiocare.callbacks.DenyAppointmentCallback;
+import com.gadeadiaz.physiocare.callbacks.ShowAppointmentDetailCallback;
 import com.gadeadiaz.physiocare.callbacks.ShowDetailCallback;
+import com.gadeadiaz.physiocare.models.Appointment;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -28,19 +30,19 @@ public class AppointmentItemController {
     @FXML
     private Label lblPhysioName;
 
-    private int appointmentId;
+    private Appointment appointment;
 
-    private ShowDetailCallback showDetailCallback;
+    private ShowAppointmentDetailCallback showAppointmentDetailCallback;
     private AcceptAppointmentCallback acceptAppointmentCallback;
     private DenyAppointmentCallback denyAppointmentCallback;
 
 
-    public void setAppointmentId(int appointmentId) {
-        this.appointmentId = appointmentId;
+    public void setAppointment(Appointment appointment) {
+        this.appointment = appointment;
     }
 
-    public void setShowDetailCallback(ShowDetailCallback showDetailCallback) {
-        this.showDetailCallback = showDetailCallback;
+    public void setShowAppointmentDetailCallback(ShowAppointmentDetailCallback showAppointmentDetailCallback) {
+        this.showAppointmentDetailCallback = showAppointmentDetailCallback;
     }
 
     public void setAcceptAppointmentCallback(AcceptAppointmentCallback acceptAppointmentCallback) {
@@ -84,14 +86,14 @@ public class AppointmentItemController {
     }
 
     public void appointmentClick() {
-        showDetailCallback.showDetail(appointmentId);
+        showAppointmentDetailCallback.showAppointmentDetail(appointment);
     }
 
     public void acceptAppointment() {
-        acceptAppointmentCallback.acceptAppointment(appointmentId);
+        acceptAppointmentCallback.acceptAppointment(appointment.getId());
     }
 
     public void denyAppointment() {
-        denyAppointmentCallback.denyAppointment(appointmentId);
+        denyAppointmentCallback.denyAppointment(appointment.getId());
     }
 }

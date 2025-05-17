@@ -7,10 +7,7 @@ import com.gadeadiaz.physiocare.controllers.UserItemController;
 import com.gadeadiaz.physiocare.exceptions.RequestErrorException;
 import com.gadeadiaz.physiocare.models.Record;
 import com.gadeadiaz.physiocare.models.*;
-import com.gadeadiaz.physiocare.requests.AppointmentPOSTRequest;
-import com.gadeadiaz.physiocare.requests.PatientPOSTRequest;
-import com.gadeadiaz.physiocare.requests.PhysioPOSTRequest;
-import com.gadeadiaz.physiocare.requests.RecordPUTRequest;
+import com.gadeadiaz.physiocare.requests.*;
 import com.gadeadiaz.physiocare.responses.ErrorResponse;
 import com.gadeadiaz.physiocare.services.AppointmentService;
 import com.gadeadiaz.physiocare.services.PatientService;
@@ -31,11 +28,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
-import javax.imageio.ImageIO;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -45,9 +43,10 @@ import java.util.Optional;
 
 public class Controller implements CloseController {
     // --- LEFT BAR MENU ---
-    @FXML ImageView ivAvatarLoggedPhysio;
-    @FXML private Label lblLeftBarWelcome;
-    @FXML Button btnMyProfile;
+    @FXML Circle circleAvatarLoggedPhysioLeftBar;
+    @FXML private Label lblWelcomeLeftBar;
+    @FXML Button btnMyProfileLeftBar;
+    @FXML Button btnAddAppointmentLeftBar;
 
     // -----------------------------------------------------------------------------!!! mirar estos de donde son
     // --- BOTONES ---
@@ -71,6 +70,7 @@ public class Controller implements CloseController {
     @FXML private Pane pnlPhysioForm;
     @FXML private Pane pnlAppointmentForm;
     @FXML private Pane pnlRecordDetail;
+    @FXML private Pane pnlAppointmentDetail;
 
     // --- CONTENEDORES ---
     @FXML private HBox hBoxUserList;
@@ -111,6 +111,17 @@ public class Controller implements CloseController {
     @FXML private ScrollPane recordScrollPaneAppointments;
     @FXML private VBox vBoxRecordAppointments;
 
+    // --- APPOINTMENT DETAIL ---
+    @FXML private Label lblTitleAppointmentDetail;
+    @FXML private Label lblDateAppointmentDetail;
+    @FXML private Label lblDiagnosisAppointmentDetail;
+    @FXML private Label lblTreatmentAppointmentDetail;
+    @FXML private Label lblObservationsAppointmentDetail;
+    @FXML private Label lblPatientAppointmentDetail;
+    @FXML private Label lblPhysioAppointmentDetail;
+    @FXML private Label lblConfirmedAppointmentDetail;
+    @FXML private Button btnEditAppointmentDetail;
+
     // --- PATIENT FORM ---
     @FXML private Label lblPatientFormTitle;
     @FXML private Label lblNickPatientForm;
@@ -139,38 +150,41 @@ public class Controller implements CloseController {
     @FXML private Button btnSendPhysioForm;
 
     // --- APPOINTMENTS FORM ---
+    @FXML private Label lblTitleAppointmentForm;
     @FXML private DatePicker dpDateAppointmentForm;
     @FXML private TextField tfDiagnosisAppointmentForm;
     @FXML private TextField tfTreatmentAppointmentForm;
     @FXML private TextField tfObservationsAppointmentForm;
     @FXML private ComboBox<Physio> cBoxPhysiosAppointmentForm;
     @FXML private ComboBox<Patient> cBoxPatientsAppointmentForm;
+    @FXML private Label lblPatientAppointmentForm;
+    @FXML private Label lblPhysioAppointmentForm;
     @FXML private Button btnAppointmentForm;
 
     // --- LÓGICA AUXILIAR ---
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private Stage stage;
     // Physio object representing the data of the logged physio
-    private Physio physioLogged;
-    private enum Entity { PATIENT, PHYSIO, RECORD, APPOINTMENT }
+    private Physio loggedPhysio;
+    private enum Entity { PATIENT, PHYSIO, RECORD }
     private Entity selectedListEntity = Entity.PATIENT;
 
     public void initialize() {
         if (Storage.getInstance().getUserdata().getValue().equals("physio")) {
             PhysioService.getPhysioLogged().thenAccept(physio -> {
-                physioLogged = physio;
+                loggedPhysio = physio;
                 Platform.runLater(() -> {
-                    lblLeftBarWelcome.setText(
+                    lblWelcomeLeftBar.setText(
                             String.format("Welcome back %s %s", physio.getName(), physio.getSurname())
                     );
-                    btnMyProfile.setOnMouseClicked(_ -> showPhysioDetail(physio));
+                    btnMyProfileLeftBar.setOnMouseClicked(_ -> showPhysioDetail(physio));
                     try {
-                        ivAvatarLoggedPhysio.setImage(
-                                new Image(String.valueOf(new URL(physio.getAvatar())))
+                        circleAvatarLoggedPhysioLeftBar.setFill(
+                                new ImagePattern(
+                                        new Image(String.valueOf(new URL(physio.getAvatar())))
+                                )
                         );
-                    } catch (IOException _) {
-                    }
-
+                    } catch (IOException _) {}
                 });
             }).exceptionally(e -> {
                 RequestErrorException ex = (RequestErrorException) e.getCause();
@@ -181,9 +195,23 @@ public class Controller implements CloseController {
                 return null;
             });
         } else {
-            lblLeftBarWelcome.setText("Welcome back admin");
-            btnMyProfile.setVisible(false);
+            circleAvatarLoggedPhysioLeftBar.setStroke(Color.ALICEBLUE);
+            circleAvatarLoggedPhysioLeftBar.setFill(
+                    new ImagePattern(
+                            new Image(
+                                    String.valueOf(
+                                            getClass().getResource(
+                                                    "/com/gadeadiaz/physiocare/images/admin_logo.png"
+                                            )
+                                    )
+                            )
+                    )
+            );
+            lblWelcomeLeftBar.setText("Welcome back admin");
+            btnMyProfileLeftBar.setVisible(false);
         }
+
+        btnAddAppointmentLeftBar.setOnMouseClicked(_ -> showAppointmentForm(null));
 
         getPatients();
     }
@@ -194,17 +222,13 @@ public class Controller implements CloseController {
         clearPhysioForm();
         //Primero los que se ocultan
         vBoxItems.getChildren().clear();
-        // mirar esto por que no va
-//        if (Storage.getInstance().getUserdata().getValue().equals("physio") &&
-//                selectedListEntity == Entity.PHYSIO) {
-//            btnAddUser.setVisible(false);
-//        }
         pnlPatientForm.setVisible(false);
         pnlPhysioForm.setVisible(false);
         pnlPatientDetail.setVisible(false);
         pnlAppointmentForm.setVisible(false);
         pnlPhysioDetail.setVisible(false);
         pnlRecordDetail.setVisible(false);
+        pnlAppointmentDetail.setVisible(false);
         //Por ultimo, el que se muestra
         pnlUsersList.setVisible(true);
         pnlUsersList.toFront();
@@ -221,6 +245,7 @@ public class Controller implements CloseController {
         pnlPhysioForm.setVisible(false);
         pnlPhysioDetail.setVisible(false);
         pnlRecordDetail.setVisible(false);
+        pnlAppointmentDetail.setVisible(false);
         pnlAppointmentForm.setVisible(true);
         pnlAppointmentForm.toFront();
     }
@@ -236,6 +261,7 @@ public class Controller implements CloseController {
         pnlUsersList.setVisible(false);
         pnlPhysioDetail.setVisible(false);
         pnlRecordDetail.setVisible(false);
+        pnlAppointmentDetail.setVisible(false);
         pnlPatientDetail.setVisible(true);
         pnlPatientDetail.toFront();
     }
@@ -251,6 +277,7 @@ public class Controller implements CloseController {
         pnlUsersList.setVisible(false);
         pnlPatientDetail.setVisible(false);
         pnlRecordDetail.setVisible(false);
+        pnlAppointmentDetail.setVisible(false);
         pnlPhysioDetail.setVisible(true);
         pnlPhysioDetail.toFront();
     }
@@ -265,6 +292,7 @@ public class Controller implements CloseController {
         pnlAppointmentForm.setVisible(false);
         pnlPhysioDetail.setVisible(false);
         pnlRecordDetail.setVisible(false);
+        pnlAppointmentDetail.setVisible(false);
         pnlPatientForm.setVisible(true);
         pnlPatientForm.toFront();
     }
@@ -279,6 +307,7 @@ public class Controller implements CloseController {
         pnlAppointmentForm.setVisible(false);
         pnlPhysioDetail.setVisible(false);
         pnlRecordDetail.setVisible(false);
+        pnlAppointmentDetail.setVisible(false);
         pnlPhysioForm.setVisible(true);
         pnlPhysioForm.toFront();
     }
@@ -290,12 +319,28 @@ public class Controller implements CloseController {
         vBoxRecordAppointments.getChildren().clear();
         pnlPatientForm.setVisible(false);
         pnlPhysioForm.setVisible(false);
-        pnlPatientDetail.setVisible(false);
+        pnlAppointmentForm.setVisible(false);
         pnlUsersList.setVisible(false);
         pnlPhysioDetail.setVisible(false);
         pnlPatientDetail.setVisible(false);
+        pnlAppointmentDetail.setVisible(false);
         pnlRecordDetail.setVisible(true);
         pnlRecordDetail.toFront();
+    }
+
+    public void showAppointmentDetailPanel() {
+        clearPatientForm();
+        clearPhysioForm();
+        clearAppointmentForm();
+        pnlPatientForm.setVisible(false);
+        pnlPhysioForm.setVisible(false);
+        pnlAppointmentForm.setVisible(false);
+        pnlUsersList.setVisible(false);
+        pnlPhysioDetail.setVisible(false);
+        pnlPatientDetail.setVisible(false);
+        pnlRecordDetail.setVisible(false);
+        pnlAppointmentDetail.setVisible(true);
+        pnlAppointmentDetail.toFront();
     }
 
 
@@ -639,7 +684,11 @@ public class Controller implements CloseController {
      * If there is an error, an error message is displayed.
      */
     public void getPhysios() {
-        btnAddUser.setVisible(true);
+        if (Storage.getInstance().getUserdata().getValue().equals("physio")) {
+            btnAddUser.setVisible(false);
+        } else {
+            btnAddUser.setVisible(true);
+        }
         showUsersListPanel();
         PhysioService.getPhysios("").thenAccept(physios -> {
             selectedListEntity = Entity.PHYSIO;
@@ -841,10 +890,10 @@ public class Controller implements CloseController {
                         getClass().getResource("/com/gadeadiaz/physiocare/images/ok_appointment.png")
                 ).toString();
 
-                appointmentItemController.setAppointmentId(appointment.getId());
+                appointmentItemController.setAppointment(appointment);
 
                 String rol = Storage.getInstance().getUserdata().getValue();
-                if (rol.equals("physio") && physioLogged.getId() != physioId) {
+                if (rol.equals("physio") && loggedPhysio.getId() != physioId) {
                     appointmentItemController.getBtnAcceptAppointmentItem().setVisible(false);
                     appointmentItemController.getBtnDenyAppointmentItem().setVisible(false);
                     appointmentItemController.getHBoxPhysio().setPrefWidth(200);
@@ -869,9 +918,8 @@ public class Controller implements CloseController {
                 node.setOnMouseEntered(_ -> node.setStyle("-fx-background-color : #0A0E3F"));
                 node.setOnMouseExited(_ -> node.setStyle("-fx-background-color : #02030A"));
 
-                appointmentItemController.setShowDetailCallback(_ -> {
-                    // TODO mostrar appointment detail
-                    System.out.println(appointment);
+                appointmentItemController.setShowAppointmentDetailCallback(appointmentToShow -> {
+                    Platform.runLater(() -> showAppointmentDetail(appointmentToShow));
                 });
 
                 appointmentItemController.setAcceptAppointmentCallback(appointmentId ->
@@ -933,7 +981,6 @@ public class Controller implements CloseController {
     public void getPatientAppointments(int patientId) {
         PatientService.getPatientAppointments(patientId).thenAccept(appointments -> {
             Platform.runLater(() -> {
-                selectedListEntity = Entity.APPOINTMENT;
                 patientScrollPaneAppointments.setVisible(true);
                 lblNoPatientAppointments.setVisible(true);
                 showAppointments(appointments, Entity.PATIENT, 0);
@@ -952,7 +999,6 @@ public class Controller implements CloseController {
     public void getPhysioAppointments(int physioId) {
         PhysioService.getPhysioAppointments(physioId).thenAccept(appointments -> {
             Platform.runLater(() -> {
-                selectedListEntity = Entity.APPOINTMENT;
                 physioScrollPaneAppointments.setVisible(true);
                 lblNoPhysioAppointments.setVisible(true);
                 showAppointments(appointments, Entity.PHYSIO, physioId);
@@ -971,7 +1017,6 @@ public class Controller implements CloseController {
     public void getRecordAppointments(int recordId) {
         RecordService.getRecordAppointments(recordId).thenAccept(appointments -> {
             Platform.runLater(() -> {
-                selectedListEntity = Entity.APPOINTMENT;
                 recordScrollPaneAppointments.setVisible(true);
                 lblNoRecordAppointments.setVisible(true);
                 showAppointments(appointments, Entity.RECORD, 0);
@@ -987,39 +1032,77 @@ public class Controller implements CloseController {
         });
     }
 
-    public void showAppointmentForm() {
+    public void showAppointmentDetail(Appointment appointment) {
+        showAppointmentDetailPanel();
+        btnEditAppointmentDetail.setOnMouseClicked(_ -> showAppointmentForm(appointment));
+        lblTitleAppointmentDetail.setText(
+                String.format(
+                        "Appointment of %s with %s",
+                        appointment.getPatient().getName() + " " + appointment.getPatient().getSurname(),
+                        appointment.getPhysio().getName() + " " + appointment.getPhysio().getSurname()
+                )
+        );
+        lblDateAppointmentDetail.setText(appointment.getDate());
+        lblDiagnosisAppointmentDetail.setText(appointment.getDiagnosis());
+        lblTreatmentAppointmentDetail.setText(appointment.getTreatment());
+        lblObservationsAppointmentDetail.setText(appointment.getObservations());
+        lblPatientAppointmentDetail.setText(
+                appointment.getPatient().getName() + " " + appointment.getPatient().getSurname()
+        );
+        lblPhysioAppointmentDetail.setText(
+                appointment.getPhysio().getName() + " " + appointment.getPhysio().getSurname()
+        );
+        lblConfirmedAppointmentDetail.setText(appointment.getConfirmed()? "Yes":"No");
+    }
+
+    public void showAppointmentForm(Appointment appointment) {
         showAppointmentsFormPanel();
-        PatientService.getPatients("").thenAccept(patients ->
-                Platform.runLater(() -> {
-                    cBoxPatientsAppointmentForm.setValue(patients.get(0));
-                    cBoxPatientsAppointmentForm.setItems(FXCollections.observableList(patients));
-                })
-        ).exceptionally(e -> {
-            // en este caso hay que redirigir en caso de error a una de las vistas por defecto por
-            // ejemplo patient o physios
-            RequestErrorException ex = (RequestErrorException) e;
-            ErrorResponse errorResponse = ex.getErrorResponse();
-            Platform.runLater(() ->
-                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
-            );
-            return null;
-        });
-        PhysioService.getPhysios("").thenAccept(patients ->
-                Platform.runLater(() -> {
-                    cBoxPhysiosAppointmentForm.setValue(patients.get(0));
-                    cBoxPhysiosAppointmentForm.setItems(FXCollections.observableList(patients));
-                })
-        ).exceptionally(e -> {
-            // en este caso hay que redirigir en caso de error a una de las vistas por defecto por
-            // ejemplo patient o physios
-            RequestErrorException ex = (RequestErrorException) e;
-            ErrorResponse errorResponse = ex.getErrorResponse();
-            Platform.runLater(() ->
-                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
-            );
-            return null;
-        });
-        pnlAppointmentForm.setVisible(true);
+        if (appointment == null) {
+            btnAppointmentForm.setOnMouseClicked(_ -> sendAppointmentForm(null));
+            PatientService.getPatients("").thenAccept(patients ->
+                    Platform.runLater(() -> {
+                        cBoxPatientsAppointmentForm.setValue(patients.get(0));
+                        cBoxPatientsAppointmentForm.setItems(FXCollections.observableList(patients));
+                    })
+            ).exceptionally(e -> {
+                // en este caso hay que redirigir en caso de error a una de las vistas por defecto por
+                // ejemplo patient o physios
+                RequestErrorException ex = (RequestErrorException) e;
+                ErrorResponse errorResponse = ex.getErrorResponse();
+                Platform.runLater(() ->
+                        Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                );
+                return null;
+            });
+            PhysioService.getPhysios("").thenAccept(patients ->
+                    Platform.runLater(() -> {
+                        cBoxPhysiosAppointmentForm.setValue(patients.get(0));
+                        cBoxPhysiosAppointmentForm.setItems(FXCollections.observableList(patients));
+                    })
+            ).exceptionally(e -> {
+                // en este caso hay que redirigir en caso de error a una de las vistas por defecto por
+                // ejemplo patient o physios
+                RequestErrorException ex = (RequestErrorException) e;
+                ErrorResponse errorResponse = ex.getErrorResponse();
+                Platform.runLater(() ->
+                        Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                );
+                return null;
+            });
+        } else {
+            btnAppointmentForm.setOnMouseClicked(_ -> sendAppointmentForm(appointment));
+            lblPhysioAppointmentForm.setVisible(false);
+            cBoxPhysiosAppointmentForm.setVisible(false);
+            lblPatientAppointmentForm.setVisible(false);
+            cBoxPatientsAppointmentForm.setVisible(false);
+
+            lblTitleAppointmentForm.setText("Edit appointment");
+            btnAppointmentForm.setText("Save");
+            dpDateAppointmentForm.setValue(LocalDate.parse(appointment.getDate()));
+            tfDiagnosisAppointmentForm.setText(appointment.getDiagnosis());
+            tfTreatmentAppointmentForm.setText(appointment.getTreatment());
+            tfObservationsAppointmentForm.setText(appointment.getObservations());
+        }
     }
 
     private boolean isValidAppointmentForm() {
@@ -1057,30 +1140,50 @@ public class Controller implements CloseController {
         return true;
     }
 
-    public void sendAppointmentForm() {
+    public void sendAppointmentForm(Appointment appointment) {
         LocalDate date = dpDateAppointmentForm.getValue();
         String diagnosis = tfDiagnosisAppointmentForm.getText();
         String treatment = tfTreatmentAppointmentForm.getText();
         String observations = tfObservationsAppointmentForm.getText();
-        int patientId = cBoxPatientsAppointmentForm.getSelectionModel().getSelectedItem().getId();
-        int physioId = cBoxPhysiosAppointmentForm.getSelectionModel().getSelectedItem().getId();
+        int patientId = 0, physioId = 0;
+        if (appointment == null) {
+            patientId = cBoxPatientsAppointmentForm.getSelectionModel().getSelectedItem().getId();
+            physioId = cBoxPhysiosAppointmentForm.getSelectionModel().getSelectedItem().getId();
+        }
 
         if (isValidAppointmentForm()) {
-            AppointmentPOSTRequest appointmentPOSTRequest = new AppointmentPOSTRequest(
-                    date.toString(), diagnosis, treatment, observations, patientId, physioId
-            );
-            System.out.println(appointmentPOSTRequest);
-            AppointmentService.createAppointment(appointmentPOSTRequest).thenAccept(appointment -> {
-                // TODO(Redirigir a detalle appointment)
-                System.out.println(appointment);
-            }).exceptionally(e -> {
-                RequestErrorException ex = (RequestErrorException) e;
-                ErrorResponse errorResponse = ex.getErrorResponse();
-                Platform.runLater(() ->
-                        Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            if (appointment != null) {
+                AppointmentPUTRequest appointmentPUTRequest = new AppointmentPUTRequest(
+                        appointment.getId(), date.toString(), diagnosis, treatment, observations,
+                        appointment.getPatient().getId(), appointment.getPhysio().getId()
                 );
-                return null;
-            });
+                AppointmentService.updateAppointment(appointment.getId(), appointmentPUTRequest)
+                        .thenAccept(appointmentUpdated ->
+                                Platform.runLater(() -> showAppointmentDetail(appointmentUpdated))
+                        ).exceptionally(e -> {
+                            RequestErrorException ex = (RequestErrorException) e;
+                            ErrorResponse errorResponse = ex.getErrorResponse();
+                            Platform.runLater(() ->
+                                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                            );
+                            return null;
+                        });
+            } else {
+                AppointmentPOSTRequest appointmentPOSTRequest = new AppointmentPOSTRequest(
+                        date.toString(), diagnosis, treatment, observations, patientId, physioId
+                );
+                AppointmentService.createAppointment(appointmentPOSTRequest)
+                        .thenAccept(appointmentUpdated ->
+                                Platform.runLater(() -> showAppointmentDetail(appointmentUpdated))
+                        ).exceptionally(e -> {
+                            RequestErrorException ex = (RequestErrorException) e;
+                            ErrorResponse errorResponse = ex.getErrorResponse();
+                            Platform.runLater(() ->
+                                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                            );
+                            return null;
+                        });
+            }
         }
     }
 

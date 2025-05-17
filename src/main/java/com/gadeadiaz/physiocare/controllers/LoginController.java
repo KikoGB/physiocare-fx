@@ -65,12 +65,12 @@ public class LoginController implements Initializable, CloseController{
 
         // Temporary hardcoded credentials (for testing/demo purposes)
         // Admin credentials
-//        login = "admin";
-//        password = "1234567";
+        login = "admin";
+        password = "1234567";
 
         // Physio credentials
-        login = "Sergi";
-        password = "1234567";
+//        login = "Sergi";
+//        password = "1234567";
 
         if (Validations.validateLogin(login) && Validations.validatePassword(password)) {
             if (LoginService.login(login, password)) {
