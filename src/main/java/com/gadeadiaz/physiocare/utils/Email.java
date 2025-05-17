@@ -1,6 +1,7 @@
 package com.gadeadiaz.physiocare.utils;
 
 
+import com.gadeadiaz.physiocare.models.Appointment;
 import com.gadeadiaz.physiocare.models.Patient;
 import com.gadeadiaz.physiocare.models.Physio;
 import com.google.api.client.auth.oauth2.Credential;
@@ -15,12 +16,12 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.GmailScopes;
 import com.google.api.services.gmail.model.Message;
-import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Multipart;
 import jakarta.mail.Session;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 
 import java.io.ByteArrayOutputStream;
@@ -28,16 +29,25 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 
 public class Email {
 
     private static final String APPLICATION_NAME = "Physiocare Gmail";
-    private static final JsonFactory JSON_FACTORY =
-            GsonFactory.getDefaultInstance();
+    private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
     private static final String CREDENTIALS_FILE_PATH = "src/main/resources/client_secret_199476945917-rka0sacuport1212vng3foe6gbdfij0n.apps.googleusercontent.com.json";
+
+    public static void sendPatientsEmails(List<Patient> patients) {
+        patients.stream()
+                .filter(p -> p.getAppointments().stream()
+                        .filter(Appointment::getConfirmed)
+                        .toList()
+                        .size() >= 8
+                ).forEach(Email::sendPatientEmail);
+    }
 
     /**
      * Autenticación con Gmail API (getCredentials)
@@ -45,14 +55,11 @@ public class Email {
      * 2. Carga un archivo JSON con las credenciales (client_secret_...json) desde el proyecto.
      * 3. Guarda tokens en tokens/ para reutilizar el acceso sin pedir permiso cada vez.
      */
-
-
-    public static void sendPatientMail(Patient patient) {
+    public static void sendPatientEmail(Patient patient) {
 
         File dest = Pdf.getPatientPdf(patient);
         System.out.println(dest.getName());
         try {
-
             // Build a new authorized API client service.
             final NetHttpTransport HTTP_TRANSPORT = new com.google.api.client.http.javanet.NetHttpTransport();
             Gmail service = new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY,
@@ -66,7 +73,8 @@ public class Email {
                             "kikogadeabravo@gmail.com",
                             "kikogadeabravo@gmail.com", // Change to patient email
                             "Physiocare Notice",
-                            "You are about to reach the limit of available appointments. See the attached document for more details.",
+                            "You are about to reach the limit of available appointments. " +
+                                    "See the attached document for more details.",
                     dest.getAbsolutePath());
 
             // Send the email
