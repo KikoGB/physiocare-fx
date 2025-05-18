@@ -7,14 +7,6 @@ package com.gadeadiaz.physiocare.utils;
  * It ensures that the provided values meet specific criteria before proceeding.
  */
 public class Validations {
-    public static boolean validateField(boolean condition, String messageToShow) {
-        if (condition) {
-
-            return false;
-        }
-        return true;
-    }
-
     /**
      * Validates the login identifier (username) provided by the user.
      * <p>

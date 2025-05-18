@@ -101,16 +101,9 @@ public class Physio {
     public String getFullName(){
         return this.getName() + " " + this.getSurname();
     }
+
     @Override
     public String toString() {
-        return "Physio{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", surname='" + surname + '\'' +
-                ", specialty='" + specialty + '\'' +
-                ", licenseNumber='" + licenseNumber + '\'' +
-                ", email='" + email + '\'' +
-                ", avatar='" + avatar + '\'' +
-                '}';
+        return getName() + " " + getSurname() + " | " + getLicenseNumber();
     }
 }

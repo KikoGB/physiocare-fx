@@ -7,7 +7,6 @@ import javafx.scene.layout.Region;
  * Class Message represents an alert message to inform the user with customize messages
  */
 public class Message {
-
     public static void showMessage(Alert.AlertType type, String title, String header, String message){
         Alert dialog = new Alert(type);
         dialog.setTitle(title);
@@ -25,14 +24,4 @@ public class Message {
         dialog.setContentText(message);
         dialog.showAndWait();
     }
-
-    public static void apiErrorResponse(String message) {
-        showMessage(
-                Alert.AlertType.ERROR,
-                "Error",
-                "Invalid request!",
-                message
-        );
-    }
-
 }

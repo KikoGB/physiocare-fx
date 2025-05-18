@@ -124,19 +124,9 @@ public class Patient {
     public String getFullName(){
         return this.getName() + " " + this.getSurname();
     }
+
     @Override
     public String toString() {
-        return "Patient{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", surname='" + surname + '\'' +
-                ", birthdate=" + birthdate +
-                ", address='" + address + '\'' +
-                ", insuranceNumber='" + insuranceNumber + '\'' +
-                ", email='" + email + '\'' +
-                ", avatar='" + avatar + '\'' +
-                ", appointments='" + appointments + '\'' +
-                ", record='" + record + '\'' +
-                '}';
+        return getName() + " " + getSurname() + " | " + getInsuranceNumber();
     }
 }

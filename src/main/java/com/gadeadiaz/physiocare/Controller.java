@@ -49,11 +49,6 @@ public class Controller implements CloseController {
     @FXML private Button btnMyProfileLeftBar;
     @FXML private Button btnAddAppointmentLeftBar;
 
-    // -----------------------------------------------------------------------------!!! mirar estos de donde son
-    // --- BOTONES ---
-//    @FXML private Button btnPhysioForm;
-//    @FXML private Button btnPatientForm;
-
     // --- ITEMS LIST PAGE ---
     @FXML private Button btnAddUser;
     @FXML private Button btnSendPayRolls;
@@ -66,6 +61,8 @@ public class Controller implements CloseController {
     @FXML private Label txtRecordsCount;
     @FXML private Label lblInsuranceLicenseNumList;
     @FXML private VBox vBoxItems;
+    @FXML private HBox hBoxUserList;
+    @FXML private HBox hBoxRecordList;
 
     // --- PANES ---
     @FXML private Pane pnlUsersList;
@@ -76,11 +73,6 @@ public class Controller implements CloseController {
     @FXML private Pane pnlAppointmentForm;
     @FXML private Pane pnlRecordDetail;
     @FXML private Pane pnlAppointmentDetail;
-
-    // --- CONTENEDORES ---
-    @FXML private HBox hBoxUserList;
-    @FXML private HBox hBoxRecordList;
-    // ---------------------------------------------------------------!!!!!!!!!!!!!!!!!! hasta aqui
 
     // --- PATIENT DETAIL ---
     @FXML private Label lblTitlePatientDetail;
@@ -258,7 +250,6 @@ public class Controller implements CloseController {
     }
 
     public void showAppointmentsFormPanel() {
-        pnlUsersList.setVisible(false);
         pnlPatientForm.setVisible(false);
         pnlPatientDetail.setVisible(false);
         pnlUsersList.setVisible(false);
@@ -277,7 +268,6 @@ public class Controller implements CloseController {
         vBoxPatientAppointments.getChildren().clear();
         pnlPatientForm.setVisible(false);
         pnlPhysioForm.setVisible(false);
-        pnlPatientDetail.setVisible(false);
         pnlUsersList.setVisible(false);
         pnlPhysioDetail.setVisible(false);
         pnlRecordDetail.setVisible(false);
@@ -295,7 +285,7 @@ public class Controller implements CloseController {
         pnlPhysioForm.setVisible(false);
         pnlPatientDetail.setVisible(false);
         pnlUsersList.setVisible(false);
-        pnlPatientDetail.setVisible(false);
+        pnlAppointmentForm.setVisible(false);
         pnlRecordDetail.setVisible(false);
         pnlAppointmentDetail.setVisible(false);
         pnlPhysioDetail.setVisible(true);
@@ -1098,7 +1088,6 @@ public class Controller implements CloseController {
     public void showAppointmentForm(Appointment appointment) {
         clearAppointmentForm();
         if (appointment == null) {
-
             btnAppointmentForm.setOnMouseClicked(_ -> sendAppointmentForm(null));
             lblPhysioAppointmentForm.setVisible(true);
             cBoxPhysiosAppointmentForm.setVisible(true);
@@ -1436,12 +1425,10 @@ public class Controller implements CloseController {
     }
 
     public void searchByPatientSurname() {
-        if (!tfSearchBySurname.getText().trim().isEmpty()) {
-            if (selectedListEntity.equals(Entity.PATIENT)) {
-                getPatientsBySurname();
-            } else if (selectedListEntity.equals(Entity.RECORD)) {
-                getRecordsByPatientsSurnames();
-            }
+        if (selectedListEntity.equals(Entity.PATIENT)) {
+            getPatientsBySurname();
+        } else if (selectedListEntity.equals(Entity.RECORD)) {
+            getRecordsByPatientsSurnames();
         }
     }
 

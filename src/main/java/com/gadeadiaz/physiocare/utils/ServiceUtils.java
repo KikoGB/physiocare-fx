@@ -3,6 +3,7 @@ package com.gadeadiaz.physiocare.utils;
 import com.gadeadiaz.physiocare.exceptions.RequestErrorException;
 import com.gadeadiaz.physiocare.responses.ErrorResponse;
 import com.google.gson.Gson;
+import io.github.cdimascio.dotenv.Dotenv;
 import javafx.util.Pair;
 
 import java.io.*;
@@ -18,8 +19,8 @@ import java.util.zip.GZIPInputStream;
  * and charset detection.
  */
 public class ServiceUtils {
-    public static final String SERVER = "https://api.daviddp.dev/";
-//    public static final String SERVER = "http://localhost:3000/";
+    private static final Dotenv dotenv = Dotenv.load();
+    public static final String SERVER = dotenv.get("API_URL");
 
     /**
      * Extracts the charset (e.g., UTF-8, ISO-8859-1) from a Content-Type header string.
@@ -111,14 +112,12 @@ public class ServiceUtils {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
             System.out.println(e.getMessage());
         } finally {
             if (bufInput != null) {
                 try {
                     bufInput.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
                     System.out.println(e.getMessage());
                 }
             }
