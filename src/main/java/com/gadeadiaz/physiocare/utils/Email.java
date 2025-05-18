@@ -55,12 +55,6 @@ public class Email {
                 ).forEach(Email::sendPatientEmail);
     }
 
-    /**
-     * Autenticación con Gmail API (getCredentials)
-     * 1. Usa OAuth 2.0 para autorizar el acceso a Gmail del usuario.
-     * 2. Carga un archivo JSON con las credenciales (client_secret_...json) desde el proyecto.
-     * 3. Guarda tokens en tokens/ para reutilizar el acceso sin pedir permiso cada vez.
-     */
     public static void sendPatientEmail(Patient patient) {
 
         File dest = Pdf.getPatientPdf(patient);
@@ -76,11 +70,11 @@ public class Email {
             // Define the email parameters
             String user = "me";
             MimeMessage emailContent= createEmailWithAttachment(
-                            SENDER,
-                            patient.getEmail(), // Change to patient email
-                            "Physiocare Notice",
-                            "You are about to reach the limit of available appointments. " +
-                                    "See the attached document for more details.",
+                    patient.getEmail(),
+                    SENDER,
+            "Physiocare Notice",
+            "You are about to reach the limit of available appointments. " +
+                    "See the attached document for more details.",
                     dest.getAbsolutePath());
 
             // Send the email
@@ -151,17 +145,17 @@ public class Email {
         email.addRecipient(jakarta.mail.Message.RecipientType.TO, new InternetAddress(to));
         email.setSubject(subject);
 
-        // Crear el cuerpo del correo
+        // Create email body
         MimeBodyPart textPart = new MimeBodyPart();
         textPart.setText(bodyText, "utf-8");
 
-        // Adjuntar archivo
+        // Attach archivo
         MimeBodyPart attachmentPart = new MimeBodyPart();
         attachmentPart.setDataHandler(new jakarta.activation.DataHandler(
                 new jakarta.activation.FileDataSource(fileDir)));
         attachmentPart.setFileName(new java.io.File(fileDir).getName());
 
-        // Crear estructura MIME
+        // Create MIME structure
         Multipart multipart = new MimeMultipart();
         multipart.addBodyPart(textPart);
         multipart.addBodyPart(attachmentPart);
@@ -171,13 +165,11 @@ public class Email {
         return email;
     }
     /**
-     * 5. Enviar el mensaje (sendMessage)
-     * Send an email from the user's mailbox to its recipient.
+     * Send a message
      */
     public static void sendMessage(Gmail service, String userId, MimeMessage emailContent) throws MessagingException, java.io.IOException {
         Message message = createMessageWithEmail(emailContent);
-        message = service.users().messages()
-                .send(userId, message).execute();
+        service.users().messages().send(userId, message).execute();
         System.out.println("Email sent successfully.");
     }
 
