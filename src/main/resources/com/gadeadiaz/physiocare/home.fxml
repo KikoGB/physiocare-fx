@@ -508,7 +508,7 @@
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="tfLicenseNumberPhysioForm" focusTraversable="false" layoutX="133.0" layoutY="333.0" prefHeight="25.0" prefWidth="215.0" promptText="e.g. SDR345TG" />
+                  <TextField fx:id="tfLicenseNumberPhysioForm" focusTraversable="false" layoutX="438.0" layoutY="334.0" prefHeight="25.0" prefWidth="215.0" promptText="e.g. SDR345TG" />
                   <Label alignment="CENTER" layoutX="439.0" layoutY="224.0" prefHeight="17.0" prefWidth="215.0" text="Specialty" textFill="#dfd2d2">
                      <font>
                         <Font name="System Bold" size="12.0" />
@@ -519,13 +519,13 @@
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="tfSurnamePhysioForm" focusTraversable="false" layoutX="132.0" layoutY="250.0" prefHeight="25.0" prefWidth="215.0" />
+                  <TextField fx:id="tfSurnamePhysioForm" focusTraversable="false" layoutX="138.0" layoutY="334.0" prefHeight="25.0" prefWidth="215.0" />
                   <Label alignment="CENTER" layoutX="132.0" layoutY="224.0" prefHeight="17.0" prefWidth="215.0" text="Name" textFill="#dfd2d2">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="tfNamePhysioForm" focusTraversable="false" layoutX="439.0" layoutY="333.0" prefHeight="25.0" prefWidth="215.0" />
+                  <TextField fx:id="tfNamePhysioForm" focusTraversable="false" layoutX="138.0" layoutY="251.0" prefHeight="25.0" prefWidth="215.0" />
                   <Label fx:id="lblPasswordPhysioForm" alignment="CENTER" layoutX="545.0" layoutY="133.0" prefHeight="17.0" prefWidth="150.0" text="Password" textFill="#dfd2d2">
                      <font>
                         <Font name="System Bold" size="12.0" />
