@@ -14,15 +14,11 @@ import com.gadeadiaz.physiocare.services.PatientService;
 import com.gadeadiaz.physiocare.services.PhysioService;
 import com.gadeadiaz.physiocare.services.RecordService;
 import com.gadeadiaz.physiocare.utils.*;
-import jakarta.mail.MessageAware;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
-import javafx.concurrent.ScheduledService;
-import javafx.concurrent.Task;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -34,7 +30,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 import java.io.IOException;
 import java.net.URL;
@@ -43,7 +38,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -235,6 +229,7 @@ public class Controller implements CloseController {
 
         btnAddAppointmentLeftBar.setOnMouseClicked(_ -> showAppointmentForm(null));
 
+        cBoxSpecialtyPhysioForm.setItems(FXCollections.observableArrayList("Sports", "Neurological", "Pediatric", "Geriatric", "Oncological"));
         getPatients();
     }
 
@@ -487,7 +482,7 @@ public class Controller implements CloseController {
             lblPasswordPatientForm.setVisible(false);
             tfPasswordPatientForm.setVisible(false);
 
-            lblPatientFormTitle.setText("Edit patient " + patient.getName() + " " + patient.getSurname());
+            lblPatientFormTitle.setText(patient.getName() + " " + patient.getSurname());
             tfNamePatientForm.setText(patient.getName());
             tfSurnamePatientForm.setText(patient.getSurname());
             dpBirthdatePatientForm.setValue(LocalDate.parse(patient.getBirthdate()));
@@ -753,11 +748,7 @@ public class Controller implements CloseController {
 
     public void showPhysioForm(Physio physio) {
         clearPhysioForm();
-        Platform.runLater(() -> cBoxSpecialtyPhysioForm.setItems(
-                FXCollections.observableList(
-                        List.of("Sports", "Neurological", "Pediatric", "Geriatric", "Oncological")
-                )
-        ));
+
         if (physio == null) {
             btnSendPhysioForm.setOnMouseClicked(_ -> createPhysio());
             lblNickPhysioForm.setVisible(true);
@@ -773,7 +764,7 @@ public class Controller implements CloseController {
             lblPasswordPhysioForm.setVisible(false);
             tfPasswordPhysioForm.setVisible(false);
 
-            lblPhysioFormTitle.setText("Edit physio " + physio.getName() + " " + physio.getSurname());
+            lblPhysioFormTitle.setText(physio.getName() + " " + physio.getSurname());
             tfNamePhysioForm.setText(physio.getName());
             tfSurnamePhysioForm.setText(physio.getSurname());
             cBoxSpecialtyPhysioForm.setValue(physio.getSpecialty());
@@ -1267,6 +1258,7 @@ public class Controller implements CloseController {
 
 
     public void getRecords() {
+        btnSendPayRolls.setVisible(false);
         btnAddUser.setVisible(false);
         showUsersListPanel();
         RecordService.getRecords("").thenAccept(records -> {

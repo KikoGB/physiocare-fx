@@ -222,7 +222,7 @@ public class Pdf {
             // Confimed Appointments
             Paragraph confirmedAppointments = new Paragraph("Confirmed Appointments")
                     .setFontSize(14)
-                    .setItalic()
+                    .setBold()
                     .setTextAlignment(TextAlignment.CENTER)
                     .setMarginBottom(20);
             document.add(confirmedAppointments);
@@ -254,8 +254,6 @@ public class Pdf {
                         .setItalic()
                         .setTextAlignment(TextAlignment.CENTER)
                         .setMarginBottom(20);
-                document.add(confirmedAppointments);
-
                 document.add(noAppointmentsMessage);
             }
 

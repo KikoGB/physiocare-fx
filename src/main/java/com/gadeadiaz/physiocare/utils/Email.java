@@ -108,9 +108,10 @@ public class Email {
 
             // Define the email parameters
             String user = "me";
+            System.out.println(physio.getEmail());
             MimeMessage emailContent= createEmailWithAttachment(
+                    physio.getEmail(),
                     SENDER,
-                    physio.getEmail(), //Change to physio email
                     "Salary",
                     "Hi " + physio.getFullName() + ", we have processed your salary for this current month.",
                     dest.getAbsolutePath());
