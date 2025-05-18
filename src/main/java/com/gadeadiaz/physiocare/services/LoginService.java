@@ -32,13 +32,10 @@ public class LoginService {
                     return true;
                 }
             } else {
-                Message.showError("Credenciales invalidas", "Credenciales invalidas");
+                Message.showError("Invalid Credentials", "Please enter a valid username and password.");
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            Message.showError(
-                    "Unexpected error", "An unexpected error has happened, please try again."
-            );
+            Message.showError("Invalid Credentials", "Please enter a valid username and password.");
         }
         return false;
     }
