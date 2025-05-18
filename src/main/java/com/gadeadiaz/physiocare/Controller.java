@@ -16,7 +16,6 @@ import com.gadeadiaz.physiocare.services.RecordService;
 import com.gadeadiaz.physiocare.utils.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -374,7 +373,7 @@ public class Controller implements CloseController {
                 userItemController.setDetailListener(_ -> getPatientById(patient.getId()));
 
                 userItemController.setDeleteListener(idPatient ->
-                        PatientService.delete(idPatient).thenAccept(_ ->
+                        PatientService.deletePatient(idPatient).thenAccept(_ ->
                             Platform.runLater(() -> {
                                 vBoxItems.getChildren().remove(node);
                                 Message.showMessage(
@@ -455,7 +454,10 @@ public class Controller implements CloseController {
     public void getPatientsBySurname() {
         PatientService.getPatients(txtSearch.getText()).thenAccept(patients -> {
             selectedListEntity = Entity.PATIENT;
-            Platform.runLater(() -> showPatients(patients));
+            Platform.runLater(() -> {
+                vBoxItems.getChildren().clear();
+                showPatients(patients);
+            });
         }).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e.getCause();
             ErrorResponse errorResponse = ex.getErrorResponse();
@@ -579,7 +581,7 @@ public class Controller implements CloseController {
                     tfNickPatientForm.getText(), tfPasswordPatientForm.getText(), "patient"
             );
 
-            PatientService.create(new PatientPOSTRequest(newUser, newPatient))
+            PatientService.createPatient(new PatientPOSTRequest(newUser, newPatient))
                     .thenAccept(patient -> Platform.runLater(() -> showPatientDetail(patient)))
                     .exceptionally(e -> {
                         RequestErrorException ex = (RequestErrorException) e.getCause();
@@ -604,7 +606,7 @@ public class Controller implements CloseController {
                 tfInsuranceNumPatientForm.getText(), tfEmailPatientForm.getText()
             );
 
-            PatientService.update(patient.getId(), updatedPatient)
+            PatientService.updatePatient(patient.getId(), updatedPatient)
                     .thenAccept(patientUpdated -> Platform.runLater(() -> showPatientDetail(patientUpdated)))
                     .exceptionally(e -> {
                         RequestErrorException ex = (RequestErrorException) e.getCause();
@@ -644,18 +646,18 @@ public class Controller implements CloseController {
 
                 if (Storage.getInstance().getUserdata().getValue().equals("physio")) {
                     userItemController.setBtnDeleteVisibility(false);
-
+                } else {
                     userItemController.setDeleteListener(idPhysio ->
                             PhysioService.deletePhysio(idPhysio).thenAccept(_ ->
-                                Platform.runLater(() -> {
-                                    vBoxItems.getChildren().remove(node);
-                                    Message.showMessage(
-                                            Alert.AlertType.CONFIRMATION,
-                                            "Delete",
-                                            "Physio deleted",
-                                            "Physio successfully deleted"
-                                    );
-                                })
+                                    Platform.runLater(() -> {
+                                        vBoxItems.getChildren().remove(node);
+                                        Message.showMessage(
+                                                Alert.AlertType.CONFIRMATION,
+                                                "Delete",
+                                                "Physio deleted",
+                                                "Physio successfully deleted"
+                                        );
+                                    })
                             ).exceptionally(e -> {
                                 RequestErrorException ex = (RequestErrorException) e;
                                 ErrorResponse errorResponse = ex.getErrorResponse();
@@ -1269,6 +1271,23 @@ public class Controller implements CloseController {
             ErrorResponse errorResponse = ex.getErrorResponse();
             Platform.runLater(() ->
                     Message.showError(errorResponse.getError(), errorResponse.getMessage())
+            );
+            return null;
+        });
+    }
+
+    public void getRecordsByPatientsSurnames() {
+        RecordService.getRecords(txtSearch.getText()).thenAccept(records -> {
+            selectedListEntity = Entity.RECORD;
+            Platform.runLater(() -> {
+                vBoxItems.getChildren().clear();
+                showRecords(records);
+            });
+        }).exceptionally(e -> {
+            RequestErrorException ex = (RequestErrorException) e;
+            ErrorResponse errorResponse = ex.getErrorResponse();
+            Platform.runLater(() ->
+                Message.showError(errorResponse.getError(), errorResponse.getMessage())
             );
             return null;
         });

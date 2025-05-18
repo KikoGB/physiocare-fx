@@ -89,6 +89,6 @@ public class PhysioService {
                 ServiceUtils.SERVER + "physios/" + id,
                 null,
                 "DELETE"
-        ).thenApply(null);
+        ).thenApply(_ -> null);
     }
 }

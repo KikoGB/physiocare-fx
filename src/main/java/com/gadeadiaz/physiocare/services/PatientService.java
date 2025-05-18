@@ -19,7 +19,7 @@ public class PatientService {
             throws RequestErrorException {
         return ServiceUtils.getResponseAsync(
                 ServiceUtils.SERVER + "patients" +
-                        (surnameText.isEmpty()? "":"/find?surname" + surnameText),
+                        (surnameText.isEmpty()? "":"/find?surname=" + surnameText),
                 null,
                 "GET"
         ).thenApply(response -> {
@@ -60,7 +60,7 @@ public class PatientService {
         });
     }
 
-    public static CompletableFuture<Patient> create(PatientPOSTRequest patient)
+    public static CompletableFuture<Patient> createPatient(PatientPOSTRequest patient)
             throws RequestErrorException {
         return ServiceUtils.getResponseAsync(
                 ServiceUtils.SERVER + "patients",
@@ -72,7 +72,7 @@ public class PatientService {
         });
     }
 
-    public static CompletableFuture<Patient> update(int id, Patient patient)
+    public static CompletableFuture<Patient> updatePatient(int id, Patient patient)
             throws RequestErrorException {
         return ServiceUtils.getResponseAsync(
                 ServiceUtils.SERVER + "patients/" + id,
@@ -84,7 +84,7 @@ public class PatientService {
         });
     }
 
-    public static CompletableFuture<Void> delete(int id) throws RequestErrorException {
+    public static CompletableFuture<Void> deletePatient(int id) throws RequestErrorException {
         return ServiceUtils.getResponseAsync(
                 ServiceUtils.SERVER + "patients/" + id,
                 null,
