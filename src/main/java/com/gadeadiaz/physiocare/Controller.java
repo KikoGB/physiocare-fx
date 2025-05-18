@@ -16,6 +16,7 @@ import com.gadeadiaz.physiocare.services.RecordService;
 import com.gadeadiaz.physiocare.utils.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -50,18 +51,21 @@ public class Controller implements CloseController {
 
     // -----------------------------------------------------------------------------!!! mirar estos de donde son
     // --- BOTONES ---
-    @FXML private Button btnAddUser;
-    @FXML private Button btnSendPayRolls;
 //    @FXML private Button btnPhysioForm;
 //    @FXML private Button btnPatientForm;
 
     // --- ITEMS LIST PAGE ---
+    @FXML private Button btnAddUser;
+    @FXML private Button btnSendPayRolls;
+    @FXML private TextField tfSearchBySurname;
+    @FXML private ImageView ivLens;
+    @FXML private ComboBox<String> cBoxPhysioSpecialtyUsersList;
     @FXML private Label lblTitle;
     @FXML private Label txtPhysiosCount;
     @FXML private Label txtPatientsCount;
     @FXML private Label txtRecordsCount;
     @FXML private Label lblInsuranceLicenseNumList;
-    @FXML private TextField txtSearch;
+    @FXML private VBox vBoxItems;
 
     // --- PANES ---
     @FXML private Pane pnlUsersList;
@@ -76,7 +80,6 @@ public class Controller implements CloseController {
     // --- CONTENEDORES ---
     @FXML private HBox hBoxUserList;
     @FXML private HBox hBoxRecordList;
-    @FXML private VBox vBoxItems;
     // ---------------------------------------------------------------!!!!!!!!!!!!!!!!!! hasta aqui
 
     // --- PATIENT DETAIL ---
@@ -169,6 +172,9 @@ public class Controller implements CloseController {
     private Physio loggedPhysio;
     private enum Entity { PATIENT, PHYSIO, RECORD }
     private Entity selectedListEntity = Entity.PATIENT;
+    private final ObservableList<String> physioSpecialties = FXCollections.observableArrayList(
+            "Sports", "Neurological", "Pediatric", "Geriatric", "Oncological"
+    );
 
     private void startServiceSendPatientsEmails() {
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -228,7 +234,7 @@ public class Controller implements CloseController {
 
         btnAddAppointmentLeftBar.setOnMouseClicked(_ -> showAppointmentForm(null));
 
-        cBoxSpecialtyPhysioForm.setItems(FXCollections.observableArrayList("Sports", "Neurological", "Pediatric", "Geriatric", "Oncological"));
+        cBoxSpecialtyPhysioForm.setItems(physioSpecialties);
         getPatients();
     }
 
@@ -236,6 +242,7 @@ public class Controller implements CloseController {
         clearPatientForm();
         clearAppointmentForm();
         clearPhysioForm();
+        cBoxPhysioSpecialtyUsersList.setItems(physioSpecialties);
         //Primero los que se ocultan
         vBoxItems.getChildren().clear();
         pnlPatientForm.setVisible(false);
@@ -452,7 +459,7 @@ public class Controller implements CloseController {
     }
 
     public void getPatientsBySurname() {
-        PatientService.getPatients(txtSearch.getText()).thenAccept(patients -> {
+        PatientService.getPatients(tfSearchBySurname.getText()).thenAccept(patients -> {
             selectedListEntity = Entity.PATIENT;
             Platform.runLater(() -> {
                 vBoxItems.getChildren().clear();
@@ -735,15 +742,31 @@ public class Controller implements CloseController {
     }
 
     public void getPhysiosBySpecialty() {
-        PhysioService.getPhysios(txtSearch.getText()).thenAccept(physios -> {
+        PhysioService.getPhysios(cBoxPhysioSpecialtyUsersList.getValue()).thenAccept(physios -> {
             selectedListEntity = Entity.PHYSIO;
-            Platform.runLater(() -> showPhysios(physios));
+            Platform.runLater(() -> {
+                vBoxItems.getChildren().clear();
+                showPhysios(physios);
+            });
         }).exceptionally(e -> {
             RequestErrorException ex = (RequestErrorException) e.getCause();
             ErrorResponse errorResponse = ex.getErrorResponse();
-            Platform.runLater(() ->
-                    Message.showError(errorResponse.getError(), errorResponse.getMessage())
-            );
+            if (errorResponse.getStatusCode() == 404) {
+                Platform.runLater(() -> {
+                    vBoxItems.getChildren().clear();
+                    Message.showMessage(
+                            Alert.AlertType.INFORMATION,
+                            "No physios found",
+                            "No physios found with " + cBoxPhysioSpecialtyUsersList.getValue(),
+                            "There are no physios with " +
+                                    cBoxPhysioSpecialtyUsersList.getValue() + " as specialty"
+                    );
+                });
+            } else {
+                Platform.runLater(() ->
+                        Message.showError(errorResponse.getError(), errorResponse.getMessage())
+                );
+            }
             return null;
         });
     }
@@ -1277,7 +1300,7 @@ public class Controller implements CloseController {
     }
 
     public void getRecordsByPatientsSurnames() {
-        RecordService.getRecords(txtSearch.getText()).thenAccept(records -> {
+        RecordService.getRecords(tfSearchBySurname.getText()).thenAccept(records -> {
             selectedListEntity = Entity.RECORD;
             Platform.runLater(() -> {
                 vBoxItems.getChildren().clear();
@@ -1332,7 +1355,6 @@ public class Controller implements CloseController {
      *
      */
     public void openLoginView() {
-
         try {
             SceneLoader.loadScreen("login.fxml", new Stage(), true);
             this.stage.close();
@@ -1347,6 +1369,10 @@ public class Controller implements CloseController {
         hBoxUserList.setVisible(true);
         lblTitle.setText("Patients");
         lblInsuranceLicenseNumList.setText("Insurance Number");
+        cBoxPhysioSpecialtyUsersList.setVisible(false);
+        tfSearchBySurname.setVisible(true);
+        tfSearchBySurname.clear();
+        ivLens.setVisible(true);
         getPatients();
     }
 
@@ -1355,6 +1381,9 @@ public class Controller implements CloseController {
         hBoxUserList.setVisible(true);
         lblTitle.setText("Physios");
         lblInsuranceLicenseNumList.setText("License Number");
+        tfSearchBySurname.setVisible(false);
+        ivLens.setVisible(false);
+        cBoxPhysioSpecialtyUsersList.setVisible(true);
         getPhysios();
     }
 
@@ -1362,14 +1391,17 @@ public class Controller implements CloseController {
         hBoxUserList.setVisible(false);
         hBoxRecordList.setVisible(true);
         lblTitle.setText("Records");
+        cBoxPhysioSpecialtyUsersList.setVisible(false);
+        tfSearchBySurname.setVisible(true);
+        tfSearchBySurname.clear();
+        ivLens.setVisible(true);
         getRecords();
     }
 
     public void showUserForm() {
-        if (selectedListEntity == Entity.PATIENT) {
+        if (selectedListEntity.equals(Entity.PATIENT)) {
             showPatientForm(null);
-        }
-        if (selectedListEntity == Entity.PHYSIO) {
+        } else if (selectedListEntity.equals(Entity.PHYSIO)) {
             showPhysioForm(null);
         }
     }
@@ -1403,13 +1435,12 @@ public class Controller implements CloseController {
         });
     }
 
-    public void searchClick() {
-        if (!txtSearch.getText().trim().isEmpty()) {
+    public void searchByPatientSurname() {
+        if (!tfSearchBySurname.getText().trim().isEmpty()) {
             if (selectedListEntity.equals(Entity.PATIENT)) {
                 getPatientsBySurname();
-            }
-            if (selectedListEntity.equals(Entity.PHYSIO)) {
-                getPhysiosBySpecialty();
+            } else if (selectedListEntity.equals(Entity.RECORD)) {
+                getRecordsByPatientsSurnames();
             }
         }
     }

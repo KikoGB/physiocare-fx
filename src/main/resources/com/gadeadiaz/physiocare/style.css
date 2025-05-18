@@ -48,3 +48,27 @@
     -fx-background-radius: 15;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 8, 0, 0, 4);
 }
+
+/* outer combo-box text */
+.combo-box .list-cell {
+    -fx-text-fill:  #B7C3D7;
+}
+
+/* combo-box list view text, not hovered or focused */
+.combo-box .list-view .list-cell {
+    -fx-background-color : #02030A;
+    -fx-text-fill: #B7C3D7;
+}
+
+/* combo-box selected text */
+.combo-box .list-view .list-cell:focused {
+    -fx-background-color : #02030A;
+    -fx-text-fill: #B7C3D7;
+}
+
+/* combo-box hover text */
+.combo-box .list-view .list-cell:hover {
+    -fx-background-color : #B7C3D7;
+    -fx-text-fill: #02030A;
+}
+
