@@ -148,7 +148,7 @@
                         <Label fx:id="lblPhysioDetailSpecialty" alignment="CENTER" layoutX="634.0" layoutY="99.0" prefHeight="17.0" prefWidth="127.0" style="-fx-font-weight: bold;" text="Specialty" textFill="#bfb9b9" />
                         <Label fx:id="lblLicenceNumPhysioDetail" alignment="CENTER" layoutX="455.0" layoutY="132.0" prefHeight="17.0" prefWidth="110.0" text="8525852J" textFill="#bfb9b9" />
                         <Label fx:id="lblSpecialtyPhysioDetail" alignment="CENTER" layoutX="639.0" layoutY="132.0" prefHeight="17.0" prefWidth="117.0" text="Sports" textFill="#bfb9b9" />
-                        <ImageView fitHeight="110.0" fitWidth="128.0" layoutX="48.0" layoutY="61.0" pickOnBounds="true" preserveRatio="true">
+                        <ImageView fx:id="ivAvatarPhysioDetail" fitHeight="110.0" fitWidth="128.0" layoutX="48.0" layoutY="61.0" pickOnBounds="true" preserveRatio="true">
                             <image>
                                 <Image url="@images/doctor_icon.png" />
                             </image>
@@ -210,7 +210,7 @@
                       <Label fx:id="lblAddressPatientDetail" layoutX="286.0" layoutY="99.0" prefHeight="17.0" prefWidth="162.0" text="Carrer La movida 2" textFill="#bfb9b9" />
                       <Label fx:id="lblInsuranceNumPatientDetail" layoutX="633.0" layoutY="99.0" prefHeight="17.0" prefWidth="108.0" text="1234567ER" textFill="#bfb9b9" />
                       <Label fx:id="lblBirthdatePatientDetail" layoutX="633.0" layoutY="152.0" prefHeight="17.0" prefWidth="108.0" text="06/09/1999" textFill="#bfb9b9" />
-                      <ImageView fitHeight="110.0" fitWidth="128.0" layoutX="48.0" layoutY="61.0" pickOnBounds="true" preserveRatio="true">
+                      <ImageView fx:id="ivAvatarPatientDetail" fitHeight="110.0" fitWidth="128.0" layoutX="48.0" layoutY="61.0" pickOnBounds="true" preserveRatio="true">
                          <image>
                             <Image url="@images/patient_icon.png" />
                          </image>
@@ -237,7 +237,7 @@
                       <Label contentDisplay="CENTER" layoutX="289.0" layoutY="276.0" prefHeight="17.0" prefWidth="226.0" style="-fx-font-weight: bold;" text="Email" textFill="#bfb9b9" />
                       <TextField fx:id="tfEmailPatientForm" alignment="TOP_CENTER" focusTraversable="false" layoutX="288.0" layoutY="295.0" prefHeight="26.0" prefWidth="226.0" promptText="e.g. example@example.com" style="-fx-text-fill: #777;" />
                       <Label fx:id="lblPasswordPatientForm" contentDisplay="CENTER" layoutX="476.0" layoutY="207.0" prefHeight="17.0" prefWidth="141.0" style="-fx-font-weight: bold;" text="Password" textFill="#bfb9b9" />
-                      <TextField fx:id="tfPasswordPatientForm" alignment="TOP_CENTER" focusTraversable="false" layoutX="476.0" layoutY="230.0" prefHeight="25.0" prefWidth="141.0" style="-fx-text-fill: #777;" />
+                  <PasswordField fx:id="tfPasswordPatientForm" layoutX="476.0" layoutY="230.0" />
                       <Label contentDisplay="CENTER" layoutX="86.0" layoutY="341.0" prefHeight="17.0" prefWidth="141.0" style="-fx-font-weight: bold;" text="Surname" textFill="#bfb9b9" />
                       <TextField fx:id="tfSurnamePatientForm" alignment="TOP_CENTER" focusTraversable="false" layoutX="86.0" layoutY="362.0" prefHeight="26.0" prefWidth="141.0" style="-fx-text-fill: #777;" />
                       <Label contentDisplay="CENTER" layoutX="567.0" layoutY="276.0" prefHeight="17.0" prefWidth="141.0" style="-fx-font-weight: bold;" text="Birth Date" textFill="#bfb9b9" />
@@ -390,17 +390,12 @@
                   </Label>
                   <Button fx:id="btnEditAppointmentDetail" layoutX="376.0" layoutY="495.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="61.0" style="-fx-border-radius: 20; -fx-background-color: transparent; -fx-border-color: #78a8f5;" stylesheets="@style.css" text="Edit" />
                   <Line endX="559.0" endY="-67.0" fill="BLACK" layoutX="175.0" layoutY="207.0" startX="-115.0" startY="-67.0" stroke="#a39e9ea9" />
-                  <ImageView fitHeight="56.0" fitWidth="53.0" layoutX="57.0" layoutY="37.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@images/appointment_icon.png" />
-                     </image>
-                  </ImageView>
-                  <ImageView fitHeight="27.0" fitWidth="30.0" layoutX="642.0" layoutY="264.0" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fx:id="ivAvatarPhysioAppointmentDetail" fitHeight="27.0" fitWidth="30.0" layoutX="642.0" layoutY="264.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@images/doctor_icon.png" />
                      </image>
                   </ImageView>
-                  <ImageView fitHeight="30.0" fitWidth="37.0" layoutX="120.0" layoutY="262.0" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fx:id="ivAvatarPatientAppointmentDetail" fitHeight="30.0" fitWidth="37.0" layoutX="120.0" layoutY="262.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@images/patient_icon.png" />
                      </image>

@@ -36,8 +36,6 @@ public class LoginController implements Initializable, CloseController{
     @FXML
     private TextField txtPassword;
 
-    private Gson gson = new Gson();
-
     private double x = 0,y = 0;
 
     @Override
@@ -55,11 +53,11 @@ public class LoginController implements Initializable, CloseController{
 
 
     @FXML
-    public void loginClick() throws IOException {
+    public void loginClick() {
         login();
     }
 
-    private void login() throws IOException {
+    private void login() {
         String login = txtLogin.getText();
         String password = txtPassword.getText();
 

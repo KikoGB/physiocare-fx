@@ -83,6 +83,7 @@ public class Controller implements CloseController {
     @FXML private Label lblBirthdatePatientDetail;
     @FXML private ScrollPane patientScrollPaneAppointments;
     @FXML private VBox vBoxPatientAppointments;
+    @FXML private ImageView ivAvatarPatientDetail;
     @FXML private Label lblNoPatientAppointments;
 
     // --- PHYSIO DETAIL ---
@@ -93,6 +94,7 @@ public class Controller implements CloseController {
     @FXML private Label lblEmailPhysioDetail;
     @FXML private ScrollPane physioScrollPaneAppointments;
     @FXML private VBox vBoxPhysioAppointments;
+    @FXML private ImageView ivAvatarPhysioDetail;
     @FXML private Label lblNoPhysioAppointments;
 
     // --- RECORD DETAIL ---
@@ -103,7 +105,7 @@ public class Controller implements CloseController {
     @FXML private Label lblInsuranceNumRecordDetail;
     @FXML private Label lblRecordDescription;
     @FXML private Label lblNoRecordAppointments;
-    @FXML private ImageView ivRecord; //Patient image
+    @FXML private ImageView ivRecord;
     @FXML private ScrollPane recordScrollPaneAppointments;
     @FXML private VBox vBoxRecordAppointments;
 
@@ -116,6 +118,8 @@ public class Controller implements CloseController {
     @FXML private Label lblPatientAppointmentDetail;
     @FXML private Label lblPhysioAppointmentDetail;
     @FXML private Label lblConfirmedAppointmentDetail;
+    @FXML private ImageView ivAvatarPatientAppointmentDetail;
+    @FXML private ImageView ivAvatarPhysioAppointmentDetail;
     @FXML private Button btnEditAppointmentDetail;
 
     // --- PATIENT FORM ---
@@ -123,7 +127,7 @@ public class Controller implements CloseController {
     @FXML private Label lblNickPatientForm;
     @FXML private TextField tfNickPatientForm;
     @FXML private Label lblPasswordPatientForm;
-    @FXML private TextField tfPasswordPatientForm;
+    @FXML private PasswordField tfPasswordPatientForm;
     @FXML private TextField tfNamePatientForm;
     @FXML private TextField tfEmailPatientForm;
     @FXML private TextField tfSurnamePatientForm;
@@ -412,8 +416,8 @@ public class Controller implements CloseController {
 
         lblInsuranceNumPatientDetail.setText(patient.getInsuranceNumber());
         lblBirthdatePatientDetail.setText(patient.getBirthdate());
+        ivAvatarPatientDetail.setImage(new Image(patient.getAvatar()));
         getPatientAppointments(patient.getId());
-
     }
 
     public void getPatients() {
@@ -689,6 +693,7 @@ public class Controller implements CloseController {
         lblEmailPhysioDetail.setText(physio.getEmail());
         lblLicenceNumPhysioDetail.setText(physio.getLicenseNumber());
         lblSpecialtyPhysioDetail.setText(physio.getSpecialty());
+        ivAvatarPhysioDetail.setImage(new Image(physio.getAvatar()));
         getPhysioAppointments(physio.getId());
     }
 
@@ -1064,7 +1069,12 @@ public class Controller implements CloseController {
 
     public void showAppointmentDetail(Appointment appointment) {
         showAppointmentDetailPanel();
-        btnEditAppointmentDetail.setOnMouseClicked(_ -> showAppointmentForm(appointment));
+        if (LocalDate.parse(appointment.getDate()).isBefore(LocalDate.now())) {
+            btnEditAppointmentDetail.setVisible(false);
+        } else {
+            btnEditAppointmentDetail.setVisible(true);
+            btnEditAppointmentDetail.setOnMouseClicked(_ -> showAppointmentForm(appointment));
+        }
         lblTitleAppointmentDetail.setText(
                 String.format(
                         "Appointment of %s with %s",
@@ -1083,6 +1093,12 @@ public class Controller implements CloseController {
                 appointment.getPhysio().getName() + " " + appointment.getPhysio().getSurname()
         );
         lblConfirmedAppointmentDetail.setText(appointment.getConfirmed()? "Yes":"No");
+        ivAvatarPatientAppointmentDetail.setImage(
+                new Image(ServiceUtils.SERVER + appointment.getPatient().getAvatar())
+        );
+        ivAvatarPhysioAppointmentDetail.setImage(
+                new Image(ServiceUtils.SERVER + appointment.getPhysio().getAvatar())
+        );
     }
 
     public void showAppointmentForm(Appointment appointment) {
@@ -1266,7 +1282,7 @@ public class Controller implements CloseController {
         lblEmailRecordDetail.setText(record.getPatient().getEmail());
         lblInsuranceNumRecordDetail.setText(record.getPatient().getInsuranceNumber());
         lblRecordDescription.setText(record.getMedicalRecord());
-//        ivRecord -> Asignar la imágen del paciente
+        ivRecord.setImage(new Image(ServiceUtils.SERVER + record.getPatient().getAvatar()));
         getRecordAppointments(record.getId());
     }
 

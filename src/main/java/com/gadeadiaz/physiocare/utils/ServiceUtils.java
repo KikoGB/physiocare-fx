@@ -88,7 +88,6 @@ public class ServiceUtils {
                     while ((line = errorReaderBuffer.readLine()) != null) {
                         result.add(line);
                     }
-                    System.out.println(result);
                     ErrorResponse errorResponse = new Gson().fromJson(result.toString(), ErrorResponse.class);
                     throw new RequestErrorException(errorResponse);
                 }
