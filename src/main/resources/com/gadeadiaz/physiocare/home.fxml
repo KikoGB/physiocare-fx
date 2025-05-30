@@ -195,9 +195,9 @@
                 <Pane fx:id="pnlPatientDetail" prefHeight="597.0" prefWidth="414.0" visible="false">
                    <children>
 
-                      <Label fx:id="lblTitlePatientDetail" alignment="TOP_CENTER" layoutX="198.0" layoutY="26.0" prefHeight="35.0" prefWidth="506.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Marcos Pérez Pérez" textAlignment="CENTER" textFill="#dfd2d2" />
+                      <Label fx:id="lblTitlePatientDetail" alignment="TOP_CENTER" layoutX="149.0" layoutY="26.0" prefHeight="35.0" prefWidth="483.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Marcos Pérez Pérez" textAlignment="CENTER" textFill="#dfd2d2" />
                       <Line endX="417.0" endY="-67.0" fill="BLACK" layoutX="345.0" layoutY="139.0" startX="-138.19998168945312" startY="-67.0" stroke="#a39e9ea9" />
-                       <Button fx:id="btnEditPatient" alignment="CENTER" layoutX="592.0" layoutY="30.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="83.0" style="-fx-border-color: #ed9609; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Edit">
+                       <Button fx:id="btnEditPatient" alignment="CENTER" layoutX="646.0" layoutY="30.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="83.0" style="-fx-border-color: #ed9609; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Edit">
                            <HBox.margin>
                                <Insets />
                            </HBox.margin>
@@ -258,7 +258,7 @@
                 <!--       RECORD DETAIL       -->
                 <Pane fx:id="pnlRecordDetail" prefHeight="597.0" prefWidth="414.0" visible="false">
                     <children>
-                        <Label fx:id="lblTitleRecordDetail" alignment="TOP_CENTER" layoutX="198.0" layoutY="26.0" prefHeight="35.0" prefWidth="506.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Marcos Pérez Pérez" textAlignment="CENTER" textFill="#dfd2d2" />
+                        <Label fx:id="lblTitleRecordDetail" alignment="TOP_CENTER" layoutX="112.0" layoutY="26.0" prefHeight="35.0" prefWidth="468.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Marcos Pérez Pérez" textAlignment="CENTER" textFill="#dfd2d2" />
                         <Line endX="417.0" endY="-67.0" fill="BLACK" layoutX="345.0" layoutY="139.0" startX="-138.19998168945312" startY="-67.0" stroke="#a39e9ea9" />
                         <Button fx:id="btnSavePdfRecordDetail" alignment="CENTER" layoutX="592.0" layoutY="30.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="83.0" style="-fx-border-color: #ed9609; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Save PDF">
                             <HBox.margin>
@@ -407,7 +407,7 @@
                   </ImageView>
                </children>
             </Pane>
-                <Pane fx:id="pnlUsersList" prefHeight="200.0" prefWidth="200.0">
+                <Pane fx:id="pnlUsersList" prefHeight="200.0" prefWidth="200.0" visible="false">
                     <children>
 
 
