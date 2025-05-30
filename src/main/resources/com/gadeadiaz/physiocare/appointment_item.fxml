@@ -23,7 +23,10 @@
                 <Insets />
             </HBox.margin>
         </Label>
-      <Label fx:id="lblDiagnosis" alignment="CENTER" prefHeight="18.0" prefWidth="305.0" text="Paciente bastante tocado de la cabeza" textFill="#b7c3d7" />
+      <Label fx:id="lblDiagnosis" alignment="CENTER" prefHeight="18.0" prefWidth="305.0" text="Paciente bastante tocado de la cabeza" textFill="#b7c3d7">
+         <HBox.margin>
+            <Insets left="10.0" />
+         </HBox.margin></Label>
       <Button fx:id="btnAccept" alignment="CENTER" mnemonicParsing="false" onAction="#acceptAppointment" prefHeight="27.0" prefWidth="78.0" style="-fx-border-color: #8fce00; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Accept" />
       <Button fx:id="btnDeny" alignment="CENTER" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#denyAppointment" prefHeight="27.0" prefWidth="76.0" style="-fx-border-color: #fa1f1f; -fx-border-radius: 20; -fx-background-color: transparent;" stylesheets="@style.css" text="Deny">
          <opaqueInsets>
